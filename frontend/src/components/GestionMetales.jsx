@@ -13,11 +13,12 @@ const GestionMetales = () => {
     
     // Estado para edición en línea
     const [editForm, setEditForm] = useState({ nombre: '', valor_por_gramo: '' });
+    const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000/api';
 
     const fetchMetales = async () => {
         setLoading(true);
         try {
-            const res = await axios.get('http://localhost:3000/api/metales');
+            const res = await axios.get(`${API_URL}/metales`);
             setMetales(res.data);
         } catch (err) {
             setError('Error al cargar metales');
@@ -34,7 +35,7 @@ const GestionMetales = () => {
         e.preventDefault();
         try {
             const token = localStorage.getItem('token');
-            await axios.post('http://localhost:3000/api/metales', nuevoMetal, {
+            await axios.post(`${API_URL}/metales`, nuevoMetal, {
                 headers: { Authorization: `Bearer ${token}` }
             });
             setNuevoMetal({ nombre: '', valor_por_gramo: '' });
@@ -57,7 +58,7 @@ const GestionMetales = () => {
     const guardarEdicion = async (id) => {
         try {
             const token = localStorage.getItem('token');
-            await axios.put(`http://localhost:3000/api/metales/${id}`, editForm, {
+            await axios.put(`${API_URL}/metales/${id}`, editForm, {
                 headers: { Authorization: `Bearer ${token}` }
             });
             setEditingId(null);

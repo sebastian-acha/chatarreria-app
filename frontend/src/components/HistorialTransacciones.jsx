@@ -28,6 +28,8 @@ const HistorialTransacciones = () => {
         order: 'DESC'
     });
 
+    const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000/api';
+
     // Función para cargar datos
     const fetchTransacciones = async () => {
         setLoading(true);
@@ -54,7 +56,7 @@ const HistorialTransacciones = () => {
                 if (params[key] === '' || params[key] === null) delete params[key];
             });
 
-            const response = await axios.get('http://localhost:3000/api/transacciones', {
+            const response = await axios.get(`${API_URL}/transacciones`, {
                 headers: { Authorization: `Bearer ${token}` },
                 params
             });
@@ -101,7 +103,7 @@ const HistorialTransacciones = () => {
     const imprimirVoucher = async (id) => {
         try {
             const token = localStorage.getItem('token');
-            const response = await axios.get(`http://localhost:3000/api/transacciones/${id}`, {
+            const response = await axios.get(`${API_URL}/transacciones/${id}`, {
                 headers: { Authorization: `Bearer ${token}` }
             });
             const data = response.data;

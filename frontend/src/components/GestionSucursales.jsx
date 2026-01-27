@@ -8,12 +8,13 @@ const GestionSucursales = () => {
     const [form, setForm] = useState({ nombre: '', direccion: '' });
     const [editingId, setEditingId] = useState(null);
     const [editForm, setEditForm] = useState({ nombre: '', direccion: '' });
+    const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000/api';
 
     const fetchSucursales = async () => {
         setLoading(true);
         try {
             const token = localStorage.getItem('token');
-            const res = await axios.get('http://localhost:3000/api/sucursales', {
+            const res = await axios.get(`${API_URL}/sucursales`, {
                 headers: { Authorization: `Bearer ${token}` }
             });
             setSucursales(res.data);
@@ -33,7 +34,7 @@ const GestionSucursales = () => {
         e.preventDefault();
         try {
             const token = localStorage.getItem('token');
-            await axios.post('http://localhost:3000/api/sucursales', form, {
+            await axios.post(`${API_URL}/sucursales`, form, {
                 headers: { Authorization: `Bearer ${token}` }
             });
             setForm({ nombre: '', direccion: '' });
@@ -57,7 +58,7 @@ const GestionSucursales = () => {
     const handleUpdate = async (id) => {
         try {
             const token = localStorage.getItem('token');
-            await axios.put(`http://localhost:3000/api/sucursales/${id}`, editForm, {
+            await axios.put(`${API_URL}/sucursales/${id}`, editForm, {
                 headers: { Authorization: `Bearer ${token}` }
             });
             setEditingId(null);

@@ -14,11 +14,12 @@ const NuevaCompra = () => {
     const [mensaje, setMensaje] = useState({ type: '', text: '' });
     const [voucher, setVoucher] = useState(null);
 
+    const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000/api';
     // Cargar lista de metales al montar el componente
     useEffect(() => {
         const fetchMetales = async () => {
             try {
-                const res = await axios.get('http://localhost:3000/api/metales');
+                const res = await axios.get(`${API_URL}/metales`);
                 setMetales(res.data);
             } catch (error) {
                 console.error("Error cargando metales", error);
@@ -45,7 +46,7 @@ const NuevaCompra = () => {
 
         try {
             const token = localStorage.getItem('token');
-            const res = await axios.post('http://localhost:3000/api/transacciones', formData, {
+            const res = await axios.post(`${API_URL}/transacciones`, formData, {
                 headers: { Authorization: `Bearer ${token}` }
             });
             

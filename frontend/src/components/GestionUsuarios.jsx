@@ -14,14 +14,15 @@ const GestionUsuarios = () => {
         rol: 'EJECUTIVO',
         sucursal_id: ''
     });
+    const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000/api';
 
     const fetchData = async () => {
         setLoading(true);
         try {
             const token = localStorage.getItem('token');
             const [resUsuarios, resSucursales] = await Promise.all([
-                axios.get('http://localhost:3000/api/usuarios', { headers: { Authorization: `Bearer ${token}` } }),
-                axios.get('http://localhost:3000/api/sucursales', { headers: { Authorization: `Bearer ${token}` } })
+                axios.get(`${API_URL}/usuarios`, { headers: { Authorization: `Bearer ${token}` } }),
+                axios.get(`${API_URL}/sucursales`, { headers: { Authorization: `Bearer ${token}` } })
             ]);
             setUsuarios(resUsuarios.data);
             setSucursales(resSucursales.data);
@@ -49,7 +50,7 @@ const GestionUsuarios = () => {
         }
         try {
             const token = localStorage.getItem('token');
-            await axios.post('http://localhost:3000/api/usuarios', form, {
+            await axios.post(`${API_URL}/usuarios`, form, {
                 headers: { Authorization: `Bearer ${token}` }
             });
             alert('Usuario creado con éxito');
