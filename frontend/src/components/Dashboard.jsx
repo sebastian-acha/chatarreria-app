@@ -4,7 +4,9 @@ import HistorialTransacciones from './HistorialTransacciones';
 import NuevaCompra from './NuevaCompra';
 import GestionMetales from './GestionMetales';
 import ReporteDiario from './ReporteDiario';
-import { LogOut, LayoutDashboard, ShoppingCart, Settings, Menu, BarChart3 } from 'lucide-react';
+import GestionUsuarios from './GestionUsuarios';
+import GestionSucursales from './GestionSucursales';
+import { LogOut, LayoutDashboard, ShoppingCart, Settings, Menu, BarChart3, Users, Building } from 'lucide-react';
 
 const Dashboard = () => {
     const navigate = useNavigate();
@@ -24,6 +26,8 @@ const Dashboard = () => {
             case 'nueva-compra': return <NuevaCompra />;
             case 'metales': return <GestionMetales />;
             case 'reporte': return <ReporteDiario />;
+            case 'usuarios': return <GestionUsuarios />;
+            case 'sucursales': return <GestionSucursales />;
             default: return <HistorialTransacciones />;
         }
     };
@@ -68,6 +72,24 @@ const Dashboard = () => {
                         onClick={() => setVistaActual('reporte')}
                         expanded={sidebarOpen}
                     />
+                    {usuario.rol === 'ADMIN' && (
+                        <>
+                            <BotonMenu 
+                                icon={<Users size={20} />} 
+                                label="Usuarios" 
+                                active={vistaActual === 'usuarios'} 
+                                onClick={() => setVistaActual('usuarios')}
+                                expanded={sidebarOpen}
+                            />
+                            <BotonMenu 
+                                icon={<Building size={20} />} 
+                                label="Sucursales" 
+                                active={vistaActual === 'sucursales'} 
+                                onClick={() => setVistaActual('sucursales')}
+                                expanded={sidebarOpen}
+                            />
+                        </>
+                    )}
                 </nav>
 
                 <div className="p-4 border-t border-gray-800">

@@ -3,6 +3,8 @@ const cors = require('cors');
 const db = require('./config/db'); // Importamos nuestra conexión
 const authRoutes = require('./routes/authRoutes'); // Importamos rutas de auth
 const metalRoutes = require('./routes/metalRoutes'); // Importamos rutas de metales
+const sucursalRoutes = require('./routes/sucursalRoutes'); // Importar rutas de sucursales
+const userRoutes = require('./routes/userRoutes'); // Importar rutas de usuarios
 const transaccionRoutes = require('./routes/transaccionRoutes'); // Importamos rutas de transacciones
 require('dotenv').config();
 
@@ -20,6 +22,8 @@ app.use(express.json()); // Permite recibir datos en formato JSON (req.body)
 // Rutas de la API
 app.use('/api/auth', authRoutes);
 app.use('/api/metales', metalRoutes);
+app.use('/api/sucursales', sucursalRoutes);
+app.use('/api/usuarios', userRoutes);
 app.use('/api/transacciones', transaccionRoutes);
 
 // Ruta de prueba para verificar la base de datos
