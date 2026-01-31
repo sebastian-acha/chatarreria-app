@@ -22,6 +22,6 @@ module.exports = (req, res, next) => {
         
         next();
     } catch (error) {
-        res.status(401).json({ error: 'Token inválido o expirado.' });
+        res.status(401).json({ error: 'Token inválido o expirado. Intenta volver a iniciar sesión' });
     }
 };

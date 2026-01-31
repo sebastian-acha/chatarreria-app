@@ -34,19 +34,27 @@ CREATE TABLE IF NOT EXISTS transacciones (
     id SERIAL PRIMARY KEY, -- Número correlativo del voucher
     sucursal_id INT REFERENCES sucursales(id),
     ejecutivo_id INT REFERENCES usuarios(id),
-    metal_id INT REFERENCES metales(id),
     
     -- Datos del Cliente
     cliente_nombre VARCHAR(150) NOT NULL,
     cliente_rut_dni VARCHAR(20),
     
-    -- Datos de la Compra (Snapshot del momento)
-    peso_gramos DECIMAL(10, 2) NOT NULL,
-    valor_gramo_aplicado DECIMAL(10, 2) NOT NULL,
+    -- Datos Consolidados de la Compra
     total_pagar DECIMAL(12, 2) NOT NULL,
     
     fecha_hora TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
+
+-- 5. Tabla de Detalles de Transacción
+CREATE TABLE IF NOT EXISTS transaccion_detalles (
+    id SERIAL PRIMARY KEY,
+    transaccion_id INT NOT NULL REFERENCES transacciones(id) ON DELETE CASCADE,
+    metal_id INT NOT NULL REFERENCES metales(id),
+    peso_gramos DECIMAL(10, 2) NOT NULL,
+    valor_gramo_aplicado DECIMAL(10, 2) NOT NULL,
+    subtotal DECIMAL(12, 2) NOT NULL
+);
+
 
 -- DATOS DE PRUEBA (SEED)
 

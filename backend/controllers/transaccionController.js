@@ -2,147 +2,169 @@ const db = require('../config/db');
 const XLSX = require('xlsx');
 
 exports.crearTransaccion = async (req, res) => {
-    const { metal_id, peso_gramos, cliente_nombre, cliente_rut_dni } = req.body;
+    // El cuerpo ahora espera un array de metales
+    const { cliente_nombre, cliente_rut_dni, metales } = req.body;
     
-    // Estos datos vienen del token JWT (authMiddleware)
+    // Datos del token JWT
     const ejecutivo_id = req.user.id;
     const sucursal_id = req.user.sucursal_id;
 
-    // Validaciones básicas
-    if (!metal_id || !peso_gramos || !cliente_nombre) {
-        return res.status(400).json({ error: 'Faltan datos obligatorios (metal, peso, cliente)' });
+    // --- Validaciones ---
+    if (!cliente_nombre || !metales || !Array.isArray(metales) || metales.length === 0) {
+        return res.status(400).json({ error: 'Faltan datos obligatorios: cliente o lista de metales.' });
     }
 
-    if (peso_gramos <= 0) {
-        return res.status(400).json({ error: 'El peso debe ser mayor a 0' });
+    // Validar cada item en el array de metales
+    for (const metal of metales) {
+        if (!metal.metal_id || !metal.peso_gramos || parseFloat(metal.peso_gramos) <= 0) {
+            return res.status(400).json({ error: `Datos de metal inválidos: ${JSON.stringify(metal)}` });
+        }
     }
+
+    const client = await db.getClient();
 
     try {
-        // 1. Obtener precio actual del metal desde la BD (Seguridad)
-        const metalResult = await db.query('SELECT * FROM metales WHERE id = $1', [metal_id]);
+        await client.query('BEGIN');
+
+        // 1. Obtener precios de TODOS los metales implicados en una sola consulta
+        const metalIds = metales.map(m => m.metal_id);
+        const preciosResult = await client.query('SELECT id, nombre, valor_por_gramo FROM metales WHERE id = ANY($1::int[])', [metalIds]);
         
-        if (metalResult.rows.length === 0) {
-            return res.status(404).json({ error: 'Metal no encontrado' });
+        if (preciosResult.rows.length !== metalIds.length) {
+            throw new Error('Uno o más de los metales especificados no existen.');
         }
 
-        const metal = metalResult.rows[0];
-        const valor_gramo_aplicado = parseFloat(metal.valor_por_gramo);
-        const peso = parseFloat(peso_gramos);
-        
-        // 2. Calcular total
-        const total_pagar = peso * valor_gramo_aplicado;
+        const preciosMap = new Map(preciosResult.rows.map(p => [p.id, { nombre: p.nombre, valor: parseFloat(p.valor_por_gramo) }]));
 
-        // 3. Insertar transacción
-        const query = `
-            INSERT INTO transacciones 
-            (sucursal_id, ejecutivo_id, metal_id, cliente_nombre, cliente_rut_dni, peso_gramos, valor_gramo_aplicado, total_pagar)
-            VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
+        // 2. Calcular subtotales y total general
+        let total_pagar = 0;
+        const detallesParaInsertar = metales.map(m => {
+            const precioInfo = preciosMap.get(m.metal_id);
+            if (!precioInfo) {
+                throw new Error(`No se encontró el precio para el metal con ID ${m.metal_id}.`);
+            }
+            const peso = parseFloat(m.peso_gramos);
+            const subtotal = peso * precioInfo.valor;
+            total_pagar += subtotal;
+
+            return {
+                metal_id: m.metal_id,
+                peso_gramos: peso,
+                valor_gramo_aplicado: precioInfo.valor,
+                subtotal
+            };
+        });
+        
+        // 3. Insertar la transacción principal
+        const transaccionQuery = `
+            INSERT INTO transacciones (sucursal_id, ejecutivo_id, cliente_nombre, cliente_rut_dni, total_pagar)
+            VALUES ($1, $2, $3, $4, $5)
             RETURNING id, fecha_hora
         `;
-        
-        const values = [
-            sucursal_id, 
-            ejecutivo_id, 
-            metal_id, 
-            cliente_nombre, 
-            cliente_rut_dni, 
-            peso, 
-            valor_gramo_aplicado, 
-            total_pagar
-        ];
-
-        const transaccionResult = await db.query(query, values);
+        const transaccionValues = [sucursal_id, ejecutivo_id, cliente_nombre, cliente_rut_dni, total_pagar];
+        const transaccionResult = await client.query(transaccionQuery, transaccionValues);
         const nuevaTransaccion = transaccionResult.rows[0];
 
-        // 4. Responder con datos listos para imprimir el voucher
+        // 4. Insertar los detalles de la transacción
+        const transaccionId = nuevaTransaccion.id;
+        const detallesQuery = `
+            INSERT INTO transaccion_detalles (transaccion_id, metal_id, peso_gramos, valor_gramo_aplicado, subtotal)
+            SELECT $1, unnest($2::int[]), unnest($3::decimal[]), unnest($4::decimal[]), unnest($5::decimal[])
+        `;
+        const detallesValues = [
+            transaccionId,
+            detallesParaInsertar.map(d => d.metal_id),
+            detallesParaInsertar.map(d => d.peso_gramos),
+            detallesParaInsertar.map(d => d.valor_gramo_aplicado),
+            detallesParaInsertar.map(d => d.subtotal),
+        ];
+        await client.query(detallesQuery, detallesValues);
+        
+        await client.query('COMMIT');
+
+        // 5. Responder con datos para el voucher
         res.status(201).json({
             mensaje: 'Compra registrada exitosamente',
             voucher: {
-                correlativo: nuevaTransaccion.id,
+                correlativo: transaccionId,
                 fecha: nuevaTransaccion.fecha_hora,
                 sucursal_id,
                 ejecutivo_id,
-                cliente: {
-                    nombre: cliente_nombre,
-                    rut: cliente_rut_dni
-                },
-                detalle: {
-                    metal: metal.nombre,
-                    peso_gramos: peso,
-                    precio_unitario: valor_gramo_aplicado,
-                    total: total_pagar
-                }
+                cliente: { nombre: cliente_nombre, rut: cliente_rut_dni },
+                total_pagado: total_pagar,
+                detalles: detallesParaInsertar.map(d => ({
+                    metal: preciosMap.get(d.metal_id).nombre,
+                    peso_gramos: d.peso_gramos,
+                    precio_unitario: d.valor_gramo_aplicado,
+                    subtotal: d.subtotal
+                }))
             }
         });
 
     } catch (error) {
+        await client.query('ROLLBACK');
         console.error('Error al crear transacción:', error);
-        res.status(500).json({ error: 'Error del servidor al procesar la compra' });
+        res.status(500).json({ error: 'Error del servidor al procesar la compra', detalle: error.message });
+    } finally {
+        client.release();
     }
 };
 
-// Listar historial de transacciones con paginación y filtros
 exports.listarTransacciones = async (req, res) => {
     try {
         const { page = 1, limit = 20, sort = 'id', order = 'DESC', metal_id, fecha_inicio, fecha_fin } = req.query;
-
         const offset = (page - 1) * limit;
         
-        // Whitelist para evitar SQL Injection en el ORDER BY
-        const validSortFields = ['id', 'fecha_hora', 'peso_gramos', 'total_pagar', 'metal_nombre'];
-        const sortBy = validSortFields.includes(sort) ? sort : 'id';
+        const validSortFields = ['id', 'fecha_hora', 'cliente_nombre', 'total_pagar'];
+        const sortBy = validSortFields.includes(sort) ? `t.${sort}` : 't.id';
         const sortOrder = order.toUpperCase() === 'ASC' ? 'ASC' : 'DESC';
 
-        // Construcción dinámica de filtros
-        let whereClause = '';
         const values = [];
         let paramIndex = 1;
-
+        
+        // Cláusula WHERE para filtros
+        let whereClauses = ["1=1"];
+        if (fecha_inicio) {
+            whereClauses.push(`t.fecha_hora >= $${paramIndex++}`);
+            values.push(fecha_inicio);
+        }
+        if (fecha_fin) {
+            whereClauses.push(`t.fecha_hora <= $${paramIndex++}`);
+            values.push(fecha_fin);
+        }
         if (metal_id) {
-            whereClause += ` AND t.metal_id = $${paramIndex++}`;
+            whereClauses.push(`EXISTS (SELECT 1 FROM transaccion_detalles td WHERE td.transaccion_id = t.id AND td.metal_id = $${paramIndex++})`);
             values.push(metal_id);
         }
 
-        if (fecha_inicio) {
-            whereClause += ` AND t.fecha_hora >= $${paramIndex++}`;
-            values.push(fecha_inicio);
-        }
-
-        if (fecha_fin) {
-            whereClause += ` AND t.fecha_hora <= $${paramIndex++}`;
-            values.push(fecha_fin);
-        }
-
-        // Consulta con Window Function para obtener total y datos en una sola ejecución
         const query = `
             SELECT 
-                t.id,
-                t.fecha_hora,
-                t.cliente_nombre,
-                t.cliente_rut_dni,
-                t.peso_gramos,
-                t.valor_gramo_aplicado,
-                t.total_pagar,
-                m.nombre as metal_nombre,
+                t.id, t.fecha_hora, t.cliente_nombre, t.cliente_rut_dni, t.total_pagar,
                 u.nombres as ejecutivo_nombre,
                 s.nombre as sucursal_nombre,
+                (SELECT json_agg(json_build_object(
+                    'metal_nombre', m.nombre,
+                    'peso_gramos', td.peso_gramos,
+                    'valor_gramo_aplicado', td.valor_gramo_aplicado,
+                    'subtotal', td.subtotal
+                ))
+                FROM transaccion_detalles td
+                JOIN metales m ON td.metal_id = m.id
+                WHERE td.transaccion_id = t.id
+                ) as detalles,
                 COUNT(*) OVER() as total_count
             FROM transacciones t
-            JOIN metales m ON t.metal_id = m.id
             LEFT JOIN usuarios u ON t.ejecutivo_id = u.id
             LEFT JOIN sucursales s ON t.sucursal_id = s.id
-            WHERE 1=1 ${whereClause}
-            ORDER BY ${sortBy === 'metal_nombre' ? 'm.nombre' : 't.' + sortBy} ${sortOrder}
+            WHERE ${whereClauses.join(' AND ')}
+            ORDER BY ${sortBy} ${sortOrder}
             LIMIT $${paramIndex++} OFFSET $${paramIndex++}
         `;
 
         values.push(limit, offset);
-
         const result = await db.query(query, values);
 
         const total = result.rows.length > 0 ? parseInt(result.rows[0].total_count) : 0;
-        
-        // Limpiar el campo total_count de los resultados individuales
         const data = result.rows.map(row => {
             const { total_count, ...rest } = row;
             return rest;
@@ -164,55 +186,52 @@ exports.listarTransacciones = async (req, res) => {
     }
 };
 
-// Obtener detalles de una transacción específica (para reimprimir voucher)
 exports.obtenerTransaccion = async (req, res) => {
     const { id } = req.params;
-
     try {
         const query = `
             SELECT 
-                t.id,
-                t.fecha_hora,
-                t.cliente_nombre,
-                t.cliente_rut_dni,
-                t.peso_gramos,
-                t.valor_gramo_aplicado,
-                t.total_pagar,
-                m.nombre as metal_nombre,
+                t.id, t.fecha_hora, t.cliente_nombre, t.cliente_rut_dni, t.total_pagar,
                 u.nombres as ejecutivo_nombre,
-                s.nombre as sucursal_nombre
+                s.nombre as sucursal_nombre,
+                (SELECT json_agg(json_build_object(
+                    'metal_nombre', m.nombre,
+                    'peso_gramos', td.peso_gramos,
+                    'valor_gramo_aplicado', td.valor_gramo_aplicado,
+                    'subtotal', td.subtotal
+                ))
+                FROM transaccion_detalles td
+                JOIN metales m ON td.metal_id = m.id
+                WHERE td.transaccion_id = t.id
+                ) as detalles
             FROM transacciones t
-            JOIN metales m ON t.metal_id = m.id
             LEFT JOIN usuarios u ON t.ejecutivo_id = u.id
             LEFT JOIN sucursales s ON t.sucursal_id = s.id
             WHERE t.id = $1
         `;
-
         const result = await db.query(query, [id]);
 
         if (result.rows.length === 0) {
             return res.status(404).json({ error: 'Transacción no encontrada' });
         }
-
         res.json(result.rows[0]);
-
     } catch (error) {
         console.error('Error al obtener transacción:', error);
-        res.status(500).json({ error: 'Error del servidor al obtener la transacción' });
+        res.status(500).json({ error: 'Error del servidor' });
     }
 };
 
-// Reporte diario de compras por metal
 exports.obtenerReporteDiario = async (req, res) => {
     try {
         const query = `
             SELECT 
                 m.nombre as metal, 
-                SUM(t.peso_gramos) as total_gramos, 
-                SUM(t.total_pagar) as total_pagado,
-                COUNT(t.id) as cantidad_transacciones
-            FROM transacciones t
-            JOIN metales m ON t.metal_id = m.id
+                SUM(td.peso_gramos) as total_gramos, 
+                SUM(td.subtotal) as total_pagado,
+                COUNT(DISTINCT td.transaccion_id) as cantidad_transacciones
+            FROM transaccion_detalles td
+            JOIN metales m ON td.metal_id = m.id
+            JOIN transacciones t ON td.transaccion_id = t.id
             WHERE t.fecha_hora::date = CURRENT_DATE
             GROUP BY m.nombre
             ORDER BY total_gramos DESC
@@ -225,24 +244,24 @@ exports.obtenerReporteDiario = async (req, res) => {
     }
 };
 
-// Exportar reporte diario a Excel
 exports.exportarReporteDiarioExcel = async (req, res) => {
     try {
+        // La misma consulta que obtenerReporteDiario
         const query = `
             SELECT 
                 m.nombre as metal, 
-                SUM(t.peso_gramos) as total_gramos, 
-                SUM(t.total_pagar) as total_pagado,
-                COUNT(t.id) as cantidad_transacciones
-            FROM transacciones t
-            JOIN metales m ON t.metal_id = m.id
+                SUM(td.peso_gramos) as total_gramos, 
+                SUM(td.subtotal) as total_pagado,
+                COUNT(DISTINCT td.transaccion_id) as cantidad_transacciones
+            FROM transaccion_detalles td
+            JOIN metales m ON td.metal_id = m.id
+            JOIN transacciones t ON td.transaccion_id = t.id
             WHERE t.fecha_hora::date = CURRENT_DATE
             GROUP BY m.nombre
             ORDER BY total_gramos DESC
         `;
         const result = await db.query(query);
 
-        // Formatear datos para Excel
         const data = result.rows.map(row => ({
             'Metal': row.metal,
             'Transacciones': parseInt(row.cantidad_transacciones),
@@ -250,15 +269,10 @@ exports.exportarReporteDiarioExcel = async (req, res) => {
             'Total Pagado ($)': parseFloat(row.total_pagado).toFixed(2)
         }));
 
-        // Crear libro y hoja
         const wb = XLSX.utils.book_new();
         const ws = XLSX.utils.json_to_sheet(data);
-        
-        // Ajustar ancho de columnas
         ws['!cols'] = [{wch: 20}, {wch: 15}, {wch: 15}, {wch: 20}];
-
         XLSX.utils.book_append_sheet(wb, ws, "Reporte Diario");
-
         const buffer = XLSX.write(wb, { type: 'buffer', bookType: 'xlsx' });
 
         res.setHeader('Content-Disposition', 'attachment; filename="Reporte_Diario.xlsx"');
