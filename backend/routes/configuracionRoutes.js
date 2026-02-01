@@ -3,8 +3,20 @@ const router = express.Router();
 const configuracionController = require('../controllers/configuracionController');
 const authMiddleware = require('../middleware/authMiddleware');
 const adminMiddleware = require('../middleware/adminMiddleware');
+const multer = require('multer');
+
+// Configuración de Multer para subida de logos
+const storage = multer.diskStorage({
+    destination: function (req, file, cb) {
+        cb(null, 'uploads/');
+    },
+    filename: function (req, file, cb) {
+        cb(null, Date.now() + '-' + file.originalname);
+    }
+});
+const upload = multer({ storage: storage });
 
 router.get('/', authMiddleware, configuracionController.getConfiguracion);
-router.put('/', authMiddleware, adminMiddleware, configuracionController.updateConfiguracion);
+router.put('/', [authMiddleware, adminMiddleware, upload.single('logo')], configuracionController.updateConfiguracion);
 
 module.exports = router;

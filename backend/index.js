@@ -19,6 +19,7 @@ const app = express();
 // Middlewares
 app.use(cors()); // Permite que el frontend (React) se comunique con este backend
 app.use(express.json()); // Permite recibir datos en formato JSON (req.body)
+app.use('/uploads', express.static('uploads')); // Servir archivos estáticos
 
 // Rutas de la API
 app.use('/api/auth', authRoutes);
