@@ -6,6 +6,7 @@ const metalRoutes = require('./routes/metalRoutes'); // Importamos rutas de meta
 const sucursalRoutes = require('./routes/sucursalRoutes'); // Importar rutas de sucursales
 const userRoutes = require('./routes/userRoutes'); // Importar rutas de usuarios
 const transaccionRoutes = require('./routes/transaccionRoutes'); // Importamos rutas de transacciones
+const configuracionRoutes = require('./routes/configuracionRoutes'); // Importamos rutas de configuración
 require('dotenv').config();
 
 // Verificación de seguridad: Validar que db.query existe
@@ -25,6 +26,7 @@ app.use('/api/metales', metalRoutes);
 app.use('/api/sucursales', sucursalRoutes);
 app.use('/api/usuarios', userRoutes);
 app.use('/api/transacciones', transaccionRoutes);
+app.use('/api/configuracion', configuracionRoutes);
 
 // Ruta de prueba para verificar la base de datos
 app.get('/test-db', async (req, res) => {

@@ -55,8 +55,24 @@ CREATE TABLE IF NOT EXISTS transaccion_detalles (
     subtotal DECIMAL(12, 2) NOT NULL
 );
 
+-- 6. Tabla de Configuración de la Empresa (Singleton)
+CREATE TABLE IF NOT EXISTS configuracion_empresa (
+    id INT PRIMARY KEY DEFAULT 1,
+    nombre VARCHAR(255) NOT NULL DEFAULT 'Chatarrería',
+    direccion TEXT,
+    telefono VARCHAR(50),
+    email VARCHAR(100),
+    logo_url TEXT,
+    CHECK (id = 1) -- Asegura que solo haya una fila
+);
+
 
 -- DATOS DE PRUEBA (SEED)
+
+-- Insertar configuración inicial (si no existe)
+INSERT INTO configuracion_empresa (id, nombre)
+VALUES (1, 'Mi Chatarrería')
+ON CONFLICT (id) DO NOTHING;
 
 -- Insertar una sucursal inicial
 INSERT INTO sucursales (nombre, direccion) 
@@ -73,3 +89,14 @@ ON CONFLICT DO NOTHING;
 
 -- NOTA: Para insertar el usuario Admin, necesitaremos generar el hash de la contraseña primero.
 -- Lo haremos desde la aplicación o con un script auxiliar más adelante.
+CREATE TABLE configuracion (
+    id SERIAL PRIMARY KEY,
+    nombre_empresa VARCHAR(255),
+    direccion VARCHAR(255),
+    telefono VARCHAR(50),
+    email VARCHAR(255),
+    logo_url VARCHAR(255)
+);
+
+INSERT INTO configuracion (id, nombre_empresa) VALUES (1, 'Chatarrería');
+

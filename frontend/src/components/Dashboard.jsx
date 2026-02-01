@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useContext } from 'react';
 import { useNavigate } from 'react-router-dom';
 import HistorialTransacciones from './HistorialTransacciones';
 import NuevaCompra from './NuevaCompra';
@@ -6,13 +6,16 @@ import GestionMetales from './GestionMetales';
 import ReporteDiario from './ReporteDiario';
 import GestionUsuarios from './GestionUsuarios';
 import GestionSucursales from './GestionSucursales';
-import { LogOut, LayoutDashboard, ShoppingCart, Settings, Menu, BarChart3, Users, Building } from 'lucide-react';
+import Configuracion from './Configuracion';
+import { LogOut, LayoutDashboard, ShoppingCart, Settings, Menu, BarChart3, Users, Building, Cog } from 'lucide-react';
+import { ConfiguracionContext } from '../context/ConfiguracionContext';
 
 const Dashboard = () => {
     const navigate = useNavigate();
     const usuario = JSON.parse(localStorage.getItem('usuario') || '{}');
     const [vistaActual, setVistaActual] = useState('historial');
     const [sidebarOpen, setSidebarOpen] = useState(true);
+    const { configuracion } = useContext(ConfiguracionContext);
 
     const handleLogout = () => {
         localStorage.removeItem('token');
@@ -28,6 +31,7 @@ const Dashboard = () => {
             case 'reporte': return <ReporteDiario />;
             case 'usuarios': return <GestionUsuarios />;
             case 'sucursales': return <GestionSucursales />;
+            case 'configuracion': return <Configuracion />;
             default: return <HistorialTransacciones />;
         }
     };
@@ -37,7 +41,12 @@ const Dashboard = () => {
             {/* Sidebar */}
             <aside className={`bg-gray-900 text-white transition-all duration-300 ${sidebarOpen ? 'w-64' : 'w-20'} flex flex-col`}>
                 <div className="p-4 flex items-center justify-between">
-                    {sidebarOpen && <h1 className="text-xl font-bold">Chatarrería</h1>}
+                    {sidebarOpen && (
+                        <div className="flex items-center gap-2">
+                            {configuracion?.logo_url && <img src={configuracion.logo_url} alt="Logo" className="h-8" />}
+                            <h1 className="text-xl font-bold">{configuracion?.nombre_empresa || 'Chatarrería'}</h1>
+                        </div>
+                    )}
                     <button onClick={() => setSidebarOpen(!sidebarOpen)} className="p-1 hover:bg-gray-800 rounded">
                         <Menu size={24} />
                     </button>
@@ -88,6 +97,13 @@ const Dashboard = () => {
                                 onClick={() => setVistaActual('sucursales')}
                                 expanded={sidebarOpen}
                             />
+                            <BotonMenu 
+                                icon={<Cog size={20} />} 
+                                label="Configuración" 
+                                active={vistaActual === 'configuracion'} 
+                                onClick={() => setVistaActual('configuracion')}
+                                expanded={sidebarOpen}
+                            />
                         </>
                     )}
                 </nav>
@@ -123,6 +139,8 @@ const Dashboard = () => {
         </div>
     );
 };
+
+
 
 const BotonMenu = ({ icon, label, active, onClick, expanded }) => (
     <button 

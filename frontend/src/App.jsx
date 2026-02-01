@@ -3,6 +3,7 @@ import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import Login from './components/Login';
 import Dashboard from './components/Dashboard';
 import RutaPrivada from './components/RutaPrivada';
+import Configuracion from './components/Configuracion';
 
 function App() {
   return (
@@ -17,6 +18,14 @@ function App() {
           element={
             <RutaPrivada>
               <Dashboard />
+            </RutaPrivada>
+          } 
+        />
+        <Route 
+          path="/configuracion" 
+          element={
+            <RutaPrivada>
+              <Configuracion />
             </RutaPrivada>
           } 
         />

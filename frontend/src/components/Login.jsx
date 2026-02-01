@@ -1,7 +1,8 @@
-import React, { useState } from 'react';
+import React, { useState, useContext } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import { User, Lock, LogIn } from 'lucide-react';
+import { ConfiguracionContext } from '../context/ConfiguracionContext';
 
 const Login = () => {
     const [formData, setFormData] = useState({
@@ -11,6 +12,7 @@ const Login = () => {
     const [error, setError] = useState('');
     const [loading, setLoading] = useState(false);
     const navigate = useNavigate();
+    const { configuracion } = useContext(ConfiguracionContext);
 
     const handleChange = (e) => {
         setFormData({
@@ -50,7 +52,12 @@ const Login = () => {
         <div className="min-h-screen flex items-center justify-center bg-gray-100">
             <div className="bg-white p-8 rounded-lg shadow-md w-full max-w-md">
                 <div className="text-center mb-8">
-                    <h1 className="text-3xl font-bold text-gray-800">Chatarrería</h1>
+                    {configuracion?.logo_url && (
+                        <img src={configuracion.logo_url} alt="Logo" className="mx-auto h-16 mb-4" />
+                    )}
+                    <h1 className="text-3xl font-bold text-gray-800">
+                        {configuracion?.nombre_empresa || 'Chatarrería'}
+                    </h1>
                     <p className="text-gray-500">Sistema de Gestión</p>
                 </div>
 

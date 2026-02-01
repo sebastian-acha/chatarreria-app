@@ -1,6 +1,7 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import axios from 'axios';
 import { Printer, ArrowUpDown, ChevronLeft, ChevronRight, Search, ChevronDown, ChevronUp } from 'lucide-react';
+import { ConfiguracionContext } from '../context/ConfiguracionContext';
 
 const HistorialTransacciones = () => {
     const [transacciones, setTransacciones] = useState([]);
@@ -12,6 +13,7 @@ const HistorialTransacciones = () => {
     const [filtros, setFiltros] = useState({ fecha_inicio: '', fecha_fin: '', metal_id: '' });
     const [orden, setOrden] = useState({ sort: 'id', order: 'DESC' });
     const [metales, setMetales] = useState([]); // Para el filtro
+    const { configuracion } = useContext(ConfiguracionContext);
 
     const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000/api';
 
@@ -83,7 +85,8 @@ const HistorialTransacciones = () => {
                 <html>
                     <head><title>Voucher #${data.id}</title></head>
                     <body style="font-family: monospace; text-align: center; padding: 20px;">
-                        <h2>CHATARRERÍA</h2>
+                        ${configuracion?.logo_url ? `<img src="${configuracion.logo_url}" alt="Logo" style="mx-auto h-16 mb-4" />` : ''}
+                        <h2>${configuracion?.nombre_empresa || 'CHATARRERÍA'}</h2>
                         <p>Sucursal: ${data.sucursal_nombre || 'Central'}</p>
                         <p>Fecha: ${new Date(data.fecha_hora).toLocaleString()}</p>
                         <p>Voucher N°: <strong>${data.id}</strong></p>
@@ -121,7 +124,7 @@ const HistorialTransacciones = () => {
             <form onSubmit={handleSearch} className="bg-white p-6 rounded-xl shadow-sm border border-gray-200 mb-6 flex flex-wrap gap-4 items-end">
                 <input type="date" className="border p-2 rounded" value={filtros.fecha_inicio} onChange={e => setFiltros({...filtros, fecha_inicio: e.target.value})} />
                 <input type="date" className="border p-2 rounded" value={filtros.fecha_fin} onChange={e => setFiltros({...filtros, fecha_fin: e.target.value})} />
-                <select className="border p-2 rounded" value={filtros.metal_id} onChange={e => setFiltros({...filtros, metal_id: e.target.value})}>
+                <select className="border p-2 rounded" value={filtros.metal__id} onChange={e => setFiltros({...filtros, metal_id: e.target.value})}>
                     <option value="">Todos los metales</option>
                     {metales.map(m => <option key={m.id} value={m.id}>{m.nombre}</option>)}
                 </select>
