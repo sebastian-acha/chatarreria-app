@@ -25,7 +25,8 @@ exports.crearTransaccion = async (req, res) => {
 
     try {
         await client.query('BEGIN');
-
+        const configuracionResult = await client.query('SELECT logo_url FROM configuracion WHERE id = 1');
+        const logoUrl = configuracionResult.rows.length > 0 ? configuracionResult.rows[0].logo_url : null;
         // 1. Obtener precios de TODOS los metales implicados en una sola consulta
         const metalIds = metales.map(m => parseInt(m.metal_id, 10));
         const preciosResult = await client.query('SELECT id, nombre, valor_por_gramo FROM metales WHERE id = ANY($1::int[])', [metalIds]);
@@ -88,6 +89,7 @@ exports.crearTransaccion = async (req, res) => {
         res.status(201).json({
             mensaje: 'Compra registrada exitosamente',
             voucher: {
+                logo_url: logoUrl,
                 correlativo: transaccionId,
                 fecha: nuevaTransaccion.fecha_hora,
                 sucursal_id,

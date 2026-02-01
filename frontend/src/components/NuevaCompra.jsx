@@ -105,11 +105,14 @@ const NuevaCompra = () => {
             </div>
         `).join('<hr style="border-style: dashed;"/>');
 
+        const logoHTML = voucher.logo_url ? `<img src="${voucher.logo_url}" alt="Logo" style="max-width: 150px; margin: 0 auto 20px auto; display: block;">` : '';
+
         const ventana = window.open('', 'PRINT', 'height=600,width=400');
         ventana.document.write(`
             <html>
                 <head><title>Voucher #${voucher.correlativo}</title></head>
                 <body style="font-family: monospace; text-align: center; padding: 20px;">
+                    ${logoHTML}
                     <h2>CHATARRERÍA</h2>
                     <p>Fecha: ${new Date(voucher.fecha).toLocaleString()}</p>
                     <p>Voucher N°: <strong>${voucher.correlativo}</strong></p>
