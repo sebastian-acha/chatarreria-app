@@ -1,6 +1,6 @@
 const db = require('../config/db');
 
-exports.getConfi_guracion = async (req, res) => {
+exports.getConfiguracion = async (req, res) => {
     try {
         const result = await db.query('SELECT * FROM configuracion WHERE id = 1');
         res.json(result.rows[0]);
