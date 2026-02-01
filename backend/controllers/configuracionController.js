@@ -1,21 +1,12 @@
-const db = require('../config/db');
-
-exports.getConfiguracion = async (req, res) => {
-    try {
-        const result = await db.query('SELECT * FROM configuracion WHERE id = 1');
-        res.json(result.rows[0]);
-    } catch (error) {
-        console.error('Error al obtener la configuración:', error);
-        res.status(500).json({ message: 'Error interno del servidor' });
-    }
-};
-
 exports.updateConfiguracion = async (req, res) => {
     const { nombre_empresa, direccion, telefono, email } = req.body;
     let logo_url = null;
 
+    // Si el usuario subió una imagen, la procesamos desde el buffer
     if (req.file) {
-        logo_url = `/uploads/${req.file.filename}`;
+        const base64Image = req.file.buffer.toString('base64');
+        // Creamos un Data URI que el navegador pueda interpretar directamente como imagen
+        logo_url = `data:${req.file.mimetype};base64,${base64Image}`;
     }
 
     try {
@@ -23,6 +14,7 @@ exports.updateConfiguracion = async (req, res) => {
         let params;
 
         if (logo_url) {
+            // Guardamos la cadena de texto larga en la columna logo_url
             query = 'UPDATE configuracion SET nombre_empresa = $1, direccion = $2, telefono = $3, email = $4, logo_url = $5 WHERE id = 1 RETURNING *';
             params = [nombre_empresa, direccion, telefono, email, logo_url];
         } else {

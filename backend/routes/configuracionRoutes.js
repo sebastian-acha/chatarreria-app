@@ -6,14 +6,7 @@ const adminMiddleware = require('../middleware/adminMiddleware');
 const multer = require('multer');
 
 // Configuración de Multer para subida de logos
-const storage = multer.diskStorage({
-    destination: function (req, file, cb) {
-        cb(null, 'uploads/');
-    },
-    filename: function (req, file, cb) {
-        cb(null, Date.now() + '-' + file.originalname);
-    }
-});
+const storage = multer.memoryStorage();
 const upload = multer({ storage: storage });
 
 router.get('/', authMiddleware, configuracionController.getConfiguracion);
