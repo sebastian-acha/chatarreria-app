@@ -21,7 +21,7 @@ exports.crearTransaccion = async (req, res) => {
         }
     }
 
-    const client = await db.getClient();
+    const client = await db.connect();
 
     try {
         await client.query('BEGIN');
