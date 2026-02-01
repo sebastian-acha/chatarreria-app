@@ -27,7 +27,7 @@ exports.crearTransaccion = async (req, res) => {
         await client.query('BEGIN');
 
         // 1. Obtener precios de TODOS los metales implicados en una sola consulta
-        const metalIds = metales.map(m => m.metal_id);
+        const metalIds = metales.map(m => parseInt(m.metal_id, 10));
         const preciosResult = await client.query('SELECT id, nombre, valor_por_gramo FROM metales WHERE id = ANY($1::int[])', [metalIds]);
         
         if (preciosResult.rows.length !== metalIds.length) {
@@ -39,16 +39,18 @@ exports.crearTransaccion = async (req, res) => {
         // 2. Calcular subtotales y total general
         let total_pagar = 0;
         const detallesParaInsertar = metales.map(m => {
-            const precioInfo = preciosMap.get(m.metal_id);
+            const metalIdInt = parseInt(m.metal_id, 10);
+            const precioInfo = preciosMap.get(metalIdInt);
             if (!precioInfo) {
-                throw new Error(`No se encontró el precio para el metal con ID ${m.metal_id}.`);
+                // Esta validación ahora es más robusta.
+                throw new Error(`No se encontró el precio para el metal con ID ${metalIdInt}.`);
             }
             const peso = parseFloat(m.peso_gramos);
             const subtotal = peso * precioInfo.valor;
             total_pagar += subtotal;
 
             return {
-                metal_id: m.metal_id,
+                metal_id: metalIdInt,
                 peso_gramos: peso,
                 valor_gramo_aplicado: precioInfo.valor,
                 subtotal
