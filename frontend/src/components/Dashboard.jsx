@@ -42,9 +42,9 @@ const Dashboard = () => {
             <aside className={`bg-gray-900 text-white transition-all duration-300 ${sidebarOpen ? 'w-64' : 'w-20'} flex flex-col`}>
                 <div className="p-4 flex items-center justify-between">
                     {sidebarOpen && (
-                        <div className="flex items-center gap-2">
-                            {configuracion?.logo_url && <img src={configuracion.logo_url} alt="Logo" className="h-8" />}
-                            <h1 className="text-xl font-bold">{configuracion?.nombre_empresa || 'Chatarrería'}</h1>
+                        <div className="flex flex-col items-center gap-2 text-center">
+                            {configuracion?.logo_url && <img src={configuracion.logo_url} alt="Logo" className="h-8 mx-auto" />}
+                            <h1 className="text-lg font-bold">{configuracion?.nombre_empresa || 'Chatarrería'}</h1>
                         </div>
                     )}
                     <button onClick={() => setSidebarOpen(!sidebarOpen)} className="p-1 hover:bg-gray-800 rounded">
