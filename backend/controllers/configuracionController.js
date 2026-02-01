@@ -1,3 +1,14 @@
+const db = require('../config/db');
+
+exports.getConfiguracion = async (req, res) => {
+    try {
+        const result = await db.query('SELECT * FROM configuracion WHERE id = 1');
+        res.json(result.rows[0]);
+    } catch (error) {
+        console.error('Error al obtener la configuración:', error);
+        res.status(500).json({ message: 'Error interno del servidor' });
+    }
+};
 exports.updateConfiguracion = async (req, res) => {
     const { nombre_empresa, direccion, telefono, email } = req.body;
     let logo_url = null;
