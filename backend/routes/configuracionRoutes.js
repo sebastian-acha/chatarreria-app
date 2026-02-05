@@ -9,7 +9,7 @@ const multer = require('multer');
 const storage = multer.memoryStorage();
 const upload = multer({ storage: storage });
 
-router.get('/', authMiddleware, configuracionController.getConfiguracion);
+router.get('/', configuracionController.getConfiguracion);
 router.put('/', [authMiddleware, adminMiddleware, upload.single('logo')], configuracionController.updateConfiguracion);
 
 module.exports = router;

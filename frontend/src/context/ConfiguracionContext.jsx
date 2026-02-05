@@ -9,13 +9,8 @@ export const ConfiguracionProvider = ({ children }) => {
     useEffect(() => {
         const fetchConfiguracion = async () => {
             try {
-                const token = localStorage.getItem('token');
-                if (token) {
-                    const res = await axios.get('/api/configuracion', {
-                        headers: { Authorization: `Bearer ${token}` }
-                    });
-                    setConfiguracion(res.data);
-                }
+                const res = await axios.get('/api/configuracion');
+                setConfiguracion(res.data);
             } catch (error) {
                 console.error('Error al obtener la configuración:', error);
             }
