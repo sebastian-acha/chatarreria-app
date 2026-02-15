@@ -52,7 +52,7 @@ const seedAdmin = async () => {
         process.exit(1);
     } finally {
         // Cerramos la conexión para que el script termine
-        await db.pool.end();
+        await db.end();
     }
 };
 
