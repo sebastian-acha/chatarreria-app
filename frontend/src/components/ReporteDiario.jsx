@@ -19,7 +19,7 @@ const ReporteDiario = () => {
                 setDatos(res.data);
                 
                 // Calcular totales generales
-                const totalK = res.data.reduce((acc, curr) => acc + parseFloat(curr.total_gramos), 0) / 1000;
+                const totalK = res.data.reduce((acc, curr) => acc + parseFloat(curr.total_kilos || 0), 0);
                 const totalD = res.data.reduce((acc, curr) => acc + parseFloat(curr.total_pagado), 0);
                 setResumen({ totalKilos: totalK, totalDinero: totalD });
 
@@ -55,7 +55,7 @@ const ReporteDiario = () => {
     };
 
     // Calcular el valor máximo para escalar el gráfico
-    const maxVal = datos.length > 0 ? Math.max(...datos.map(d => parseFloat(d.total_gramos) / 1000)) : 0;
+    const maxVal = datos.length > 0 ? Math.max(...datos.map(d => parseFloat(d.total_kilos || 0))) : 0;
     // Evitar división por cero si no hay datos o todo es 0
     const maxKilos = maxVal === 0 ? 1 : maxVal;
 
@@ -105,7 +105,7 @@ const ReporteDiario = () => {
                         <div className="w-full h-full flex items-center justify-center text-gray-400">Sin datos para graficar</div>
                     ) : (
                         datos.map((item, index) => {
-                            const kilos = parseFloat(item.total_gramos) / 1000;
+                            const kilos = parseFloat(item.total_kilos || 0);
                             const porcentaje = (kilos / maxKilos) * 100;
                             
                             return (
@@ -154,7 +154,7 @@ const ReporteDiario = () => {
                                 <tr key={index} className="border-b hover:bg-gray-50">
                                     <td className="p-4 font-medium">{item.metal}</td>
                                     <td className="p-4">{item.cantidad_transacciones}</td>
-                                    <td className="p-4 font-bold text-blue-600">{(parseFloat(item.total_gramos) / 1000).toFixed(2)} kg</td>
+                                    <td className="p-4 font-bold text-blue-600">{parseFloat(item.total_kilos || 0).toFixed(2)} kg</td>
                                     <td className="p-4 font-bold text-green-600">${parseFloat(item.total_pagado).toLocaleString()}</td>
                                 </tr>
                             ))

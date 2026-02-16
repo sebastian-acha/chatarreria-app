@@ -74,8 +74,8 @@ const HistorialTransacciones = () => {
             const detallesHTML = data.detalles.map(d => `
                 <div style="margin-top: 10px; text-align: left;">
                     <p><strong>- ${d.metal_nombre}</strong></p>
-                    <p style="padding-left: 15px;">Peso: ${d.peso_gramos} g</p>
-                    <p style="padding-left: 15px;">Precio/g: $${d.valor_gramo_aplicado.toFixed(2)}</p>
+                    <p style="padding-left: 15px;">Peso: ${d.peso_kilos} kg</p>
+                    <p style="padding-left: 15px;">Precio/kg: $${d.valor_kilo_aplicado.toFixed(2)}</p>
                     <p style="padding-left: 15px;">Subtotal: $${d.subtotal.toFixed(2)}</p>
                 </div>
             `).join('<hr style="border-style: dashed; margin: 5px 0;"/>');
@@ -168,8 +168,8 @@ const HistorialTransacciones = () => {
                                                     <thead className="bg-gray-200">
                                                         <tr>
                                                             <th className="px-3 py-2 text-left">Metal</th>
-                                                            <th className="px-3 py-2 text-right">Peso (g)</th>
-                                                            <th className="px-3 py-2 text-right">Precio/g</th>
+                                                            <th className="px-3 py-2 text-right">Peso (kg)</th>
+                                                            <th className="px-3 py-2 text-right">Precio/kg</th>
                                                             <th className="px-3 py-2 text-right">Subtotal</th>
                                                         </tr>
                                                     </thead>
@@ -177,8 +177,8 @@ const HistorialTransacciones = () => {
                                                         {t.detalles.map((d, index) => (
                                                             <tr key={index} className="border-b">
                                                                 <td className="px-3 py-2">{d.metal_nombre}</td>
-                                                                <td className="px-3 py-2 text-right">{d.peso_gramos}</td>
-                                                                <td className="px-3 py-2 text-right">${parseFloat(d.valor_gramo_aplicado).toFixed(2)}</td>
+                                                                <td className="px-3 py-2 text-right">{d.peso_kilos}</td>
+                                                                <td className="px-3 py-2 text-right">${parseFloat(d.valor_kilo_aplicado).toFixed(2)}</td>
                                                                 <td className="px-3 py-2 text-right font-semibold">${parseFloat(d.subtotal).toFixed(2)}</td>
                                                             </tr>
                                                         ))}

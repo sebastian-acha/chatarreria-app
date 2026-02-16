@@ -5,7 +5,7 @@ import { Save, Calculator, Printer, CheckCircle, AlertCircle, PlusCircle, XCircl
 const NuevaCompra = () => {
     const [metales, setMetales] = useState([]);
     const [cliente, setCliente] = useState({ cliente_nombre: '', cliente_rut_dni: '' });
-    const [detalles, setDetalles] = useState([{ metal_id: '', peso_gramos: '' }]);
+    const [detalles, setDetalles] = useState([{ metal_id: '', peso_kilos: '' }]);
     const [loading, setLoading] = useState(false);
     const [mensaje, setMensaje] = useState({ type: '', text: '' });
     const [voucher, setVoucher] = useState(null);
@@ -38,7 +38,7 @@ const NuevaCompra = () => {
     };
 
     const agregarDetalle = () => {
-        setDetalles([...detalles, { metal_id: '', peso_gramos: '' }]);
+        setDetalles([...detalles, { metal_id: '', peso_kilos: '' }]);
     };
 
     const quitarDetalle = (index) => {
@@ -53,7 +53,7 @@ const NuevaCompra = () => {
         setVoucher(null);
 
         // Validar que los detalles no estén vacíos
-        const metalesParaEnviar = detalles.filter(d => d.metal_id && d.peso_gramos > 0);
+        const metalesParaEnviar = detalles.filter(d => d.metal_id && d.peso_kilos > 0);
         if (metalesParaEnviar.length === 0) {
             setMensaje({ type: 'error', text: 'Debe agregar al menos un metal con peso válido.' });
             setLoading(false);
@@ -76,7 +76,7 @@ const NuevaCompra = () => {
             
             // Limpiar formulario
             setCliente({ cliente_nombre: '', cliente_rut_dni: '' });
-            setDetalles([{ metal_id: '', peso_gramos: '' }]);
+            setDetalles([{ metal_id: '', peso_kilos: '' }]);
 
         } catch (error) {
             setMensaje({ type: 'error', text: error.response?.data?.error || 'Error al registrar compra' });
@@ -87,9 +87,9 @@ const NuevaCompra = () => {
 
     const getTotalEstimado = () => {
         return detalles.reduce((total, detalle) => {
-            if (!detalle.metal_id || !detalle.peso_gramos) return total;
+            if (!detalle.metal_id || !detalle.peso_kilos) return total;
             const metal = metales.find(m => m.id === parseInt(detalle.metal_id));
-            const subtotal = metal ? metal.valor_por_gramo * parseFloat(detalle.peso_gramos) : 0;
+            const subtotal = metal ? metal.valor_por_kilo * parseFloat(detalle.peso_kilos) : 0;
             return total + subtotal;
         }, 0).toFixed(2);
     };
@@ -99,8 +99,8 @@ const NuevaCompra = () => {
         const detallesHTML = voucher.detalles.map(d => `
             <div style="margin-top: 10px;">
                 <p>Metal: ${d.metal}</p>
-                <p>Peso: ${d.peso_gramos} g</p>
-                <p>Precio/g: $${d.precio_unitario.toFixed(2)}</p>
+                <p>Peso: ${d.peso_kilos} kg</p>
+                <p>Precio/kg: $${d.precio_unitario.toFixed(2)}</p>
                 <p>Subtotal: $${d.subtotal.toFixed(2)}</p>
             </div>
         `).join('<hr style="border-style: dashed;"/>');
@@ -184,13 +184,13 @@ const NuevaCompra = () => {
                                 <select name="metal_id" value={detalle.metal_id} onChange={(e) => handleDetalleChange(index, e)} className="w-full border p-2 rounded" required>
                                     <option value="">Seleccione...</option>
                                     {metales.map(m => (
-                                        <option key={m.id} value={m.id}>{m.nombre} (${m.valor_por_gramo}/g)</option>
+                                        <option key={m.id} value={m.id}>{m.nombre} (${m.valor_por_kilo}/kg)</option>
                                     ))}
                                 </select>
                             </div>
                             <div className="md:col-span-2">
-                                <label className="block text-sm font-medium mb-1">Peso (gramos)</label>
-                                <input type="number" step="0.01" name="peso_gramos" value={detalle.peso_gramos} onChange={(e) => handleDetalleChange(index, e)} className="w-full border p-2 rounded" placeholder="0.00" required />
+                                <label className="block text-sm font-medium mb-1">Peso (kilos)</label>
+                                <input type="number" step="0.01" name="peso_kilos" value={detalle.peso_kilos} onChange={(e) => handleDetalleChange(index, e)} className="w-full border p-2 rounded" placeholder="0.00" required />
                             </div>
                             <div className="md:col-span-1 flex items-end justify-center">
                                 {detalles.length > 1 && (

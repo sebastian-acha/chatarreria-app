@@ -25,7 +25,7 @@ CREATE TABLE IF NOT EXISTS usuarios (
 CREATE TABLE IF NOT EXISTS metales (
     id SERIAL PRIMARY KEY,
     nombre VARCHAR(50) NOT NULL UNIQUE,
-    valor_por_gramo DECIMAL(10, 2) NOT NULL,
+    valor_por_kilo DECIMAL(10, 2) NOT NULL,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
@@ -50,8 +50,8 @@ CREATE TABLE IF NOT EXISTS transaccion_detalles (
     id SERIAL PRIMARY KEY,
     transaccion_id INT NOT NULL REFERENCES transacciones(id) ON DELETE CASCADE,
     metal_id INT NOT NULL REFERENCES metales(id),
-    peso_gramos DECIMAL(10, 2) NOT NULL,
-    valor_gramo_aplicado DECIMAL(10, 2) NOT NULL,
+    peso_kilos DECIMAL(10, 3) NOT NULL,
+    valor_kilo_aplicado DECIMAL(10, 2) NOT NULL,
     subtotal DECIMAL(12, 2) NOT NULL
 );
 

@@ -9,10 +9,10 @@ const GestionMetales = () => {
     const [editingId, setEditingId] = useState(null);
     
     // Formulario para crear
-    const [nuevoMetal, setNuevoMetal] = useState({ nombre: '', valor_por_gramo: '' });
+    const [nuevoMetal, setNuevoMetal] = useState({ nombre: '', valor_por_kilo: '' });
     
     // Estado para edición en línea
-    const [editForm, setEditForm] = useState({ nombre: '', valor_por_gramo: '' });
+    const [editForm, setEditForm] = useState({ nombre: '', valor_por_kilo: '' });
     const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000/api';
 
     const fetchMetales = async () => {
@@ -38,7 +38,7 @@ const GestionMetales = () => {
             await axios.post(`${API_URL}/metales`, nuevoMetal, {
                 headers: { Authorization: `Bearer ${token}` }
             });
-            setNuevoMetal({ nombre: '', valor_por_gramo: '' });
+            setNuevoMetal({ nombre: '', valor_por_kilo: '' });
             fetchMetales();
         } catch (err) {
             alert(err.response?.data?.error || 'Error al crear metal');
@@ -47,12 +47,12 @@ const GestionMetales = () => {
 
     const iniciarEdicion = (metal) => {
         setEditingId(metal.id);
-        setEditForm({ nombre: metal.nombre, valor_por_gramo: metal.valor_por_gramo });
+        setEditForm({ nombre: metal.nombre, valor_por_kilo: metal.valor_por_kilo });
     };
 
     const cancelarEdicion = () => {
         setEditingId(null);
-        setEditForm({ nombre: '', valor_por_gramo: '' });
+        setEditForm({ nombre: '', valor_por_kilo: '' });
     };
 
     const guardarEdicion = async (id) => {
@@ -88,14 +88,14 @@ const GestionMetales = () => {
                         />
                     </div>
                     <div className="flex-1 min-w-[200px]">
-                        <label className="block text-sm font-medium mb-1">Precio por Gramo</label>
+                        <label className="block text-sm font-medium mb-1">Precio por Kilo</label>
                         <input 
                             type="number" 
                             step="0.01" 
                             className="border p-2 rounded w-full" 
                             placeholder="0.00"
-                            value={nuevoMetal.valor_por_gramo}
-                            onChange={e => setNuevoMetal({...nuevoMetal, valor_por_gramo: e.target.value})}
+                            value={nuevoMetal.valor_por_kilo}
+                            onChange={e => setNuevoMetal({...nuevoMetal, valor_por_kilo: e.target.value})}
                             required
                         />
                     </div>
@@ -112,7 +112,7 @@ const GestionMetales = () => {
                         <tr className="bg-gray-100 border-b">
                             <th className="p-3">ID</th>
                             <th className="p-3">Metal</th>
-                            <th className="p-3">Precio / Gramo</th>
+                            <th className="p-3">Precio / Kilo</th>
                             <th className="p-3">Acciones</th>
                         </tr>
                     </thead>
@@ -136,8 +136,8 @@ const GestionMetales = () => {
                                                 type="number" 
                                                 step="0.01" 
                                                 className="border p-1 rounded w-full"
-                                                value={editForm.valor_por_gramo}
-                                                onChange={e => setEditForm({...editForm, valor_por_gramo: e.target.value})}
+                                                value={editForm.valor_por_kilo}
+                                                onChange={e => setEditForm({...editForm, valor_por_kilo: e.target.value})}
                                             />
                                         </td>
                                         <td className="p-3 flex gap-2">
@@ -152,7 +152,7 @@ const GestionMetales = () => {
                                 ) : (
                                     <>
                                         <td className="p-3 font-medium">{metal.nombre}</td>
-                                        <td className="p-3 font-bold text-blue-600">${metal.valor_por_gramo}</td>
+                                        <td className="p-3 font-bold text-blue-600">${metal.valor_por_kilo}</td>
                                         <td className="p-3">
                                             <button onClick={() => iniciarEdicion(metal)} className="text-blue-600 hover:bg-blue-50 p-1 rounded flex items-center gap-1">
                                                 <Edit2 size={16} /> Editar
