@@ -1,3 +1,4 @@
+require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
 const db = require('./config/db'); // Importamos nuestra conexión
@@ -7,7 +8,6 @@ const sucursalRoutes = require('./routes/sucursalRoutes'); // Importar rutas de 
 const userRoutes = require('./routes/userRoutes'); // Importar rutas de usuarios
 const transaccionRoutes = require('./routes/transaccionRoutes'); // Importamos rutas de transacciones
 const configuracionRoutes = require('./routes/configuracionRoutes'); // Importamos rutas de configuración
-require('dotenv').config();
 
 // Verificación de seguridad: Validar que db.query existe
 if (!db || typeof db.query !== 'function') {
@@ -50,7 +50,11 @@ app.get('/', (req, res) => {
 });
 
 // Iniciar servidor
-const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => {
-    console.log(`Servidor corriendo en http://localhost:${PORT}`);
-});
+if (require.main === module) {
+    const PORT = process.env.PORT || 3000;
+    app.listen(PORT, () => {
+        console.log(`Servidor corriendo en http://localhost:${PORT}`);
+    });
+}
+
+module.exports = app;
