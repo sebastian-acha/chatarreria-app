@@ -91,9 +91,9 @@ const GestionMetales = () => {
                         <label className="block text-sm font-medium mb-1">Precio por Kilo</label>
                         <input 
                             type="number" 
-                            step="0.01" 
+                            step="1" 
                             className="border p-2 rounded w-full" 
-                            placeholder="0.00"
+                            placeholder="0"
                             value={nuevoMetal.valor_por_kilo}
                             onChange={e => setNuevoMetal({...nuevoMetal, valor_por_kilo: e.target.value})}
                             required
@@ -134,7 +134,7 @@ const GestionMetales = () => {
                                         <td className="p-3">
                                             <input 
                                                 type="number" 
-                                                step="0.01" 
+                                                step="1" 
                                                 className="border p-1 rounded w-full"
                                                 value={editForm.valor_por_kilo}
                                                 onChange={e => setEditForm({...editForm, valor_por_kilo: e.target.value})}
@@ -152,7 +152,7 @@ const GestionMetales = () => {
                                 ) : (
                                     <>
                                         <td className="p-3 font-medium">{metal.nombre}</td>
-                                        <td className="p-3 font-bold text-blue-600">${metal.valor_por_kilo}</td>
+                                        <td className="p-3 font-bold text-blue-600">${Math.round(metal.valor_por_kilo)}</td>
                                         <td className="p-3">
                                             <button onClick={() => iniciarEdicion(metal)} className="text-blue-600 hover:bg-blue-50 p-1 rounded flex items-center gap-1">
                                                 <Edit2 size={16} /> Editar

@@ -13,13 +13,15 @@ exports.listarMetales = async (req, res) => {
 
 // Crear un nuevo metal
 exports.crearMetal = async (req, res) => {
-    const { nombre, valor_por_kilo } = req.body;
+    const { nombre } = req.body;
+    let { valor_por_kilo } = req.body;
 
     if (!nombre || valor_por_kilo === undefined) {
         return res.status(400).json({ error: 'Nombre y valor por kilo son obligatorios' });
     }
 
     try {
+        valor_por_kilo = Math.round(parseFloat(valor_por_kilo));
         const result = await db.query(
             'INSERT INTO metales (nombre, valor_por_kilo) VALUES ($1, $2) RETURNING *',
             [nombre, valor_por_kilo]
@@ -40,7 +42,8 @@ exports.crearMetal = async (req, res) => {
 // Actualizar un metal (Principalmente para cambiar el precio)
 exports.actualizarMetal = async (req, res) => {
     const { id } = req.params;
-    const { nombre, valor_por_kilo } = req.body;
+    const { nombre } = req.body;
+    let { valor_por_kilo } = req.body;
 
     try {
         // Construcción dinámica de la consulta según qué datos lleguen
@@ -53,6 +56,7 @@ exports.actualizarMetal = async (req, res) => {
             values.push(nombre);
         }
         if (valor_por_kilo !== undefined) {
+            valor_por_kilo = Math.round(parseFloat(valor_por_kilo));
             query += `, valor_por_kilo = $${paramIndex++}`;
             values.push(valor_por_kilo);
         }

@@ -86,12 +86,12 @@ const NuevaCompra = () => {
     };
 
     const getTotalEstimado = () => {
-        return detalles.reduce((total, detalle) => {
+        return Math.round(detalles.reduce((total, detalle) => {
             if (!detalle.metal_id || !detalle.peso_kilos) return total;
             const metal = metales.find(m => m.id === parseInt(detalle.metal_id));
             const subtotal = metal ? metal.valor_por_kilo * parseFloat(detalle.peso_kilos) : 0;
             return total + subtotal;
-        }, 0).toFixed(2);
+        }, 0));
     };
 
     const imprimirVoucher = () => {
@@ -100,8 +100,8 @@ const NuevaCompra = () => {
             <div style="margin-top: 10px;">
                 <p>Metal: ${d.metal}</p>
                 <p>Peso: ${d.peso_kilos} kg</p>
-                <p>Precio/kg: $${d.precio_unitario.toFixed(2)}</p>
-                <p>Subtotal: $${d.subtotal.toFixed(2)}</p>
+                <p>Precio/kg: $${Math.round(d.precio_unitario)}</p>
+                <p>Subtotal: $${Math.round(d.subtotal)}</p>
             </div>
         `).join('<hr style="border-style: dashed;"/>');
 
@@ -124,7 +124,7 @@ const NuevaCompra = () => {
                     <hr/>
                     ${detallesHTML}
                     <hr/>
-                    <h3>TOTAL: $${voucher.total_pagado.toFixed(2)}</h3>
+                    <h3>TOTAL: $${Math.round(voucher.total_pagado)}</h3>
                     <br/>
                 </body>
             </html>
@@ -151,7 +151,7 @@ const NuevaCompra = () => {
             {voucher && (
                 <div className="bg-blue-50 border border-blue-200 p-4 rounded mb-6 text-center">
                     <h3 className="font-bold text-lg text-blue-800">¡Transacción #{voucher.correlativo} completada!</h3>
-                    <p className="text-sm text-blue-600 mb-3">Total a pagar: <strong>$${voucher.total_pagado.toFixed(2)}</strong></p>
+                    <p className="text-sm text-blue-600 mb-3">Total a pagar: <strong>$${Math.round(voucher.total_pagado)}</strong></p>
                     <button onClick={imprimirVoucher} className="bg-blue-600 text-white px-6 py-2 rounded hover:bg-blue-700 flex items-center justify-center gap-2 mx-auto">
                         <Printer size={20} /> Imprimir Voucher
                     </button>
@@ -184,7 +184,7 @@ const NuevaCompra = () => {
                                 <select name="metal_id" value={detalle.metal_id} onChange={(e) => handleDetalleChange(index, e)} className="w-full border p-2 rounded" required>
                                     <option value="">Seleccione...</option>
                                     {metales.map(m => (
-                                        <option key={m.id} value={m.id}>{m.nombre} (${m.valor_por_kilo}/kg)</option>
+                                        <option key={m.id} value={m.id}>{m.nombre} (${Math.round(m.valor_por_kilo)}/kg)</option>
                                     ))}
                                 </select>
                             </div>

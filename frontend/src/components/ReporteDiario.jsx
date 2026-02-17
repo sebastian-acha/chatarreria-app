@@ -83,7 +83,7 @@ const ReporteDiario = () => {
                     <div className="flex items-center justify-between">
                         <div>
                             <p className="text-gray-500 text-sm font-medium uppercase">Total Pagado Hoy</p>
-                            <h3 className="text-3xl font-bold text-gray-900">${resumen.totalDinero.toLocaleString()}</h3>
+                            <h3 className="text-3xl font-bold text-gray-900">$ {Math.round(resumen.totalDinero).toLocaleString('es-CL')}</h3>
                         </div>
                         <div className="p-4 bg-green-50 rounded-full text-green-600">
                             <DollarSign size={32} />
@@ -155,7 +155,7 @@ const ReporteDiario = () => {
                                     <td className="p-4 font-medium">{item.metal}</td>
                                     <td className="p-4">{item.cantidad_transacciones}</td>
                                     <td className="p-4 font-bold text-blue-600">{parseFloat(item.total_kilos || 0).toFixed(2)} kg</td>
-                                    <td className="p-4 font-bold text-green-600">${parseFloat(item.total_pagado).toLocaleString()}</td>
+                                    <td className="p-4 font-bold text-green-600">$ {Math.round(parseFloat(item.total_pagado)).toLocaleString('es-CL')}</td>
                                 </tr>
                             ))
                         )}

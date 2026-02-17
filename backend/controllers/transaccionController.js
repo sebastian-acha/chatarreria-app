@@ -270,7 +270,7 @@ exports.exportarReporteDiarioExcel = async (req, res) => {
             'Metal': row.metal,
             'Transacciones': parseInt(row.cantidad_transacciones),
             'Peso Total (kg)': parseFloat(row.total_kilos).toFixed(3),
-            'Total Pagado ($)': parseFloat(row.total_pagado).toFixed(2)
+            'Total Pagado ($)': Math.round(parseFloat(row.total_pagado))
         }));
 
         const wb = XLSX.utils.book_new();

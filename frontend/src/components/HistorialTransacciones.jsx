@@ -75,8 +75,8 @@ const HistorialTransacciones = () => {
                 <div style="margin-top: 10px; text-align: left;">
                     <p><strong>- ${d.metal_nombre}</strong></p>
                     <p style="padding-left: 15px;">Peso: ${d.peso_kilos} kg</p>
-                    <p style="padding-left: 15px;">Precio/kg: $${d.valor_kilo_aplicado.toFixed(2)}</p>
-                    <p style="padding-left: 15px;">Subtotal: $${d.subtotal.toFixed(2)}</p>
+                    <p style="padding-left: 15px;">Precio/kg: $${Math.round(d.valor_kilo_aplicado)}</p>
+                    <p style="padding-left: 15px;">Subtotal: $${Math.round(d.subtotal)}</p>
                 </div>
             `).join('<hr style="border-style: dashed; margin: 5px 0;"/>');
 
@@ -98,7 +98,7 @@ const HistorialTransacciones = () => {
                         <hr/>
                         ${detallesHTML}
                         <hr/>
-                        <h3>TOTAL: $${parseFloat(data.total_pagar).toFixed(2)}</h3>
+                        <h3>TOTAL: $${Math.round(parseFloat(data.total_pagar))}</h3>
                         <br/>
                         <p>Atendido por: ${data.ejecutivo_nombre}</p>
                     </body>
@@ -150,7 +150,7 @@ const HistorialTransacciones = () => {
                                     <td className="px-4 py-2">{t.id}</td>
                                     <td className="px-4 py-2">{new Date(t.fecha_hora).toLocaleString()}</td>
                                     <td className="px-4 py-2"><div className="font-medium">{t.cliente_nombre}</div><div className="text-xs text-gray-500">{t.cliente_rut_dni}</div></td>
-                                    <td className="px-4 py-2 font-bold text-green-700">${parseFloat(t.total_pagar).toFixed(2)}</td>
+                                    <td className="px-4 py-2 font-bold text-green-700">${Math.round(parseFloat(t.total_pagar))}</td>
                                     <td className="px-4 py-2 flex items-center gap-2">
                                         <button onClick={() => setTransaccionModal(t)} className="text-gray-600 hover:text-gray-800 flex items-center gap-1 border border-gray-400 px-2 py-1 rounded text-xs"><Eye size={14}/> Detalles</button>
                                         <button onClick={() => imprimirVoucher(t.id)} className="text-blue-600 hover:text-blue-800 flex items-center gap-1 border border-blue-600 px-2 py-1 rounded text-xs"><Printer size={14}/> Voucher</button>
@@ -201,15 +201,15 @@ const HistorialTransacciones = () => {
                                             <tr key={index} className="border-b last:border-b-0">
                                                 <td className="px-3 py-2">{d.metal_nombre}</td>
                                                 <td className="px-3 py-2 text-right">{d.peso_kilos}</td>
-                                                <td className="px-3 py-2 text-right">${parseFloat(d.valor_kilo_aplicado).toFixed(2)}</td>
-                                                <td className="px-3 py-2 text-right font-semibold">${parseFloat(d.subtotal).toFixed(2)}</td>
+                                                <td className="px-3 py-2 text-right">${Math.round(parseFloat(d.valor_kilo_aplicado))}</td>
+                                                <td className="px-3 py-2 text-right font-semibold">${Math.round(parseFloat(d.subtotal))}</td>
                                             </tr>
                                         ))}
                                     </tbody>
                                 </table>
                             </div>
                             <div className="text-right mt-4">
-                                <span className="text-xl font-bold">TOTAL: ${parseFloat(transaccionModal.total_pagar).toFixed(2)}</span>
+                                <span className="text-xl font-bold">TOTAL: ${Math.round(parseFloat(transaccionModal.total_pagar))}</span>
                             </div>
                         </div>
                     </div>
