@@ -29,7 +29,7 @@ const NuevaCompra = () => {
         setCliente({ ...cliente, [e.target.name]: e.target.value });
         if (voucher) setVoucher(null);
     };
-    
+
     const handleDetalleChange = (index, e) => {
         const nuevosDetalles = [...detalles];
         nuevosDetalles[index][e.target.name] = e.target.value;
@@ -70,10 +70,10 @@ const NuevaCompra = () => {
             const res = await axios.post(`${API_URL}/transacciones`, payload, {
                 headers: { Authorization: `Bearer ${token}` }
             });
-            
+
             setMensaje({ type: 'success', text: 'Compra registrada con éxito' });
             setVoucher(res.data.voucher);
-            
+
             // Limpiar formulario
             setCliente({ cliente_nombre: '', cliente_rut_dni: '' });
             setDetalles([{ metal_id: '', peso_kilos: '' }]);
@@ -151,7 +151,7 @@ const NuevaCompra = () => {
             {voucher && (
                 <div className="bg-blue-50 border border-blue-200 p-4 rounded mb-6 text-center">
                     <h3 className="font-bold text-lg text-blue-800">¡Transacción #{voucher.correlativo} completada!</h3>
-                    <p className="text-sm text-blue-600 mb-3">Total a pagar: <strong>$${Math.round(voucher.total_pagado)}</strong></p>
+                    <p className="text-sm text-blue-600 mb-3">Total a pagar: <strong>$${Math.round(voucher.total_pagado).toLocaleString('es-CL')}</strong></p>
                     <button onClick={imprimirVoucher} className="bg-blue-600 text-white px-6 py-2 rounded hover:bg-blue-700 flex items-center justify-center gap-2 mx-auto">
                         <Printer size={20} /> Imprimir Voucher
                     </button>
@@ -184,7 +184,7 @@ const NuevaCompra = () => {
                                 <select name="metal_id" value={detalle.metal_id} onChange={(e) => handleDetalleChange(index, e)} className="w-full border p-2 rounded" required>
                                     <option value="">Seleccione...</option>
                                     {metales.map(m => (
-                                        <option key={m.id} value={m.id}>{m.nombre} (${Math.round(m.valor_por_kilo)}/kg)</option>
+                                        <option key={m.id} value={m.id}>{m.nombre} (${Math.round(m.valor_por_kilo).toLocaleString('es-CL')}/kg)</option>
                                     ))}
                                 </select>
                             </div>
@@ -205,11 +205,11 @@ const NuevaCompra = () => {
                         <PlusCircle size={20} /> Añadir otro metal
                     </button>
                 </fieldset>
-                
+
                 {/* Total y Submit */}
                 <div className="flex items-center justify-between bg-gray-50 p-4 rounded mb-6">
                     <span className="font-semibold text-gray-600">Total Estimado:</span>
-                    <span className="text-2xl font-bold text-green-600">${getTotalEstimado()}</span>
+                    <span className="text-2xl font-bold text-green-600">${getTotalEstimado().toLocaleString('es-CL')}</span>
                 </div>
 
                 <button type="submit" disabled={loading} className={`w-full bg-green-600 text-white font-bold py-3 rounded hover:bg-green-700 flex justify-center items-center gap-2 ${loading ? 'opacity-50' : ''}`}>

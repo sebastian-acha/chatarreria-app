@@ -4,7 +4,7 @@ const XLSX = require('xlsx');
 exports.crearTransaccion = async (req, res) => {
     // El cuerpo ahora espera un array de metales
     const { cliente_nombre, cliente_rut_dni, metales } = req.body;
-    
+
     // Datos del token JWT
     const ejecutivo_id = req.user.id;
     const sucursal_id = req.user.sucursal_id;
@@ -30,7 +30,7 @@ exports.crearTransaccion = async (req, res) => {
         // 1. Obtener precios de TODOS los metales implicados en una sola consulta
         const metalIds = metales.map(m => parseInt(m.metal_id, 10));
         const preciosResult = await client.query('SELECT id, nombre, valor_por_kilo FROM metales WHERE id = ANY($1::int[])', [metalIds]);
-        
+
         if (preciosResult.rows.length !== metalIds.length) {
             throw new Error('Uno o más de los metales especificados no existen.');
         }
@@ -57,7 +57,7 @@ exports.crearTransaccion = async (req, res) => {
                 subtotal
             };
         });
-        
+
         // 3. Insertar la transacción principal
         const transaccionQuery = `
             INSERT INTO transacciones (sucursal_id, ejecutivo_id, cliente_nombre, cliente_rut_dni, total_pagar)
@@ -82,7 +82,7 @@ exports.crearTransaccion = async (req, res) => {
             detallesParaInsertar.map(d => d.subtotal),
         ];
         await client.query(detallesQuery, detallesValues);
-        
+
         await client.query('COMMIT');
 
         // 5. Responder con datos para el voucher
@@ -118,14 +118,14 @@ exports.listarTransacciones = async (req, res) => {
     try {
         const { page = 1, limit = 20, sort = 'id', order = 'DESC', metal_id, fecha_inicio, fecha_fin } = req.query;
         const offset = (page - 1) * limit;
-        
+
         const validSortFields = ['id', 'fecha_hora', 'cliente_nombre', 'total_pagar'];
         const sortBy = validSortFields.includes(sort) ? `t.${sort}` : 't.id';
         const sortOrder = order.toUpperCase() === 'ASC' ? 'ASC' : 'DESC';
 
         const values = [];
         let paramIndex = 1;
-        
+
         // Cláusula WHERE para filtros
         let whereClauses = ["1=1"];
         if (fecha_inicio) {
@@ -269,13 +269,26 @@ exports.exportarReporteDiarioExcel = async (req, res) => {
         const data = result.rows.map(row => ({
             'Metal': row.metal,
             'Transacciones': parseInt(row.cantidad_transacciones),
-            'Peso Total (kg)': parseFloat(row.total_kilos).toFixed(3),
+            'Peso Total (kg)': parseFloat(row.total_kilos),
             'Total Pagado ($)': Math.round(parseFloat(row.total_pagado))
         }));
 
         const wb = XLSX.utils.book_new();
         const ws = XLSX.utils.json_to_sheet(data);
-        ws['!cols'] = [{wch: 20}, {wch: 15}, {wch: 15}, {wch: 20}];
+
+        // Aplicar formato de número con separador de miles a las celdas correspondientes
+        const range = XLSX.utils.decode_range(ws['!ref']);
+        for (let R = range.s.r + 1; R <= range.e.r; ++R) { // Iniciar en 1 para saltar la cabecera
+            // Columna C: Peso Total (kg)
+            const pesoCell = ws[XLSX.utils.encode_cell({ c: 2, r: R })];
+            if (pesoCell) pesoCell.z = '#,##0.000'; // Formato con 3 decimales y separador de miles
+
+            // Columna D: Total Pagado ($)
+            const totalCell = ws[XLSX.utils.encode_cell({ c: 3, r: R })];
+            if (totalCell) totalCell.z = '$ #,##0'; // Formato de moneda con separador de miles
+        }
+
+        ws['!cols'] = [{ wch: 20 }, { wch: 15 }, { wch: 15 }, { wch: 20 }];
         XLSX.utils.book_append_sheet(wb, ws, "Reporte Diario");
         const buffer = XLSX.write(wb, { type: 'buffer', bookType: 'xlsx' });
 

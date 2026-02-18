@@ -38,7 +38,7 @@ const HistorialTransacciones = () => {
             setLoading(false);
         }
     };
-    
+
     useEffect(() => {
         const fetchMetales = async () => {
             try {
@@ -68,15 +68,15 @@ const HistorialTransacciones = () => {
     const imprimirVoucher = async (id) => {
         try {
             const token = localStorage.getItem('token');
-            const response = await axios.get(`${API_URL}/transacciones/${id}`, { headers: { Authorization: `Bearer ${token}` }});
+            const response = await axios.get(`${API_URL}/transacciones/${id}`, { headers: { Authorization: `Bearer ${token}` } });
             const data = response.data;
 
             const detallesHTML = data.detalles.map(d => `
                 <div style="margin-top: 10px; text-align: left;">
                     <p><strong>- ${d.metal_nombre}</strong></p>
                     <p style="padding-left: 15px;">Peso: ${d.peso_kilos} kg</p>
-                    <p style="padding-left: 15px;">Precio/kg: $${Math.round(d.valor_kilo_aplicado)}</p>
-                    <p style="padding-left: 15px;">Subtotal: $${Math.round(d.subtotal)}</p>
+                    <p style="padding-left: 15px;">Precio/kg: $${Math.round(d.valor_kilo_aplicado).toLocaleString('es-CL')}</p>
+                    <p style="padding-left: 15px;">Subtotal: $${Math.round(d.subtotal).toLocaleString('es-CL')}</p>
                 </div>
             `).join('<hr style="border-style: dashed; margin: 5px 0;"/>');
 
@@ -98,7 +98,7 @@ const HistorialTransacciones = () => {
                         <hr/>
                         ${detallesHTML}
                         <hr/>
-                        <h3>TOTAL: $${Math.round(parseFloat(data.total_pagar))}</h3>
+                        <h3>TOTAL: $${Math.round(parseFloat(data.total_pagar)).toLocaleString('es-CL')}</h3>
                         <br/>
                         <p>Atendido por: ${data.ejecutivo_nombre}</p>
                     </body>
@@ -116,11 +116,11 @@ const HistorialTransacciones = () => {
     return (
         <div className="p-6">
             <h1 className="text-2xl font-bold mb-4">Historial de Transacciones</h1>
-            
+
             <form onSubmit={handleSearch} className="bg-white p-6 rounded-xl shadow-sm border border-gray-200 mb-6 flex flex-wrap gap-4 items-end">
-                <input type="date" className="border p-2 rounded" value={filtros.fecha_inicio} onChange={e => setFiltros({...filtros, fecha_inicio: e.target.value})} />
-                <input type="date" className="border p-2 rounded" value={filtros.fecha_fin} onChange={e => setFiltros({...filtros, fecha_fin: e.target.value})} />
-                <select className="border p-2 rounded" value={filtros.metal__id} onChange={e => setFiltros({...filtros, metal_id: e.target.value})}>
+                <input type="date" className="border p-2 rounded" value={filtros.fecha_inicio} onChange={e => setFiltros({ ...filtros, fecha_inicio: e.target.value })} />
+                <input type="date" className="border p-2 rounded" value={filtros.fecha_fin} onChange={e => setFiltros({ ...filtros, fecha_fin: e.target.value })} />
+                <select className="border p-2 rounded" value={filtros.metal__id} onChange={e => setFiltros({ ...filtros, metal_id: e.target.value })}>
                     <option value="">Todos los metales</option>
                     {metales.map(m => <option key={m.id} value={m.id}>{m.nombre}</option>)}
                 </select>
@@ -136,10 +136,10 @@ const HistorialTransacciones = () => {
                 <table className="min-w-full text-sm text-left">
                     <thead className="bg-gray-800 text-white uppercase">
                         <tr>
-                            <th className="px-4 py-3 cursor-pointer" onClick={() => handleSort('id')}><div className="flex items-center gap-1">ID <ArrowUpDown size={14}/></div></th>
-                            <th className="px-4 py-3 cursor-pointer" onClick={() => handleSort('fecha_hora')}><div className="flex items-center gap-1">Fecha <ArrowUpDown size={14}/></div></th>
+                            <th className="px-4 py-3 cursor-pointer" onClick={() => handleSort('id')}><div className="flex items-center gap-1">ID <ArrowUpDown size={14} /></div></th>
+                            <th className="px-4 py-3 cursor-pointer" onClick={() => handleSort('fecha_hora')}><div className="flex items-center gap-1">Fecha <ArrowUpDown size={14} /></div></th>
                             <th className="px-4 py-3">Cliente</th>
-                            <th className="px-4 py-3 cursor-pointer" onClick={() => handleSort('total_pagar')}><div className="flex items-center gap-1">Total <ArrowUpDown size={14}/></div></th>
+                            <th className="px-4 py-3 cursor-pointer" onClick={() => handleSort('total_pagar')}><div className="flex items-center gap-1">Total <ArrowUpDown size={14} /></div></th>
                             <th className="px-4 py-3">Acciones</th>
                         </tr>
                     </thead>
@@ -150,10 +150,10 @@ const HistorialTransacciones = () => {
                                     <td className="px-4 py-2">{t.id}</td>
                                     <td className="px-4 py-2">{new Date(t.fecha_hora).toLocaleString()}</td>
                                     <td className="px-4 py-2"><div className="font-medium">{t.cliente_nombre}</div><div className="text-xs text-gray-500">{t.cliente_rut_dni}</div></td>
-                                    <td className="px-4 py-2 font-bold text-green-700">${Math.round(parseFloat(t.total_pagar))}</td>
+                                    <td className="px-4 py-2 font-bold text-green-700">${Math.round(parseFloat(t.total_pagar)).toLocaleString('es-CL')}</td>
                                     <td className="px-4 py-2 flex items-center gap-2">
-                                        <button onClick={() => setTransaccionModal(t)} className="text-gray-600 hover:text-gray-800 flex items-center gap-1 border border-gray-400 px-2 py-1 rounded text-xs"><Eye size={14}/> Detalles</button>
-                                        <button onClick={() => imprimirVoucher(t.id)} className="text-blue-600 hover:text-blue-800 flex items-center gap-1 border border-blue-600 px-2 py-1 rounded text-xs"><Printer size={14}/> Voucher</button>
+                                        <button onClick={() => setTransaccionModal(t)} className="text-gray-600 hover:text-gray-800 flex items-center gap-1 border border-gray-400 px-2 py-1 rounded text-xs"><Eye size={14} /> Detalles</button>
+                                        <button onClick={() => imprimirVoucher(t.id)} className="text-blue-600 hover:text-blue-800 flex items-center gap-1 border border-blue-600 px-2 py-1 rounded text-xs"><Printer size={14} /> Voucher</button>
                                     </td>
                                 </tr>
                             ))
@@ -163,9 +163,9 @@ const HistorialTransacciones = () => {
             </div>
 
             <div className="flex justify-center items-center gap-4 mt-4">
-                <button disabled={paginacion.page <= 1} onClick={() => setPaginacion(prev => ({ ...prev, page: prev.page - 1 }))} className="p-2 border rounded disabled:opacity-50 hover:bg-gray-100"><ChevronLeft size={20}/></button>
+                <button disabled={paginacion.page <= 1} onClick={() => setPaginacion(prev => ({ ...prev, page: prev.page - 1 }))} className="p-2 border rounded disabled:opacity-50 hover:bg-gray-100"><ChevronLeft size={20} /></button>
                 <span>Página {paginacion.page} de {paginacion.totalPages || 1}</span>
-                <button disabled={paginacion.page >= paginacion.totalPages} onClick={() => setPaginacion(prev => ({ ...prev, page: prev.page + 1 }))} className="p-2 border rounded disabled:opacity-50 hover:bg-gray-100"><ChevronRight size={20}/></button>
+                <button disabled={paginacion.page >= paginacion.totalPages} onClick={() => setPaginacion(prev => ({ ...prev, page: prev.page + 1 }))} className="p-2 border rounded disabled:opacity-50 hover:bg-gray-100"><ChevronRight size={20} /></button>
             </div>
             {error && <div className="text-red-500 text-center mt-2">{error}</div>}
 
@@ -201,15 +201,15 @@ const HistorialTransacciones = () => {
                                             <tr key={index} className="border-b last:border-b-0">
                                                 <td className="px-3 py-2">{d.metal_nombre}</td>
                                                 <td className="px-3 py-2 text-right">{d.peso_kilos}</td>
-                                                <td className="px-3 py-2 text-right">${Math.round(parseFloat(d.valor_kilo_aplicado))}</td>
-                                                <td className="px-3 py-2 text-right font-semibold">${Math.round(parseFloat(d.subtotal))}</td>
+                                                <td className="px-3 py-2 text-right">${Math.round(parseFloat(d.valor_kilo_aplicado)).toLocaleString('es-CL')}</td>
+                                                <td className="px-3 py-2 text-right font-semibold">${Math.round(parseFloat(d.subtotal)).toLocaleString('es-CL')}</td>
                                             </tr>
                                         ))}
                                     </tbody>
                                 </table>
                             </div>
                             <div className="text-right mt-4">
-                                <span className="text-xl font-bold">TOTAL: ${Math.round(parseFloat(transaccionModal.total_pagar))}</span>
+                                <span className="text-xl font-bold">TOTAL: ${Math.round(parseFloat(transaccionModal.total_pagar)).toLocaleString('es-CL')}</span>
                             </div>
                         </div>
                     </div>
