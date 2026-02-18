@@ -69,41 +69,43 @@ const GestionSucursales = () => {
     };
 
     return (
-        <div className="p-6 bg-white rounded-xl shadow-sm border border-gray-200">
-            <h2 className="text-2xl font-bold mb-6 flex items-center gap-2"><Building /> Gestión de Sucursales</h2>
+        <div className="container-fluid p-4 bg-white rounded shadow-sm border">
+            <h2 className="h3 mb-4 d-flex align-items-center gap-2"><Building /> Gestión de Sucursales</h2>
 
             {/* Formulario Crear */}
-            <div className="mb-8 bg-gray-50 p-6 rounded-xl border border-gray-200">
-                <h3 className="text-lg font-semibold mb-4 flex items-center gap-2"><Plus /> Nueva Sucursal</h3>
-                <form onSubmit={handleCreate} className="flex flex-wrap gap-4 items-end">
-                    <div className="flex-1 min-w-[200px]">
-                        <input 
-                            placeholder="Nombre Sucursal" 
-                            className="border p-2 rounded w-full"
+            <div className="mb-4 bg-light p-4 rounded border">
+                <h3 className="h5 mb-3 d-flex align-items-center gap-2"><Plus /> Nueva Sucursal</h3>
+                <form onSubmit={handleCreate} className="row g-3 align-items-end">
+                    <div className="col-md-4">
+                        <input
+                            placeholder="Nombre Sucursal"
+                            className="form-control"
                             value={form.nombre}
-                            onChange={e => setForm({...form, nombre: e.target.value})}
+                            onChange={e => setForm({ ...form, nombre: e.target.value })}
                             required
                         />
                     </div>
-                    <div className="flex-[2] min-w-[300px]">
-                        <input 
-                            placeholder="Dirección" 
-                            className="border p-2 rounded w-full"
+                    <div className="col-md-6">
+                        <input
+                            placeholder="Dirección"
+                            className="form-control"
                             value={form.direccion}
-                            onChange={e => setForm({...form, direccion: e.target.value})}
+                            onChange={e => setForm({ ...form, direccion: e.target.value })}
                             required
                         />
                     </div>
-                    <button type="submit" className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 flex items-center gap-2">
-                        <Save size={18} /> Guardar
-                    </button>
+                    <div className="col-md-2">
+                        <button type="submit" className="btn btn-primary w-100 d-flex align-items-center justify-content-center gap-2">
+                            <Save size={18} /> Guardar
+                        </button>
+                    </div>
                 </form>
             </div>
 
             {/* Tabla */}
-            <div className="overflow-x-auto">
-                <table className="w-full text-left">
-                    <thead className="bg-gray-100">
+            <div className="table-responsive">
+                <table className="table table-hover">
+                    <thead className="table-light">
                         <tr>
                             <th className="p-3">ID</th>
                             <th className="p-3">Nombre</th>
@@ -113,23 +115,23 @@ const GestionSucursales = () => {
                     </thead>
                     <tbody>
                         {sucursales.map(s => (
-                            <tr key={s.id} className="border-b hover:bg-gray-50">
-                                <td className="p-3 text-gray-500">#{s.id}</td>
+                            <tr key={s.id}>
+                                <td className="p-3 text-muted">#{s.id}</td>
                                 {editingId === s.id ? (
                                     <>
-                                        <td className="p-3"><input className="border p-1 rounded w-full" value={editForm.nombre} onChange={e => setEditForm({...editForm, nombre: e.target.value})} /></td>
-                                        <td className="p-3"><input className="border p-1 rounded w-full" value={editForm.direccion} onChange={e => setEditForm({...editForm, direccion: e.target.value})} /></td>
-                                        <td className="p-3 flex gap-2">
-                                            <button onClick={() => handleUpdate(s.id)} className="text-green-600 hover:bg-green-50 p-1 rounded"><Save size={18}/></button>
-                                            <button onClick={cancelEdit} className="text-red-600 hover:bg-red-50 p-1 rounded"><X size={18}/></button>
+                                        <td className="p-3"><input className="form-control form-control-sm" value={editForm.nombre} onChange={e => setEditForm({ ...editForm, nombre: e.target.value })} /></td>
+                                        <td className="p-3"><input className="form-control form-control-sm" value={editForm.direccion} onChange={e => setEditForm({ ...editForm, direccion: e.target.value })} /></td>
+                                        <td className="p-3 d-flex gap-2">
+                                            <button onClick={() => handleUpdate(s.id)} className="btn btn-sm btn-outline-success"><Save size={18} /></button>
+                                            <button onClick={cancelEdit} className="btn btn-sm btn-outline-danger"><X size={18} /></button>
                                         </td>
                                     </>
                                 ) : (
                                     <>
-                                        <td className="p-3 font-medium">{s.nombre}</td>
+                                        <td className="p-3 fw-medium">{s.nombre}</td>
                                         <td className="p-3">{s.direccion}</td>
                                         <td className="p-3">
-                                            <button onClick={() => startEdit(s)} className="text-blue-600 hover:bg-blue-50 p-1 rounded flex gap-1 items-center"><Edit2 size={16}/> Editar</button>
+                                            <button onClick={() => startEdit(s)} className="btn btn-sm btn-outline-primary d-flex gap-1 align-items-center"><Edit2 size={16} /> Editar</button>
                                         </td>
                                     </>
                                 )}

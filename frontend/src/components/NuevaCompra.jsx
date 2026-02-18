@@ -136,86 +136,90 @@ const NuevaCompra = () => {
     };
 
     return (
-        <div className="max-w-4xl mx-auto bg-white p-8 rounded-xl shadow-sm border border-gray-200">
-            <h2 className="text-2xl font-bold mb-6 flex items-center gap-2">
-                <Calculator className="text-blue-600" /> Nueva Compra
-            </h2>
+        <div className="container my-4">
+            <div className="card shadow-sm">
+                <div className="card-body p-4">
+                    <h2 className="card-title mb-4 d-flex align-items-center gap-2">
+                        <Calculator className="text-primary" /> Nueva Compra
+                    </h2>
 
-            {mensaje.text && (
-                <div className={`p-4 mb-4 rounded flex items-center gap-2 ${mensaje.type === 'success' ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}`}>
-                    {mensaje.type === 'success' ? <CheckCircle size={20} /> : <AlertCircle size={20} />}
-                    {mensaje.text}
-                </div>
-            )}
-
-            {voucher && (
-                <div className="bg-blue-50 border border-blue-200 p-4 rounded mb-6 text-center">
-                    <h3 className="font-bold text-lg text-blue-800">¡Transacción #{voucher.correlativo} completada!</h3>
-                    <p className="text-sm text-blue-600 mb-3">Total a pagar: <strong>$${Math.round(voucher.total_pagado).toLocaleString('es-CL')}</strong></p>
-                    <button onClick={imprimirVoucher} className="bg-blue-600 text-white px-6 py-2 rounded hover:bg-blue-700 flex items-center justify-center gap-2 mx-auto">
-                        <Printer size={20} /> Imprimir Voucher
-                    </button>
-                </div>
-            )}
-
-            <form onSubmit={handleSubmit}>
-                {/* Datos del Cliente */}
-                <fieldset className="border p-4 rounded mb-6">
-                    <legend className="text-lg font-semibold px-2">Datos del Cliente</legend>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <div>
-                            <label className="block text-sm font-medium mb-1">Nombre Cliente</label>
-                            <input type="text" name="cliente_nombre" value={cliente.cliente_nombre} onChange={handleClienteChange} className="w-full border p-2 rounded" placeholder="Juan Pérez" required />
+                    {mensaje.text && (
+                        <div className={`alert ${mensaje.type === 'success' ? 'alert-success' : 'alert-danger'} d-flex align-items-center gap-2`}>
+                            {mensaje.type === 'success' ? <CheckCircle size={20} /> : <AlertCircle size={20} />}
+                            {mensaje.text}
                         </div>
-                        <div>
-                            <label className="block text-sm font-medium mb-1">RUT / DNI</label>
-                            <input type="text" name="cliente_rut_dni" value={cliente.cliente_rut_dni} onChange={handleClienteChange} className="w-full border p-2 rounded" placeholder="12345678-9" />
-                        </div>
-                    </div>
-                </fieldset>
+                    )}
 
-                {/* Detalles de Metales */}
-                <fieldset className="border p-4 rounded mb-6">
-                    <legend className="text-lg font-semibold px-2">Metales a Vender</legend>
-                    {detalles.map((detalle, index) => (
-                        <div key={index} className="grid grid-cols-1 md:grid-cols-5 gap-3 items-center mb-3 p-2 border-b">
-                            <div className="md:col-span-2">
-                                <label className="block text-sm font-medium mb-1">Metal</label>
-                                <select name="metal_id" value={detalle.metal_id} onChange={(e) => handleDetalleChange(index, e)} className="w-full border p-2 rounded" required>
-                                    <option value="">Seleccione...</option>
-                                    {metales.map(m => (
-                                        <option key={m.id} value={m.id}>{m.nombre} (${Math.round(m.valor_por_kilo).toLocaleString('es-CL')}/kg)</option>
-                                    ))}
-                                </select>
-                            </div>
-                            <div className="md:col-span-2">
-                                <label className="block text-sm font-medium mb-1">Peso (kilos)</label>
-                                <input type="number" step="0.01" name="peso_kilos" value={detalle.peso_kilos} onChange={(e) => handleDetalleChange(index, e)} className="w-full border p-2 rounded" placeholder="0.00" required />
-                            </div>
-                            <div className="md:col-span-1 flex items-end justify-center">
-                                {detalles.length > 1 && (
-                                    <button type="button" onClick={() => quitarDetalle(index)} className="p-2 text-red-500 hover:text-red-700">
-                                        <XCircle size={24} />
-                                    </button>
-                                )}
-                            </div>
+                    {voucher && (
+                        <div className="alert alert-info text-center mb-4">
+                            <h3 className="h5 fw-bold text-primary">¡Transacción #{voucher.correlativo} completada!</h3>
+                            <p className="mb-3">Total a pagar: <strong>$${Math.round(voucher.total_pagado).toLocaleString('es-CL')}</strong></p>
+                            <button onClick={imprimirVoucher} className="btn btn-primary d-inline-flex align-items-center gap-2">
+                                <Printer size={20} /> Imprimir Voucher
+                            </button>
                         </div>
-                    ))}
-                    <button type="button" onClick={agregarDetalle} className="mt-2 text-blue-600 hover:text-blue-800 flex items-center gap-2">
-                        <PlusCircle size={20} /> Añadir otro metal
-                    </button>
-                </fieldset>
+                    )}
 
-                {/* Total y Submit */}
-                <div className="flex items-center justify-between bg-gray-50 p-4 rounded mb-6">
-                    <span className="font-semibold text-gray-600">Total Estimado:</span>
-                    <span className="text-2xl font-bold text-green-600">${getTotalEstimado().toLocaleString('es-CL')}</span>
+                    <form onSubmit={handleSubmit}>
+                        {/* Datos del Cliente */}
+                        <fieldset className="border p-3 rounded mb-4">
+                            <legend className="float-none w-auto px-2 h5 fw-bold">Datos del Cliente</legend>
+                            <div className="row g-3">
+                                <div className="col-md-6">
+                                    <label className="form-label">Nombre Cliente</label>
+                                    <input type="text" name="cliente_nombre" value={cliente.cliente_nombre} onChange={handleClienteChange} className="form-control" placeholder="Juan Pérez" required />
+                                </div>
+                                <div className="col-md-6">
+                                    <label className="form-label">RUT / DNI</label>
+                                    <input type="text" name="cliente_rut_dni" value={cliente.cliente_rut_dni} onChange={handleClienteChange} className="form-control" placeholder="12345678-9" />
+                                </div>
+                            </div>
+                        </fieldset>
+
+                        {/* Detalles de Metales */}
+                        <fieldset className="border p-3 rounded mb-4">
+                            <legend className="float-none w-auto px-2 h5 fw-bold">Metales a Vender</legend>
+                            {detalles.map((detalle, index) => (
+                                <div key={index} className="row g-3 align-items-end mb-3 pb-3 border-bottom">
+                                    <div className="col-md-5">
+                                        <label className="form-label">Metal</label>
+                                        <select name="metal_id" value={detalle.metal_id} onChange={(e) => handleDetalleChange(index, e)} className="form-select" required>
+                                            <option value="">Seleccione...</option>
+                                            {metales.map(m => (
+                                                <option key={m.id} value={m.id}>{m.nombre} (${Math.round(m.valor_por_kilo).toLocaleString('es-CL')}/kg)</option>
+                                            ))}
+                                        </select>
+                                    </div>
+                                    <div className="col-md-5">
+                                        <label className="form-label">Peso (kilos)</label>
+                                        <input type="number" step="0.01" name="peso_kilos" value={detalle.peso_kilos} onChange={(e) => handleDetalleChange(index, e)} className="form-control" placeholder="0.00" required />
+                                    </div>
+                                    <div className="col-md-2 text-end">
+                                        {detalles.length > 1 && (
+                                            <button type="button" onClick={() => quitarDetalle(index)} className="btn btn-outline-danger border-0">
+                                                <XCircle size={24} />
+                                            </button>
+                                        )}
+                                    </div>
+                                </div>
+                            ))}
+                            <button type="button" onClick={agregarDetalle} className="btn btn-link text-decoration-none d-flex align-items-center gap-2 p-0 mt-2">
+                                <PlusCircle size={20} /> Añadir otro metal
+                            </button>
+                        </fieldset>
+
+                        {/* Total y Submit */}
+                        <div className="d-flex justify-content-between align-items-center bg-light p-3 rounded mb-4">
+                            <span className="fw-bold text-secondary">Total Estimado:</span>
+                            <span className="h4 mb-0 fw-bold text-success">${getTotalEstimado().toLocaleString('es-CL')}</span>
+                        </div>
+
+                        <button type="submit" disabled={loading} className="btn btn-success w-100 py-3 fw-bold d-flex justify-content-center align-items-center gap-2">
+                            {loading ? 'Procesando...' : <><Save size={20} /> Registrar Compra</>}
+                        </button>
+                    </form>
                 </div>
-
-                <button type="submit" disabled={loading} className={`w-full bg-green-600 text-white font-bold py-3 rounded hover:bg-green-700 flex justify-center items-center gap-2 ${loading ? 'opacity-50' : ''}`}>
-                    {loading ? 'Procesando...' : <><Save size={20} /> Registrar Compra</>}
-                </button>
-            </form>
+            </div>
         </div>
     );
 };

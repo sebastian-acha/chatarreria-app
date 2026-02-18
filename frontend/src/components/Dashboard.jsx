@@ -37,70 +37,70 @@ const Dashboard = () => {
     };
 
     return (
-        <div className="min-h-screen bg-gray-100 flex">
+        <div className="d-flex min-vh-100 bg-light">
             {/* Sidebar */}
-            <aside className={`bg-gray-900 text-white transition-all duration-300 ${sidebarOpen ? 'w-64' : 'w-20'} flex flex-col`}>
-                <div className="p-4 flex items-center justify-between">
+            <aside className="bg-dark text-white d-flex flex-column" style={{ width: sidebarOpen ? '250px' : '80px', transition: 'width 0.3s' }}>
+                <div className="p-3 d-flex align-items-center justify-content-between">
                     {sidebarOpen && (
-                        <div className="flex flex-col items-center gap-2 text-center">
-                            {configuracion?.logo_url && <img src={configuracion.logo_url} alt="Logo" className="h-8 mx-auto" />}
-                            <h1 className="text-lg font-bold">{configuracion?.nombre_empresa || 'Chatarrería'}</h1>
+                        <div className="d-flex flex-column align-items-center gap-2 text-center w-100">
+                            {configuracion?.logo_url && <img src={configuracion.logo_url} alt="Logo" className="mx-auto" style={{ height: '32px' }} />}
+                            <h1 className="h6 fw-bold mb-0">{configuracion?.nombre_empresa || 'Chatarrería'}</h1>
                         </div>
                     )}
-                    <button onClick={() => setSidebarOpen(!sidebarOpen)} className="p-1 hover:bg-gray-800 rounded">
+                    <button onClick={() => setSidebarOpen(!sidebarOpen)} className="btn btn-sm btn-dark">
                         <Menu size={24} />
                     </button>
                 </div>
-                
-                <nav className="flex-1 mt-4">
-                    <BotonMenu 
-                        icon={<LayoutDashboard size={20} />} 
-                        label="Historial" 
-                        active={vistaActual === 'historial'} 
+
+                <nav className="flex-grow-1 mt-4">
+                    <BotonMenu
+                        icon={<LayoutDashboard size={20} />}
+                        label="Historial"
+                        active={vistaActual === 'historial'}
                         onClick={() => setVistaActual('historial')}
                         expanded={sidebarOpen}
                     />
-                    <BotonMenu 
-                        icon={<ShoppingCart size={20} />} 
-                        label="Nueva Compra" 
-                        active={vistaActual === 'nueva-compra'} 
+                    <BotonMenu
+                        icon={<ShoppingCart size={20} />}
+                        label="Nueva Compra"
+                        active={vistaActual === 'nueva-compra'}
                         onClick={() => setVistaActual('nueva-compra')}
                         expanded={sidebarOpen}
                     />
-                    <BotonMenu 
-                        icon={<Settings size={20} />} 
-                        label="Precios Metales" 
-                        active={vistaActual === 'metales'} 
+                    <BotonMenu
+                        icon={<Settings size={20} />}
+                        label="Precios Metales"
+                        active={vistaActual === 'metales'}
                         onClick={() => setVistaActual('metales')}
                         expanded={sidebarOpen}
                     />
-                    <BotonMenu 
-                        icon={<BarChart3 size={20} />} 
-                        label="Reporte Diario" 
-                        active={vistaActual === 'reporte'} 
+                    <BotonMenu
+                        icon={<BarChart3 size={20} />}
+                        label="Reporte Diario"
+                        active={vistaActual === 'reporte'}
                         onClick={() => setVistaActual('reporte')}
                         expanded={sidebarOpen}
                     />
                     {usuario.rol === 'ADMIN' && (
                         <>
-                            <BotonMenu 
-                                icon={<Users size={20} />} 
-                                label="Usuarios" 
-                                active={vistaActual === 'usuarios'} 
+                            <BotonMenu
+                                icon={<Users size={20} />}
+                                label="Usuarios"
+                                active={vistaActual === 'usuarios'}
                                 onClick={() => setVistaActual('usuarios')}
                                 expanded={sidebarOpen}
                             />
-                            <BotonMenu 
-                                icon={<Building size={20} />} 
-                                label="Sucursales" 
-                                active={vistaActual === 'sucursales'} 
+                            <BotonMenu
+                                icon={<Building size={20} />}
+                                label="Sucursales"
+                                active={vistaActual === 'sucursales'}
                                 onClick={() => setVistaActual('sucursales')}
                                 expanded={sidebarOpen}
                             />
-                            <BotonMenu 
-                                icon={<Cog size={20} />} 
-                                label="Configuración" 
-                                active={vistaActual === 'configuracion'} 
+                            <BotonMenu
+                                icon={<Cog size={20} />}
+                                label="Configuración"
+                                active={vistaActual === 'configuracion'}
                                 onClick={() => setVistaActual('configuracion')}
                                 expanded={sidebarOpen}
                             />
@@ -108,21 +108,21 @@ const Dashboard = () => {
                     )}
                 </nav>
 
-                <div className="p-4 border-t border-gray-800">
-                    <div className={`flex items-center gap-3 ${!sidebarOpen && 'justify-center'}`}>
-                        <div className="w-8 h-8 rounded-full bg-blue-600 flex items-center justify-center font-bold">
+                <div className="p-3 border-top border-secondary">
+                    <div className={`d-flex align-items-center gap-3 ${!sidebarOpen && 'justify-content-center'}`}>
+                        <div className="rounded-circle bg-primary d-flex align-items-center justify-content-center fw-bold text-white" style={{ width: '32px', height: '32px' }}>
                             {usuario.nombres?.[0]}
                         </div>
                         {sidebarOpen && (
                             <div className="overflow-hidden">
-                                <p className="text-sm font-medium truncate">{usuario.nombres}</p>
-                                <p className="text-xs text-gray-400 truncate">{usuario.email}</p>
+                                <p className="small fw-medium text-truncate mb-0">{usuario.nombres}</p>
+                                <p className="small text-white-50 text-truncate mb-0">{usuario.email}</p>
                             </div>
                         )}
                     </div>
-                    <button 
-                        onClick={handleLogout} 
-                        className={`mt-4 flex items-center gap-2 text-red-400 hover:text-red-300 w-full ${!sidebarOpen && 'justify-center'}`}
+                    <button
+                        onClick={handleLogout}
+                        className={`btn btn-link text-decoration-none mt-3 d-flex align-items-center gap-2 text-danger w-100 ${!sidebarOpen && 'justify-content-center'}`}
                     >
                         <LogOut size={20} />
                         {sidebarOpen && <span>Cerrar Sesión</span>}
@@ -131,8 +131,8 @@ const Dashboard = () => {
             </aside>
 
             {/* Main Content */}
-            <main className="flex-1 overflow-auto h-screen">
-                <div className="p-8">
+            <main className="flex-grow-1 overflow-auto vh-100">
+                <div className="p-4">
                     {renderVista()}
                 </div>
             </main>
@@ -143,9 +143,9 @@ const Dashboard = () => {
 
 
 const BotonMenu = ({ icon, label, active, onClick, expanded }) => (
-    <button 
+    <button
         onClick={onClick}
-        className={`w-full flex items-center gap-3 p-4 transition-colors ${active ? 'bg-blue-700 text-white' : 'text-gray-400 hover:bg-gray-800 hover:text-white'} ${!expanded && 'justify-center'}`}
+        className={`btn w-100 rounded-0 d-flex align-items-center gap-3 p-3 border-0 ${active ? 'btn-primary' : 'text-white-50 hover-bg-secondary'} ${!expanded && 'justify-content-center'}`}
         title={!expanded ? label : ''}
     >
         {icon}

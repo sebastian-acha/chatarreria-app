@@ -114,46 +114,46 @@ const HistorialTransacciones = () => {
     };
 
     return (
-        <div className="p-6">
-            <h1 className="text-2xl font-bold mb-4">Historial de Transacciones</h1>
+        <div className="container-fluid p-4">
+            <h1 className="h3 fw-bold mb-4">Historial de Transacciones</h1>
 
-            <form onSubmit={handleSearch} className="bg-white p-6 rounded-xl shadow-sm border border-gray-200 mb-6 flex flex-wrap gap-4 items-end">
-                <input type="date" className="border p-2 rounded" value={filtros.fecha_inicio} onChange={e => setFiltros({ ...filtros, fecha_inicio: e.target.value })} />
-                <input type="date" className="border p-2 rounded" value={filtros.fecha_fin} onChange={e => setFiltros({ ...filtros, fecha_fin: e.target.value })} />
-                <select className="border p-2 rounded" value={filtros.metal__id} onChange={e => setFiltros({ ...filtros, metal_id: e.target.value })}>
+            <form onSubmit={handleSearch} className="bg-white p-4 rounded shadow-sm border mb-4 d-flex flex-wrap gap-3 align-items-end">
+                <input type="date" className="form-control w-auto" value={filtros.fecha_inicio} onChange={e => setFiltros({ ...filtros, fecha_inicio: e.target.value })} />
+                <input type="date" className="form-control w-auto" value={filtros.fecha_fin} onChange={e => setFiltros({ ...filtros, fecha_fin: e.target.value })} />
+                <select className="form-select w-auto" value={filtros.metal__id} onChange={e => setFiltros({ ...filtros, metal_id: e.target.value })}>
                     <option value="">Todos los metales</option>
                     {metales.map(m => <option key={m.id} value={m.id}>{m.nombre}</option>)}
                 </select>
-                <button type="submit" className="bg-blue-600 text-white px-4 py-2 rounded flex items-center gap-2"><Search size={18} /> Filtrar</button>
+                <button type="submit" className="btn btn-primary d-flex align-items-center gap-2"><Search size={18} /> Filtrar</button>
             </form>
 
-            <div className="flex justify-between items-center mb-2">
-                <div><span className="mr-2">Mostrar</span><select value={paginacion.limit} onChange={(e) => setPaginacion(prev => ({ ...prev, limit: Number(e.target.value), page: 1 }))} className="border p-1 rounded"><option value={20}>20</option><option value={40}>40</option><option value={100}>100</option></select><span className="ml-2">registros</span></div>
+            <div className="d-flex justify-content-between align-items-center mb-2">
+                <div><span className="me-2">Mostrar</span><select value={paginacion.limit} onChange={(e) => setPaginacion(prev => ({ ...prev, limit: Number(e.target.value), page: 1 }))} className="form-select form-select-sm d-inline-block w-auto"><option value={20}>20</option><option value={40}>40</option><option value={100}>100</option></select><span className="ms-2">registros</span></div>
                 <div><strong>Total:</strong> {paginacion.total} transacciones</div>
             </div>
 
-            <div className="overflow-x-auto bg-white shadow-sm rounded-xl border border-gray-200">
-                <table className="min-w-full text-sm text-left">
-                    <thead className="bg-gray-800 text-white uppercase">
+            <div className="table-responsive bg-white shadow-sm rounded border">
+                <table className="table table-hover mb-0">
+                    <thead className="table-dark text-uppercase small">
                         <tr>
-                            <th className="px-4 py-3 cursor-pointer" onClick={() => handleSort('id')}><div className="flex items-center gap-1">ID <ArrowUpDown size={14} /></div></th>
-                            <th className="px-4 py-3 cursor-pointer" onClick={() => handleSort('fecha_hora')}><div className="flex items-center gap-1">Fecha <ArrowUpDown size={14} /></div></th>
+                            <th className="px-4 py-3 cursor-pointer" onClick={() => handleSort('id')}><div className="d-flex align-items-center gap-1">ID <ArrowUpDown size={14} /></div></th>
+                            <th className="px-4 py-3 cursor-pointer" onClick={() => handleSort('fecha_hora')}><div className="d-flex align-items-center gap-1">Fecha <ArrowUpDown size={14} /></div></th>
                             <th className="px-4 py-3">Cliente</th>
-                            <th className="px-4 py-3 cursor-pointer" onClick={() => handleSort('total_pagar')}><div className="flex items-center gap-1">Total <ArrowUpDown size={14} /></div></th>
+                            <th className="px-4 py-3 cursor-pointer" onClick={() => handleSort('total_pagar')}><div className="d-flex align-items-center gap-1">Total <ArrowUpDown size={14} /></div></th>
                             <th className="px-4 py-3">Acciones</th>
                         </tr>
                     </thead>
                     <tbody>
                         {loading ? (<tr><td colSpan="5" className="text-center py-4">Cargando...</td></tr>) : transacciones.length === 0 ? (<tr><td colSpan="5" className="text-center py-4">No se encontraron registros</td></tr>) : (
                             transacciones.map((t) => (
-                                <tr className="border-b hover:bg-gray-50" key={t.id}>
+                                <tr key={t.id}>
                                     <td className="px-4 py-2">{t.id}</td>
                                     <td className="px-4 py-2">{new Date(t.fecha_hora).toLocaleString()}</td>
-                                    <td className="px-4 py-2"><div className="font-medium">{t.cliente_nombre}</div><div className="text-xs text-gray-500">{t.cliente_rut_dni}</div></td>
-                                    <td className="px-4 py-2 font-bold text-green-700">${Math.round(parseFloat(t.total_pagar)).toLocaleString('es-CL')}</td>
-                                    <td className="px-4 py-2 flex items-center gap-2">
-                                        <button onClick={() => setTransaccionModal(t)} className="text-gray-600 hover:text-gray-800 flex items-center gap-1 border border-gray-400 px-2 py-1 rounded text-xs"><Eye size={14} /> Detalles</button>
-                                        <button onClick={() => imprimirVoucher(t.id)} className="text-blue-600 hover:text-blue-800 flex items-center gap-1 border border-blue-600 px-2 py-1 rounded text-xs"><Printer size={14} /> Voucher</button>
+                                    <td className="px-4 py-2"><div className="fw-medium">{t.cliente_nombre}</div><div className="small text-muted">{t.cliente_rut_dni}</div></td>
+                                    <td className="px-4 py-2 fw-bold text-success">${Math.round(parseFloat(t.total_pagar)).toLocaleString('es-CL')}</td>
+                                    <td className="px-4 py-2 d-flex align-items-center gap-2">
+                                        <button onClick={() => setTransaccionModal(t)} className="btn btn-sm btn-outline-secondary d-flex align-items-center gap-1"><Eye size={14} /> Detalles</button>
+                                        <button onClick={() => imprimirVoucher(t.id)} className="btn btn-sm btn-outline-primary d-flex align-items-center gap-1"><Printer size={14} /> Voucher</button>
                                     </td>
                                 </tr>
                             ))
@@ -162,54 +162,56 @@ const HistorialTransacciones = () => {
                 </table>
             </div>
 
-            <div className="flex justify-center items-center gap-4 mt-4">
-                <button disabled={paginacion.page <= 1} onClick={() => setPaginacion(prev => ({ ...prev, page: prev.page - 1 }))} className="p-2 border rounded disabled:opacity-50 hover:bg-gray-100"><ChevronLeft size={20} /></button>
+            <div className="d-flex justify-content-center align-items-center gap-4 mt-4">
+                <button disabled={paginacion.page <= 1} onClick={() => setPaginacion(prev => ({ ...prev, page: prev.page - 1 }))} className="btn btn-outline-secondary p-2"><ChevronLeft size={20} /></button>
                 <span>Página {paginacion.page} de {paginacion.totalPages || 1}</span>
-                <button disabled={paginacion.page >= paginacion.totalPages} onClick={() => setPaginacion(prev => ({ ...prev, page: prev.page + 1 }))} className="p-2 border rounded disabled:opacity-50 hover:bg-gray-100"><ChevronRight size={20} /></button>
+                <button disabled={paginacion.page >= paginacion.totalPages} onClick={() => setPaginacion(prev => ({ ...prev, page: prev.page + 1 }))} className="btn btn-outline-secondary p-2"><ChevronRight size={20} /></button>
             </div>
-            {error && <div className="text-red-500 text-center mt-2">{error}</div>}
+            {error && <div className="text-danger text-center mt-2">{error}</div>}
 
             {transaccionModal && (
-                <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-                    <div className="bg-white rounded-lg shadow-2xl max-w-2xl w-full">
-                        <div className="flex justify-between items-center p-4 border-b">
-                            <h3 className="text-lg font-bold">Detalles de la Transacción #{transaccionModal.id}</h3>
-                            <button onClick={() => setTransaccionModal(null)} className="p-2 rounded-full hover:bg-gray-200"><X size={20} /></button>
-                        </div>
-                        <div className="p-6">
-                            <div className="grid grid-cols-2 gap-4 mb-4 text-sm">
-                                <div><strong>Fecha:</strong> {new Date(transaccionModal.fecha_hora).toLocaleString()}</div>
-                                <div><strong>Sucursal:</strong> {transaccionModal.sucursal_nombre}</div>
-                                <div><strong>Cliente:</strong> {transaccionModal.cliente_nombre}</div>
-                                <div><strong>RUT/DNI:</strong> {transaccionModal.cliente_rut_dni || '-'}</div>
-                                <div><strong>Ejecutivo:</strong> {transaccionModal.ejecutivo_nombre}</div>
+                <div className="modal show d-block" style={{ backgroundColor: 'rgba(0,0,0,0.5)' }}>
+                    <div className="modal-dialog modal-lg modal-dialog-centered">
+                        <div className="modal-content">
+                            <div className="modal-header">
+                                <h5 className="modal-title fw-bold">Detalles de la Transacción #{transaccionModal.id}</h5>
+                                <button onClick={() => setTransaccionModal(null)} className="btn-close"></button>
                             </div>
+                            <div className="modal-body">
+                                <div className="row g-3 mb-4 small">
+                                    <div className="col-6"><strong>Fecha:</strong> {new Date(transaccionModal.fecha_hora).toLocaleString()}</div>
+                                    <div className="col-6"><strong>Sucursal:</strong> {transaccionModal.sucursal_nombre}</div>
+                                    <div className="col-6"><strong>Cliente:</strong> {transaccionModal.cliente_nombre}</div>
+                                    <div className="col-6"><strong>RUT/DNI:</strong> {transaccionModal.cliente_rut_dni || '-'}</div>
+                                    <div className="col-6"><strong>Ejecutivo:</strong> {transaccionModal.ejecutivo_nombre}</div>
+                                </div>
 
-                            <div className="font-bold mb-2">Metales comprados:</div>
-                            <div className="overflow-x-auto border rounded-lg">
-                                <table className="min-w-full text-xs">
-                                    <thead className="bg-gray-100">
-                                        <tr>
-                                            <th className="px-3 py-2 text-left">Metal</th>
-                                            <th className="px-3 py-2 text-right">Peso (kg)</th>
-                                            <th className="px-3 py-2 text-right">Precio/kg</th>
-                                            <th className="px-3 py-2 text-right">Subtotal</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        {transaccionModal.detalles.map((d, index) => (
-                                            <tr key={index} className="border-b last:border-b-0">
-                                                <td className="px-3 py-2">{d.metal_nombre}</td>
-                                                <td className="px-3 py-2 text-right">{d.peso_kilos}</td>
-                                                <td className="px-3 py-2 text-right">${Math.round(parseFloat(d.valor_kilo_aplicado)).toLocaleString('es-CL')}</td>
-                                                <td className="px-3 py-2 text-right font-semibold">${Math.round(parseFloat(d.subtotal)).toLocaleString('es-CL')}</td>
+                                <div className="fw-bold mb-2">Metales comprados:</div>
+                                <div className="table-responsive border rounded">
+                                    <table className="table table-sm mb-0 small">
+                                        <thead className="table-light">
+                                            <tr>
+                                                <th className="px-3 py-2 text-left">Metal</th>
+                                                <th className="px-3 py-2 text-right">Peso (kg)</th>
+                                                <th className="px-3 py-2 text-right">Precio/kg</th>
+                                                <th className="px-3 py-2 text-right">Subtotal</th>
                                             </tr>
-                                        ))}
-                                    </tbody>
-                                </table>
-                            </div>
-                            <div className="text-right mt-4">
-                                <span className="text-xl font-bold">TOTAL: ${Math.round(parseFloat(transaccionModal.total_pagar)).toLocaleString('es-CL')}</span>
+                                        </thead>
+                                        <tbody>
+                                            {transaccionModal.detalles.map((d, index) => (
+                                                <tr key={index}>
+                                                    <td className="px-3 py-2">{d.metal_nombre}</td>
+                                                    <td className="px-3 py-2 text-right">{d.peso_kilos}</td>
+                                                    <td className="px-3 py-2 text-right">${Math.round(parseFloat(d.valor_kilo_aplicado)).toLocaleString('es-CL')}</td>
+                                                    <td className="px-3 py-2 text-right fw-semibold">${Math.round(parseFloat(d.subtotal)).toLocaleString('es-CL')}</td>
+                                                </tr>
+                                            ))}
+                                        </tbody>
+                                    </table>
+                                </div>
+                                <div className="text-right mt-4">
+                                    <span className="h5 fw-bold">TOTAL: ${Math.round(parseFloat(transaccionModal.total_pagar)).toLocaleString('es-CL')}</span>
+                                </div>
                             </div>
                         </div>
                     </div>

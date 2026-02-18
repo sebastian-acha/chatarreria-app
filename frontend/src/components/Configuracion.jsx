@@ -62,60 +62,60 @@ const Configuracion = () => {
     };
 
     return (
-        <div className="container mx-auto p-4">
-            <h1 className="text-2xl font-bold mb-4">Configuración de la Empresa</h1>
+        <div className="container p-4">
+            <h1 className="h3 fw-bold mb-4">Configuración de la Empresa</h1>
             <form onSubmit={handleSubmit}>
                 <div className="mb-4">
-                    <label className="block text-gray-700">Nombre de la Empresa</label>
+                    <label className="form-label">Nombre de la Empresa</label>
                     <input
                         type="text"
                         name="nombre_empresa"
                         value={config.nombre_empresa}
                         onChange={handleChange}
-                        className="w-full p-2 border rounded"
+                        className="form-control"
                     />
                 </div>
                 <div className="mb-4">
-                    <label className="block text-gray-700">Dirección</label>
+                    <label className="form-label">Dirección</label>
                     <input
                         type="text"
                         name="direccion"
                         value={config.direccion}
                         onChange={handleChange}
-                        className="w-full p-2 border rounded"
+                        className="form-control"
                     />
                 </div>
                 <div className="mb-4">
-                    <label className="block text-gray-700">Teléfono</label>
+                    <label className="form-label">Teléfono</label>
                     <input
                         type="text"
                         name="telefono"
                         value={config.telefono}
                         onChange={handleChange}
-                        className="w-full p-2 border rounded"
+                        className="form-control"
                     />
                 </div>
                 <div className="mb-4">
-                    <label className="block text-gray-700">Email</label>
+                    <label className="form-label">Email</label>
                     <input
                         type="email"
                         name="email"
                         value={config.email}
                         onChange={handleChange}
-                        className="w-full p-2 border rounded"
+                        className="form-control"
                     />
                 </div>
                 <div className="mb-4">
-                    <label className="block text-gray-700">Logo</label>
+                    <label className="form-label">Logo</label>
                     <input
                         type="file"
                         name="logo"
                         onChange={handleLogoChange}
-                        className="w-full p-2 border rounded"
+                        className="form-control"
                     />
-                    {config.logo_url && <img src={config.logo_url} alt="Logo" className="mt-4 h-20" />}
+                    {config.logo_url && <img src={config.logo_url} alt="Logo" className="mt-4" style={{ height: '80px' }} />}
                 </div>
-                <button type="submit" className="bg-blue-500 text-white p-2 rounded">
+                <button type="submit" className="btn btn-primary">
                     Guardar Cambios
                 </button>
             </form>

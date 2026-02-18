@@ -7,10 +7,10 @@ const GestionMetales = () => {
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState('');
     const [editingId, setEditingId] = useState(null);
-    
+
     // Formulario para crear
     const [nuevoMetal, setNuevoMetal] = useState({ nombre: '', valor_por_kilo: '' });
-    
+
     // Estado para edición en línea
     const [editForm, setEditForm] = useState({ nombre: '', valor_por_kilo: '' });
     const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000/api';
@@ -69,47 +69,49 @@ const GestionMetales = () => {
     };
 
     return (
-        <div className="p-6 bg-white rounded-xl shadow-sm border border-gray-200">
-            <h2 className="text-2xl font-bold mb-6 flex items-center gap-2"><DollarSign /> Gestión de Precios y Metales</h2>
+        <div className="container-fluid p-4 bg-white rounded shadow-sm border">
+            <h2 className="h3 mb-4 d-flex align-items-center gap-2"><DollarSign /> Gestión de Precios y Metales</h2>
 
             {/* Formulario de Creación */}
-            <div className="mb-8 bg-gray-50 p-6 rounded-xl border border-gray-200">
-                <h3 className="text-lg font-semibold mb-3 flex items-center gap-2"><Plus size={20}/> Agregar Nuevo Metal</h3>
-                <form onSubmit={handleCrear} className="flex flex-wrap gap-4 items-end">
-                    <div className="flex-1 min-w-[200px]">
-                        <label className="block text-sm font-medium mb-1">Nombre</label>
-                        <input 
-                            type="text" 
-                            className="border p-2 rounded w-full" 
+            <div className="mb-4 bg-light p-4 rounded border">
+                <h3 className="h5 mb-3 d-flex align-items-center gap-2"><Plus size={20} /> Agregar Nuevo Metal</h3>
+                <form onSubmit={handleCrear} className="row g-3 align-items-end">
+                    <div className="col-md">
+                        <label className="form-label">Nombre</label>
+                        <input
+                            type="text"
+                            className="form-control"
                             placeholder="Ej: Cobre"
                             value={nuevoMetal.nombre}
-                            onChange={e => setNuevoMetal({...nuevoMetal, nombre: e.target.value})}
+                            onChange={e => setNuevoMetal({ ...nuevoMetal, nombre: e.target.value })}
                             required
                         />
                     </div>
-                    <div className="flex-1 min-w-[200px]">
-                        <label className="block text-sm font-medium mb-1">Precio por Kilo</label>
-                        <input 
-                            type="number" 
-                            step="1" 
-                            className="border p-2 rounded w-full" 
+                    <div className="col-md">
+                        <label className="form-label">Precio por Kilo</label>
+                        <input
+                            type="number"
+                            step="1"
+                            className="form-control"
                             placeholder="0"
                             value={nuevoMetal.valor_por_kilo}
-                            onChange={e => setNuevoMetal({...nuevoMetal, valor_por_kilo: e.target.value})}
+                            onChange={e => setNuevoMetal({ ...nuevoMetal, valor_por_kilo: e.target.value })}
                             required
                         />
                     </div>
-                    <button type="submit" className="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700 h-[42px]">
-                        Guardar
-                    </button>
+                    <div className="col-auto">
+                        <button type="submit" className="btn btn-success">
+                            Guardar
+                        </button>
+                    </div>
                 </form>
             </div>
 
             {/* Tabla de Metales */}
-            <div className="overflow-x-auto">
-                <table className="w-full text-left border-collapse">
-                    <thead>
-                        <tr className="bg-gray-100 border-b">
+            <div className="table-responsive">
+                <table className="table table-hover align-middle">
+                    <thead className="table-light">
+                        <tr>
                             <th className="p-3">ID</th>
                             <th className="p-3">Metal</th>
                             <th className="p-3">Precio / Kilo</th>
@@ -118,43 +120,43 @@ const GestionMetales = () => {
                     </thead>
                     <tbody>
                         {metales.map(metal => (
-                            <tr key={metal.id} className="border-b hover:bg-gray-50">
-                                <td className="p-3 text-gray-500">#{metal.id}</td>
-                                
+                            <tr key={metal.id}>
+                                <td className="p-3 text-muted">#{metal.id}</td>
+
                                 {editingId === metal.id ? (
                                     <>
                                         <td className="p-3">
-                                            <input 
-                                                type="text" 
-                                                className="border p-1 rounded w-full"
+                                            <input
+                                                type="text"
+                                                className="form-control form-control-sm"
                                                 value={editForm.nombre}
-                                                onChange={e => setEditForm({...editForm, nombre: e.target.value})}
+                                                onChange={e => setEditForm({ ...editForm, nombre: e.target.value })}
                                             />
                                         </td>
                                         <td className="p-3">
-                                            <input 
-                                                type="number" 
-                                                step="1" 
-                                                className="border p-1 rounded w-full"
+                                            <input
+                                                type="number"
+                                                step="1"
+                                                className="form-control form-control-sm"
                                                 value={editForm.valor_por_kilo}
-                                                onChange={e => setEditForm({...editForm, valor_por_kilo: e.target.value})}
+                                                onChange={e => setEditForm({ ...editForm, valor_por_kilo: e.target.value })}
                                             />
                                         </td>
-                                        <td className="p-3 flex gap-2">
-                                            <button onClick={() => guardarEdicion(metal.id)} className="text-green-600 hover:bg-green-50 p-1 rounded" title="Guardar">
+                                        <td className="p-3 d-flex gap-2">
+                                            <button onClick={() => guardarEdicion(metal.id)} className="btn btn-sm btn-outline-success" title="Guardar">
                                                 <Save size={18} />
                                             </button>
-                                            <button onClick={cancelarEdicion} className="text-red-600 hover:bg-red-50 p-1 rounded" title="Cancelar">
+                                            <button onClick={cancelarEdicion} className="btn btn-sm btn-outline-danger" title="Cancelar">
                                                 <X size={18} />
                                             </button>
                                         </td>
                                     </>
                                 ) : (
                                     <>
-                                        <td className="p-3 font-medium">{metal.nombre}</td>
-                                        <td className="p-3 font-bold text-blue-600">${Math.round(metal.valor_por_kilo)}</td>
+                                        <td className="p-3 fw-medium">{metal.nombre}</td>
+                                        <td className="p-3 fw-bold text-primary">${Math.round(metal.valor_por_kilo)}</td>
                                         <td className="p-3">
-                                            <button onClick={() => iniciarEdicion(metal)} className="text-blue-600 hover:bg-blue-50 p-1 rounded flex items-center gap-1">
+                                            <button onClick={() => iniciarEdicion(metal)} className="btn btn-sm btn-outline-primary d-flex align-items-center gap-1">
                                                 <Edit2 size={16} /> Editar
                                             </button>
                                         </td>

@@ -62,37 +62,39 @@ const GestionUsuarios = () => {
     };
 
     return (
-        <div className="p-6 bg-white rounded-xl shadow-sm border border-gray-200">
-            <h2 className="text-2xl font-bold mb-6 flex items-center gap-2"><Users /> Gestión de Usuarios</h2>
+        <div className="container-fluid p-4 bg-white rounded shadow-sm border">
+            <h2 className="h3 mb-4 d-flex align-items-center gap-2"><Users /> Gestión de Usuarios</h2>
 
             {/* Formulario de Creación */}
-            <div className="mb-8 bg-gray-50 p-6 rounded-xl border border-gray-200">
-                <h3 className="text-lg font-semibold mb-4 flex items-center gap-2"><Plus /> Crear Nuevo Usuario</h3>
-                <form onSubmit={handleSubmit} className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                    <input name="nombres" value={form.nombres} onChange={handleChange} placeholder="Nombres" className="border p-2 rounded" required />
-                    <input name="apellido_paterno" value={form.apellido_paterno} onChange={handleChange} placeholder="Apellido Paterno" className="border p-2 rounded" required />
-                    <input type="email" name="email" value={form.email} onChange={handleChange} placeholder="Email" className="border p-2 rounded" required />
-                    <input type="password" name="password" value={form.password} onChange={handleChange} placeholder="Contraseña" className="border p-2 rounded" required />
-                    <select name="rol" value={form.rol} onChange={handleChange} className="border p-2 rounded">
+            <div className="mb-4 bg-light p-4 rounded border">
+                <h3 className="h5 mb-3 d-flex align-items-center gap-2"><Plus /> Crear Nuevo Usuario</h3>
+                <form onSubmit={handleSubmit} className="row g-3">
+                    <div className="col-md-4"><input name="nombres" value={form.nombres} onChange={handleChange} placeholder="Nombres" className="form-control" required /></div>
+                    <div className="col-md-4"><input name="apellido_paterno" value={form.apellido_paterno} onChange={handleChange} placeholder="Apellido Paterno" className="form-control" required /></div>
+                    <div className="col-md-4"><input type="email" name="email" value={form.email} onChange={handleChange} placeholder="Email" className="form-control" required /></div>
+                    <div className="col-md-4"><input type="password" name="password" value={form.password} onChange={handleChange} placeholder="Contraseña" className="form-control" required /></div>
+                    <div className="col-md-4"><select name="rol" value={form.rol} onChange={handleChange} className="form-select">
                         <option value="EJECUTIVO">Ejecutivo</option>
                         <option value="ADMIN">Administrador</option>
-                    </select>
+                    </select></div>
                     {form.rol === 'EJECUTIVO' && (
-                        <select name="sucursal_id" value={form.sucursal_id} onChange={handleChange} className="border p-2 rounded" required>
+                        <div className="col-md-4"><select name="sucursal_id" value={form.sucursal_id} onChange={handleChange} className="form-select" required>
                             <option value="">Seleccione Sucursal...</option>
                             {sucursales.map(s => <option key={s.id} value={s.id}>{s.nombre}</option>)}
-                        </select>
+                        </select></div>
                     )}
-                    <button type="submit" className="bg-blue-600 text-white p-2 rounded hover:bg-blue-700 col-span-full md:col-span-1 flex items-center justify-center gap-2">
-                        <Save size={18} /> Guardar Usuario
-                    </button>
+                    <div className="col-12 col-md-4">
+                        <button type="submit" className="btn btn-primary w-100 d-flex align-items-center justify-content-center gap-2">
+                            <Save size={18} /> Guardar Usuario
+                        </button>
+                    </div>
                 </form>
             </div>
 
             {/* Tabla de Usuarios */}
-            <div className="overflow-x-auto">
-                <table className="w-full text-left">
-                    <thead className="bg-gray-100">
+            <div className="table-responsive">
+                <table className="table table-hover">
+                    <thead className="table-light">
                         <tr>
                             <th className="p-3">ID</th>
                             <th className="p-3">Nombre</th>
@@ -107,18 +109,18 @@ const GestionUsuarios = () => {
                             <tr><td colSpan="6" className="p-4 text-center">Cargando...</td></tr>
                         ) : (
                             usuarios.map(user => (
-                                <tr key={user.id} className="border-b hover:bg-gray-50">
-                                    <td className="p-3 text-gray-500">#{user.id}</td>
-                                    <td className="p-3 font-medium">{user.nombres} {user.apellido_paterno}</td>
+                                <tr key={user.id}>
+                                    <td className="p-3 text-muted">#{user.id}</td>
+                                    <td className="p-3 fw-medium">{user.nombres} {user.apellido_paterno}</td>
                                     <td className="p-3">{user.email}</td>
                                     <td className="p-3">
-                                        <span className={`px-2 py-1 text-xs font-semibold rounded-full ${user.rol === 'ADMIN' ? 'bg-red-100 text-red-800' : 'bg-blue-100 text-blue-800'}`}>
+                                        <span className={`badge rounded-pill ${user.rol === 'ADMIN' ? 'bg-danger-subtle text-danger' : 'bg-primary-subtle text-primary'}`}>
                                             {user.rol}
                                         </span>
                                     </td>
                                     <td className="p-3">{user.sucursal_nombre || 'N/A'}</td>
                                     <td className="p-3">
-                                        <span className={`px-2 py-1 text-xs font-semibold rounded-full ${user.activo ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800'}`}>
+                                        <span className={`badge rounded-pill ${user.activo ? 'bg-success-subtle text-success' : 'bg-secondary-subtle text-secondary'}`}>
                                             {user.activo ? 'Activo' : 'Inactivo'}
                                         </span>
                                     </td>
