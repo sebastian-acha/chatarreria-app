@@ -51,7 +51,7 @@ const Login = () => {
     return (
         <div className="min-vh-100 d-flex align-items-center justify-content-center bg-light">
             <div className="bg-white p-5 rounded shadow w-100" style={{ maxWidth: '400px' }}>
-                <div className="text-center mb-8">
+                <div className="text-center mb-4">
                     {configuracion?.logo_url && (
                         <img src={configuracion.logo_url} alt="Logo" className="mx-auto mb-4" style={{ height: '64px' }} />
                     )}
@@ -89,7 +89,7 @@ const Login = () => {
                         </div>
                     </div>
 
-                    <div className="mb-6">
+                    <div className="mb-4">
                         <label className="form-label fw-bold small text-secondary" htmlFor="password">
                             Contraseña
                         </label>

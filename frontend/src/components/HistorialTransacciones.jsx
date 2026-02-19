@@ -85,7 +85,7 @@ const HistorialTransacciones = () => {
                 <html>
                     <head><title>Voucher #${data.id}</title></head>
                     <body style="font-family: monospace; text-align: center; padding: 20px;">
-                        ${configuracion?.logo_url ? `<img src="${configuracion.logo_url}" alt="Logo" style="mx-auto h-16 mb-4" />` : ''}
+                        ${configuracion?.logo_url ? `<img src="${configuracion.logo_url}" alt="Logo" class="mx-auto mb-4" style="height: 4rem;" />` : ''}
                         <h2>${configuracion?.nombre_empresa || 'CHATARRERÍA'}</h2>
                         <p>Sucursal: ${data.sucursal_nombre || 'Central'}</p>
                         <p>Fecha: ${new Date(data.fecha_hora).toLocaleString()}</p>

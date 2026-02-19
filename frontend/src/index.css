@@ -1,9 +1,9 @@
-/* @tailwind base;*/
-/* @tailwind components;*/
-/* @tailwind utilities;*/
-
 /* Opcional: Estilos globales extra si los necesitas */
 body {
   background-color: #f3f4f6;
   /* bg-gray-100 */
+}
+
+.hover-bg-secondary:hover {
+  background-color: rgba(255, 255, 255, 0.1) !important;
 }
