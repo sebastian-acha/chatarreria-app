@@ -7,14 +7,13 @@ import ReporteDiario from './ReporteDiario';
 import GestionUsuarios from './GestionUsuarios';
 import GestionSucursales from './GestionSucursales';
 import Configuracion from './Configuracion';
-import { LogOut, LayoutDashboard, ShoppingCart, Settings, Menu, BarChart3, Users, Building, Cog } from 'lucide-react';
+import { LogOut, LayoutDashboard, ShoppingCart, DollarSign, BarChart3, Users, Building, Settings } from 'lucide-react';
 import { ConfiguracionContext } from '../context/ConfiguracionContext';
 
 const Dashboard = () => {
     const navigate = useNavigate();
     const usuario = JSON.parse(localStorage.getItem('usuario') || '{}');
     const [vistaActual, setVistaActual] = useState('historial');
-    const [sidebarOpen, setSidebarOpen] = useState(true);
     const { configuracion } = useContext(ConfiguracionContext);
 
     const handleLogout = () => {
@@ -37,120 +36,94 @@ const Dashboard = () => {
     };
 
     return (
-        <div className="d-flex min-vh-100 bg-light">
-            {/* Sidebar */}
-            <aside className="bg-dark text-white d-flex flex-column" style={{ width: sidebarOpen ? '250px' : '80px', transition: 'width 0.3s' }}>
-                <div className="p-3 d-flex align-items-center justify-content-between">
-                    {sidebarOpen && (
-                        <div className="d-flex flex-column align-items-center gap-2 text-center w-100">
-                            {configuracion?.logo_url && <img src={configuracion.logo_url} alt="Logo" className="mx-auto" style={{ height: '32px' }} />}
-                            <h1 className="h6 fw-bold mb-0">{configuracion?.nombre_empresa || 'Chatarrería'}</h1>
-                        </div>
+        <main className="d-flex flex-column min-vh-100 bg-light">
+            <header className="navbar navbar-expand-md navbar-dark bg-dark container-fluid flex-wrap flex-md-nowrap" aria-label="Main -navigation">
+                <a className="navbar-brand p-0 me-2 d-flex align-items-center gap-2" href="#" onClick={e => e.preventDefault()}>
+                    {configuracion?.logo_url ? (
+                        <img src={configuracion.logo_url} alt="Logo" style={{ height: '32px' }} />
+                    ) : (
+                        <span className="h6 fw-bold mb-0 text-white">{configuracion?.nombre_empresa || 'Chatarrería'}</span>
                     )}
-                    <button onClick={() => setSidebarOpen(!sidebarOpen)} className="btn btn-sm btn-dark">
-                        <Menu size={24} />
-                    </button>
-                </div>
+                </a>
 
-                <nav className="flex-grow-1 mt-4">
-                    <BotonMenu
-                        icon={<LayoutDashboard size={20} />}
-                        label="Historial"
-                        active={vistaActual === 'historial'}
-                        onClick={() => setVistaActual('historial')}
-                        expanded={sidebarOpen}
-                    />
-                    <BotonMenu
-                        icon={<ShoppingCart size={20} />}
-                        label="Nueva Compra"
-                        active={vistaActual === 'nueva-compra'}
-                        onClick={() => setVistaActual('nueva-compra')}
-                        expanded={sidebarOpen}
-                    />
-                    <BotonMenu
-                        icon={<Settings size={20} />}
-                        label="Precios Metales"
-                        active={vistaActual === 'metales'}
-                        onClick={() => setVistaActual('metales')}
-                        expanded={sidebarOpen}
-                    />
-                    <BotonMenu
-                        icon={<BarChart3 size={20} />}
-                        label="Reporte Diario"
-                        active={vistaActual === 'reporte'}
-                        onClick={() => setVistaActual('reporte')}
-                        expanded={sidebarOpen}
-                    />
-                    {usuario.rol === 'ADMIN' && (
-                        <>
-                            <BotonMenu
-                                icon={<Users size={20} />}
-                                label="Usuarios"
-                                active={vistaActual === 'usuarios'}
-                                onClick={() => setVistaActual('usuarios')}
-                                expanded={sidebarOpen}
-                            />
-                            <BotonMenu
-                                icon={<Building size={20} />}
-                                label="Sucursales"
-                                active={vistaActual === 'sucursales'}
-                                onClick={() => setVistaActual('sucursales')}
-                                expanded={sidebarOpen}
-                            />
-                            <BotonMenu
-                                icon={<Cog size={20} />}
-                                label="Configuración"
-                                active={vistaActual === 'configuracion'}
-                                onClick={() => setVistaActual('configuracion')}
-                                expanded={sidebarOpen}
-                            />
-                        </>
-                    )}
-                </nav>
+                <button className="navbar-toggler collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#bdNavbar" aria-controls="bdNavbar" aria-expanded="false" aria-label="Toggle navigation">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" className="bi" fill="currentColor" viewBox="0 0 16 16">
+                        <path fillRule="evenodd" d="M2.5 11.5A.5.5 0 0 1 3 11h10a.5.5 0 0 1 0 1H3a.5.5 0 0 1-.5-.5zm0-4A.5.5 0 0 1 3 7h10a.5.5 0 0 1 0 1H3a.5.5 0 0 1-.5-.5zm0-4A.5.5 0 0 1 3 3h10a.5.5 0 0 1 0 1H3a.5.5 0 0 1-.5-.5z"></path>
+                    </svg>
+                </button>
 
-                <div className="p-3 border-top border-secondary">
-                    <div className={`d-flex align-items-center gap-3 ${!sidebarOpen && 'justify-content-center'}`}>
-                        <div className="rounded-circle bg-primary d-flex align-items-center justify-content-center fw-bold text-white" style={{ width: '32px', height: '32px' }}>
-                            {usuario.nombres?.[0]}
-                        </div>
-                        {sidebarOpen && (
-                            <div className="overflow-hidden">
-                                <p className="small fw-medium text-truncate mb-0">{usuario.nombres}</p>
-                                <p className="small text-white-50 text-truncate mb-0">{usuario.email}</p>
-                            </div>
+                <div className="navbar-collapse collapse" id="bdNavbar">
+                    <ul className="navbar-nav flex-row flex-wrap bd-navbar-nav pt-2 py-md-0">
+                        <li className="nav-item col-6 col-md-auto">
+                            <a className={`nav-link p-2 d-flex align-items-center gap-2 ${vistaActual === 'historial' ? 'active' : ''}`} href="#" onClick={(e) => { e.preventDefault(); setVistaActual('historial'); }}>
+                                <LayoutDashboard size={18} />
+                                Historial
+                            </a>
+                        </li>
+                        <li className="nav-item col-6 col-md-auto">
+                            <a className={`nav-link p-2 d-flex align-items-center gap-2 ${vistaActual === 'nueva-compra' ? 'active' : ''}`} href="#" onClick={(e) => { e.preventDefault(); setVistaActual('nueva-compra'); }}>
+                                <ShoppingCart size={18} />
+                                Nueva Compra
+                            </a>
+                        </li>
+                        <li className="nav-item col-6 col-md-auto">
+                            <a className={`nav-link p-2 d-flex align-items-center gap-2 ${vistaActual === 'metales' ? 'active' : ''}`} href="#" onClick={(e) => { e.preventDefault(); setVistaActual('metales'); }}>
+                                <DollarSign size={18} />
+                                Precios Metales
+                            </a>
+                        </li>
+                        <li className="nav-item col-6 col-md-auto">
+                            <a className={`nav-link p-2 d-flex align-items-center gap-2 ${vistaActual === 'reporte' ? 'active' : ''}`} href="#" onClick={(e) => { e.preventDefault(); setVistaActual('reporte'); }}>
+                                <BarChart3 size={18} />
+                                Reporte Diario
+                            </a>
+                        </li>
+                        {usuario.rol === 'ADMIN' && (
+                            <>
+                                <li className="nav-item col-6 col-md-auto">
+                                    <a className={`nav-link p-2 d-flex align-items-center gap-2 ${vistaActual === 'usuarios' ? 'active' : ''}`} href="#" onClick={(e) => { e.preventDefault(); setVistaActual('usuarios'); }}>
+                                        <Users size={18} />
+                                        Usuarios
+                                    </a>
+                                </li>
+                                <li className="nav-item col-6 col-md-auto">
+                                    <a className={`nav-link p-2 d-flex align-items-center gap-2 ${vistaActual === 'sucursales' ? 'active' : ''}`} href="#" onClick={(e) => { e.preventDefault(); setVistaActual('sucursales'); }}>
+                                        <Building size={18} />
+                                        Sucursales
+                                    </a>
+                                </li>
+                                <li className="nav-item col-6 col-md-auto">
+                                    <a className={`nav-link p-2 d-flex align-items-center gap-2 ${vistaActual === 'configuracion' ? 'active' : ''}`} href="#" onClick={(e) => { e.preventDefault(); setVistaActual('configuracion'); }}>
+                                        <Settings size={18} />
+                                        Configuración
+                                    </a>
+                                </li>
+                            </>
                         )}
-                    </div>
-                    <button
-                        onClick={handleLogout}
-                        className={`btn btn-link text-decoration-none mt-3 d-flex align-items-center gap-2 text-danger w-100 ${!sidebarOpen && 'justify-content-center'}`}
-                    >
-                        <LogOut size={20} />
-                        {sidebarOpen && <span>Cerrar Sesión</span>}
-                    </button>
-                </div>
-            </aside>
+                    </ul>
 
-            {/* Main Content */}
-            <main className="flex-grow-1 overflow-auto vh-100">
-                <div className="p-4">
-                    {renderVista()}
+                    <hr className="d-md-none text-white-50" />
+
+                    <ul className="navbar-nav flex-row flex-wrap ms-md-auto">
+                        <li className="nav-item col-6 col-md-auto">
+                            <div className="dropdown text-end">
+                                <a href="#" className="d-block link-light text-decoration-none dropdown-toggle" id="dropdownUser1" data-bs-toggle="dropdown" aria-expanded="false">
+                                    <img src={`https://ui-avatars.com/api/?name=${usuario.nombres || 'User'}&background=random`} alt="user" width="32" height="32" className="rounded-circle" />
+                                </a>
+                                <ul className="dropdown-menu dropdown-menu-end text-small" aria-labelledby="dropdownUser1">
+                                    <li><a className="dropdown-item d-flex align-items-center gap-2" href="#" onClick={(e) => { e.preventDefault(); handleLogout(); }}><LogOut size={16} /> Cerrar Sesión</a></li>
+                                </ul>
+                            </div>
+                        </li>
+                    </ul>
                 </div>
-            </main>
-        </div>
+            </header>
+
+            <div className="flex-grow-1">
+                {renderVista()}
+            </div>
+        </main>
     );
 };
-
-
-
-const BotonMenu = ({ icon, label, active, onClick, expanded }) => (
-    <button
-        onClick={onClick}
-        className={`btn w-100 rounded-0 d-flex align-items-center gap-3 p-3 border-0 ${active ? 'btn-primary' : 'text-white-50 hover-bg-secondary'} ${!expanded && 'justify-content-center'}`}
-        title={!expanded ? label : ''}
-    >
-        {icon}
-        {expanded && <span>{label}</span>}
-    </button>
-);
 
 export default Dashboard;
