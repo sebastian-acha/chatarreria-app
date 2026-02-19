@@ -9,7 +9,7 @@ La aplicación consta de un backend en Node.js/Express y un frontend en React. P
 ### Tecnologías Principales
 
 -   **Backend**: Node.js, Express, PostgreSQL (con `node-postgres`), JWT para autenticación.
--   **Frontend**: React (con Vite), `react-router-dom` para el enrutamiento, `axios` para las peticiones HTTP y Tailwind CSS para los estilos.
+   **Frontend**: React (con Vite), `react-router-dom` para el enrutamiento, `axios` para las peticiones HTTP y Bootstrap 5 para los estilos.
 -   **Base de Datos**: PostgreSQL.
 
 ---
