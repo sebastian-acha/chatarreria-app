@@ -1,217 +1,244 @@
-import React, { useState, useEffect, useContext } from 'react';
+import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import { Printer, ArrowUpDown, ChevronLeft, ChevronRight, Search, Eye, X } from 'lucide-react';
-import { ConfiguracionContext } from '../context/ConfiguracionContext';
+import { Eye, Printer, Search, Calendar, X, ChevronLeft, ChevronRight } from 'lucide-react';
 
 const HistorialTransacciones = () => {
     const [transacciones, setTransacciones] = useState([]);
     const [loading, setLoading] = useState(false);
-    const [error, setError] = useState(null);
-    const [transaccionModal, setTransaccionModal] = useState(null); // Para el modal de detalles
+    const [paginacion, setPaginacion] = useState({ page: 1, totalPages: 1, total: 0 });
+    const [filtros, setFiltros] = useState({ fecha_inicio: '', fecha_fin: '' });
 
-    const [paginacion, setPaginacion] = useState({ page: 1, limit: 20, total: 0, totalPages: 0 });
-    const [filtros, setFiltros] = useState({ fecha_inicio: '', fecha_fin: '', metal_id: '' });
-    const [orden, setOrden] = useState({ sort: 'id', order: 'DESC' });
-    const [metales, setMetales] = useState([]); // Para el filtro
-    const { configuracion } = useContext(ConfiguracionContext);
+    // Estado para el Modal y Configuración
+    const [transaccionSeleccionada, setTransaccionSeleccionada] = useState(null);
+    const [configuracion, setConfiguracion] = useState(null);
 
     const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000/api';
 
+    // Cargar configuración (para el logo del voucher) al montar
+    useEffect(() => {
+        const fetchConfig = async () => {
+            try {
+                const res = await axios.get(`${API_URL}/configuracion`);
+                setConfiguracion(res.data);
+            } catch (error) {
+                console.error("Error cargando configuración", error);
+            }
+        };
+        fetchConfig();
+    }, [API_URL]);
+
+    // Cargar transacciones cuando cambian filtros o página
+    useEffect(() => {
+        fetchTransacciones();
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [paginacion.page, filtros]);
+
     const fetchTransacciones = async () => {
         setLoading(true);
-        setError(null);
         try {
             const token = localStorage.getItem('token');
-            const params = { page: paginacion.page, limit: paginacion.limit, sort: orden.sort, order: orden.order, ...filtros };
-            Object.keys(params).forEach(key => (params[key] === '' || params[key] === null) && delete params[key]);
+            const params = {
+                page: paginacion.page,
+                limit: 10,
+                ...filtros
+            };
 
-            const response = await axios.get(`${API_URL}/transacciones`, {
+            // Eliminar claves vacías
+            Object.keys(params).forEach(key => params[key] === '' && delete params[key]);
+
+            const res = await axios.get(`${API_URL}/transacciones`, {
                 headers: { Authorization: `Bearer ${token}` },
                 params
             });
 
-            setTransacciones(response.data.data);
-            setPaginacion(prev => ({ ...prev, ...response.data.pagination }));
-        } catch (err) {
-            setError(err.response?.data?.error || 'Error al conectar con el servidor');
+            setTransacciones(res.data.data);
+            setPaginacion(prev => ({ ...prev, ...res.data.pagination }));
+        } catch (error) {
+            console.error("Error cargando historial", error);
         } finally {
             setLoading(false);
         }
     };
 
-    useEffect(() => {
-        const fetchMetales = async () => {
-            try {
-                const res = await axios.get(`${API_URL}/metales`);
-                setMetales(res.data);
-            } catch (error) {
-                console.error("Error cargando metales", error);
-            }
-        };
-        fetchMetales();
-    }, [API_URL]);
-
-    useEffect(() => {
-        fetchTransacciones();
-    }, [paginacion.page, paginacion.limit, orden]);
-
-    const handleSort = (campo) => {
-        setOrden(prev => ({ sort: campo, order: prev.sort === campo && prev.order === 'ASC' ? 'DESC' : 'ASC' }));
+    const handleFiltroChange = (e) => {
+        setFiltros({ ...filtros, [e.target.name]: e.target.value });
+        setPaginacion({ ...paginacion, page: 1 }); // Resetear a página 1 al filtrar
     };
 
-    const handleSearch = (e) => {
-        e.preventDefault();
-        setPaginacion(prev => ({ ...prev, page: 1 }));
-        fetchTransacciones();
+    const abrirModal = (transaccion) => {
+        setTransaccionSeleccionada(transaccion);
     };
 
-    const imprimirVoucher = async (id) => {
-        try {
-            const token = localStorage.getItem('token');
-            const response = await axios.get(`${API_URL}/transacciones/${id}`, { headers: { Authorization: `Bearer ${token}` } });
-            const data = response.data;
+    const cerrarModal = () => {
+        setTransaccionSeleccionada(null);
+    };
 
-            const detallesHTML = data.detalles.map(d => `
-                <div style="margin-top: 10px; text-align: left;">
-                    <p><strong>- ${d.metal_nombre}</strong></p>
-                    <p style="padding-left: 15px;">Peso: ${d.peso_kilos} kg</p>
-                    <p style="padding-left: 15px;">Precio/kg: $${Math.round(d.valor_kilo_aplicado).toLocaleString('es-CL')}</p>
-                    <p style="padding-left: 15px;">Subtotal: $${Math.round(d.subtotal).toLocaleString('es-CL')}</p>
-                </div>
-            `).join('<hr style="border-style: dashed; margin: 5px 0;"/>');
+    const imprimirVoucher = (transaccion) => {
+        if (!transaccion) return;
 
-            const ventana = window.open('', 'PRINT', 'height=600,width=400');
-            ventana.document.write(`
-                <html>
-                    <head><title>Voucher #${data.id}</title></head>
-                    <body style="font-family: monospace; text-align: center; padding: 20px;">
-                        ${configuracion?.logo_url ? `<img src="${configuracion.logo_url}" alt="Logo" class="mx-auto mb-4" style="height: 4rem;" />` : ''}
-                        <h2>${configuracion?.nombre_empresa || 'CHATARRERÍA'}</h2>
-                        <p>Sucursal: ${data.sucursal_nombre || 'Central'}</p>
-                        <p>Fecha: ${new Date(data.fecha_hora).toLocaleString()}</p>
-                        <p>Voucher N°: <strong>${data.id}</strong></p>
-                        <hr/>
-                        <div style="text-align: left;">
-                            <p>Cliente: ${data.cliente_nombre}</p>
-                            <p>RUT/DNI: ${data.cliente_rut_dni || '-'}</p>
-                        </div>
-                        <hr/>
-                        ${detallesHTML}
-                        <hr/>
-                        <h3>TOTAL: $${Math.round(parseFloat(data.total_pagar)).toLocaleString('es-CL')}</h3>
-                        <br/>
-                        <p>Atendido por: ${data.ejecutivo_nombre}</p>
-                    </body>
-                </html>
-            `);
-            ventana.document.close();
-            ventana.focus();
-            ventana.print();
-            ventana.close();
-        } catch (err) {
-            alert('Error al cargar datos para imprimir');
-        }
+        const detallesHTML = transaccion.detalles.map(d => {
+            // Lógica de visualización de Precio Especial
+            const precioDisplay = (d.precio_oficial && d.precio_unitario !== d.precio_oficial)
+                ? `<span style="text-decoration: line-through; color: #666; font-size: 0.9em;">$${Math.round(d.precio_oficial).toLocaleString('es-CL')}</span><br/>Precio Especial: <b>$${Math.round(d.precio_unitario).toLocaleString('es-CL')}</b>`
+                : `$${Math.round(d.precio_unitario).toLocaleString('es-CL')}`;
+
+            return `
+            <div style="margin-top: 10px;">
+                <p>Metal: ${d.metal}</p>
+                <p>Peso: ${d.peso_kilos} kg</p>
+                <p>Precio/kg: ${precioDisplay}</p>
+                <p>Subtotal: $${Math.round(d.subtotal).toLocaleString('es-CL')}</p>
+            </div>
+        `}).join('<hr style="border-style: dashed;"/>');
+
+        const logoHTML = configuracion?.logo_url
+            ? `<img src="${configuracion.logo_url}" alt="Logo" style="max-width: 150px; margin: 0 auto 20px auto; display: block;">`
+            : '';
+
+        const ventana = window.open('', 'PRINT', 'height=600,width=400');
+        ventana.document.write(`
+            <html>
+                <head><title>Voucher #${transaccion.id}</title></head>
+                <body style="font-family: monospace; text-align: center; padding: 20px;">
+                    ${logoHTML}
+                    <h2>CHATARRERÍA</h2>
+                    <p>Fecha: ${new Date(transaccion.fecha_hora).toLocaleString()}</p>
+                    <p>Voucher N°: <strong>${transaccion.id}</strong></p>
+                    <hr/>
+                    <div style="text-align: left;">
+                        <p>Cliente: ${transaccion.cliente_nombre}</p>
+                        <p>RUT/DNI: ${transaccion.cliente_rut_dni || '-'}</p>
+                        <p>Atendido por: ${transaccion.ejecutivo_nombre || '-'}</p>
+                    </div>
+                    <hr/>
+                    ${detallesHTML}
+                    <hr/>
+                    <h3>TOTAL: $${Math.round(transaccion.total_pagar).toLocaleString('es-CL')}</h3>
+                    <br/>
+                </body>
+            </html>
+        `);
+        ventana.document.close();
+        ventana.focus();
+        ventana.print();
+        ventana.close();
     };
 
     return (
-        <div className="container-fluid p-4">
-            <h1 className="h3 fw-bold mb-4">Historial de Transacciones</h1>
+        <div className="container my-4">
+            <div className="card shadow-sm">
+                <div className="card-body p-4">
+                    <h2 className="card-title mb-4 d-flex align-items-center gap-2">
+                        <Search className="text-primary" /> Historial de Transacciones
+                    </h2>
 
-            <form onSubmit={handleSearch} className="bg-white p-4 rounded shadow-sm border mb-4 d-flex flex-wrap gap-3 align-items-end">
-                <input type="date" className="form-control w-auto" value={filtros.fecha_inicio} onChange={e => setFiltros({ ...filtros, fecha_inicio: e.target.value })} />
-                <input type="date" className="form-control w-auto" value={filtros.fecha_fin} onChange={e => setFiltros({ ...filtros, fecha_fin: e.target.value })} />
-                <select className="form-select w-auto" value={filtros.metal__id} onChange={e => setFiltros({ ...filtros, metal_id: e.target.value })}>
-                    <option value="">Todos los metales</option>
-                    {metales.map(m => <option key={m.id} value={m.id}>{m.nombre}</option>)}
-                </select>
-                <button type="submit" className="btn btn-primary d-flex align-items-center gap-2"><Search size={18} /> Filtrar</button>
-            </form>
+                    {/* Filtros */}
+                    <div className="row g-3 mb-4">
+                        <div className="col-md-4">
+                            <label className="form-label fw-bold text-secondary"><Calendar size={16} /> Fecha Inicio</label>
+                            <input type="date" name="fecha_inicio" className="form-control" value={filtros.fecha_inicio} onChange={handleFiltroChange} />
+                        </div>
+                        <div className="col-md-4">
+                            <label className="form-label fw-bold text-secondary"><Calendar size={16} /> Fecha Fin</label>
+                            <input type="date" name="fecha_fin" className="form-control" value={filtros.fecha_fin} onChange={handleFiltroChange} />
+                        </div>
+                    </div>
 
-            <div className="d-flex justify-content-between align-items-center mb-2">
-                <div><span className="me-2">Mostrar</span><select value={paginacion.limit} onChange={(e) => setPaginacion(prev => ({ ...prev, limit: Number(e.target.value), page: 1 }))} className="form-select form-select-sm d-inline-block w-auto"><option value={20}>20</option><option value={40}>40</option><option value={100}>100</option></select><span className="ms-2">registros</span></div>
-                <div><strong>Total:</strong> {paginacion.total} transacciones</div>
-            </div>
-
-            <div className="table-responsive bg-white shadow-sm rounded border">
-                <table className="table table-hover mb-0">
-                    <thead className="table-dark text-uppercase small">
-                        <tr>
-                            <th className="px-4 py-3 cursor-pointer" onClick={() => handleSort('id')}><div className="d-flex align-items-center gap-1">ID <ArrowUpDown size={14} /></div></th>
-                            <th className="px-4 py-3 cursor-pointer" onClick={() => handleSort('fecha_hora')}><div className="d-flex align-items-center gap-1">Fecha <ArrowUpDown size={14} /></div></th>
-                            <th className="px-4 py-3">Cliente</th>
-                            <th className="px-4 py-3 cursor-pointer" onClick={() => handleSort('total_pagar')}><div className="d-flex align-items-center gap-1">Total <ArrowUpDown size={14} /></div></th>
-                            <th className="px-4 py-3">Acciones</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {loading ? (<tr><td colSpan="5" className="text-center py-4">Cargando...</td></tr>) : transacciones.length === 0 ? (<tr><td colSpan="5" className="text-center py-4">No se encontraron registros</td></tr>) : (
-                            transacciones.map((t) => (
-                                <tr key={t.id}>
-                                    <td className="px-4 py-2">{t.id}</td>
-                                    <td className="px-4 py-2">{new Date(t.fecha_hora).toLocaleString()}</td>
-                                    <td className="px-4 py-2"><div className="fw-medium">{t.cliente_nombre}</div><div className="small text-muted">{t.cliente_rut_dni}</div></td>
-                                    <td className="px-4 py-2 fw-bold text-success">${Math.round(parseFloat(t.total_pagar)).toLocaleString('es-CL')}</td>
-                                    <td className="px-4 py-2 d-flex align-items-center gap-2">
-                                        <button onClick={() => setTransaccionModal(t)} className="btn btn-sm btn-outline-secondary d-flex align-items-center gap-1"><Eye size={14} /> Detalles</button>
-                                        <button onClick={() => imprimirVoucher(t.id)} className="btn btn-sm btn-outline-primary d-flex align-items-center gap-1"><Printer size={14} /> Voucher</button>
-                                    </td>
+                    {/* Tabla */}
+                    <div className="table-responsive">
+                        <table className="table table-hover align-middle">
+                            <thead className="table-light">
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Fecha</th>
+                                    <th>Cliente</th>
+                                    <th>Total</th>
+                                    <th className="text-end">Acciones</th>
                                 </tr>
-                            ))
-                        )}
-                    </tbody>
-                </table>
+                            </thead>
+                            <tbody>
+                                {loading ? (
+                                    <tr><td colSpan="5" className="text-center py-4">Cargando...</td></tr>
+                                ) : transacciones.length === 0 ? (
+                                    <tr><td colSpan="5" className="text-center py-4">No se encontraron transacciones.</td></tr>
+                                ) : (
+                                    transacciones.map(t => (
+                                        <tr key={t.id}>
+                                            <td>#{t.id}</td>
+                                            <td>{new Date(t.fecha_hora).toLocaleDateString()} {new Date(t.fecha_hora).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</td>
+                                            <td>{t.cliente_nombre}</td>
+                                            <td className="fw-bold text-success">${Math.round(t.total_pagar).toLocaleString('es-CL')}</td>
+                                            <td className="text-end">
+                                                <button className="btn btn-sm btn-outline-primary me-2" onClick={() => abrirModal(t)} title="Ver Detalles">
+                                                    <Eye size={18} />
+                                                </button>
+                                                <button className="btn btn-sm btn-outline-secondary" onClick={() => imprimirVoucher(t)} title="Imprimir Voucher">
+                                                    <Printer size={18} />
+                                                </button>
+                                            </td>
+                                        </tr>
+                                    ))
+                                )}
+                            </tbody>
+                        </table>
+                    </div>
+
+                    {/* Paginación */}
+                    <div className="d-flex justify-content-between align-items-center mt-3">
+                        <span className="text-muted">Página {paginacion.page} de {paginacion.totalPages}</span>
+                        <div>
+                            <button className="btn btn-outline-secondary btn-sm me-2" disabled={paginacion.page <= 1} onClick={() => setPaginacion(p => ({ ...p, page: p.page - 1 }))}>
+                                <ChevronLeft size={16} /> Anterior
+                            </button>
+                            <button className="btn btn-outline-secondary btn-sm" disabled={paginacion.page >= paginacion.totalPages} onClick={() => setPaginacion(p => ({ ...p, page: p.page + 1 }))}>
+                                Siguiente <ChevronRight size={16} />
+                            </button>
+                        </div>
+                    </div>
+                </div>
             </div>
 
-            <div className="d-flex justify-content-center align-items-center gap-4 mt-4">
-                <button disabled={paginacion.page <= 1} onClick={() => setPaginacion(prev => ({ ...prev, page: prev.page - 1 }))} className="btn btn-outline-secondary p-2"><ChevronLeft size={20} /></button>
-                <span>Página {paginacion.page} de {paginacion.totalPages || 1}</span>
-                <button disabled={paginacion.page >= paginacion.totalPages} onClick={() => setPaginacion(prev => ({ ...prev, page: prev.page + 1 }))} className="btn btn-outline-secondary p-2"><ChevronRight size={20} /></button>
-            </div>
-            {error && <div className="text-danger text-center mt-2">{error}</div>}
-
-            {transaccionModal && (
-                <div className="modal show d-block" style={{ backgroundColor: 'rgba(0,0,0,0.5)' }}>
-                    <div className="modal-dialog modal-lg modal-dialog-centered">
+            {/* Modal de Detalles */}
+            {transaccionSeleccionada && (
+                <div className="modal show d-block" style={{ backgroundColor: 'rgba(0,0,0,0.5)' }} tabIndex="-1">
+                    <div className="modal-dialog modal-dialog-centered">
                         <div className="modal-content">
                             <div className="modal-header">
-                                <h5 className="modal-title fw-bold">Detalles de la Transacción #{transaccionModal.id}</h5>
-                                <button onClick={() => setTransaccionModal(null)} className="btn-close"></button>
+                                <h5 className="modal-title">Detalle Transacción #{transaccionSeleccionada.id}</h5>
+                                <button type="button" className="btn-close" onClick={cerrarModal}></button>
                             </div>
                             <div className="modal-body">
-                                <div className="row g-3 mb-4 small">
-                                    <div className="col-6"><strong>Fecha:</strong> {new Date(transaccionModal.fecha_hora).toLocaleString()}</div>
-                                    <div className="col-6"><strong>Sucursal:</strong> {transaccionModal.sucursal_nombre}</div>
-                                    <div className="col-6"><strong>Cliente:</strong> {transaccionModal.cliente_nombre}</div>
-                                    <div className="col-6"><strong>RUT/DNI:</strong> {transaccionModal.cliente_rut_dni || '-'}</div>
-                                    <div className="col-6"><strong>Ejecutivo:</strong> {transaccionModal.ejecutivo_nombre}</div>
-                                </div>
-
-                                <div className="fw-bold mb-2">Metales comprados:</div>
-                                <div className="table-responsive border rounded">
-                                    <table className="table table-sm mb-0 small">
-                                        <thead className="table-light">
-                                            <tr>
-                                                <th className="px-3 py-2 text-left">Metal</th>
-                                                <th className="px-3 py-2 text-right">Peso (kg)</th>
-                                                <th className="px-3 py-2 text-right">Precio/kg</th>
-                                                <th className="px-3 py-2 text-right">Subtotal</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody>
-                                            {transaccionModal.detalles.map((d, index) => (
-                                                <tr key={index}>
-                                                    <td className="px-3 py-2">{d.metal_nombre}</td>
-                                                    <td className="px-3 py-2 text-right">{d.peso_kilos}</td>
-                                                    <td className="px-3 py-2 text-right">${Math.round(parseFloat(d.valor_kilo_aplicado)).toLocaleString('es-CL')}</td>
-                                                    <td className="px-3 py-2 text-right fw-semibold">${Math.round(parseFloat(d.subtotal)).toLocaleString('es-CL')}</td>
-                                                </tr>
-                                            ))}
-                                        </tbody>
-                                    </table>
-                                </div>
-                                <div className="text-right mt-4">
-                                    <span className="h5 fw-bold">TOTAL: ${Math.round(parseFloat(transaccionModal.total_pagar)).toLocaleString('es-CL')}</span>
-                                </div>
+                                <p><strong>Cliente:</strong> {transaccionSeleccionada.cliente_nombre}</p>
+                                <p><strong>Ejecutivo:</strong> {transaccionSeleccionada.ejecutivo_nombre}</p>
+                                <hr />
+                                <ul className="list-group list-group-flush">
+                                    {transaccionSeleccionada.detalles.map((d, idx) => (
+                                        <li key={idx} className="list-group-item d-flex justify-content-between align-items-center">
+                                            <div>
+                                                <span className="fw-bold">{d.metal}</span> <span className="text-muted">({d.peso_kilos} kg)</span>
+                                                {/* Visualización de Precio Especial en Modal */}
+                                                {d.precio_oficial && d.precio_unitario !== d.precio_oficial && (
+                                                    <div className="small text-primary">
+                                                        <span className="text-decoration-line-through text-muted me-1">${Math.round(d.precio_oficial)}</span>
+                                                        <strong>${Math.round(d.precio_unitario)}</strong> (Especial)
+                                                    </div>
+                                                )}
+                                                {(!d.precio_oficial || d.precio_unitario === d.precio_oficial) && (
+                                                    <div className="small text-muted">${Math.round(d.precio_unitario)} / kg</div>
+                                                )}
+                                            </div>
+                                            <span className="fw-bold">${Math.round(d.subtotal).toLocaleString('es-CL')}</span>
+                                        </li>
+                                    ))}
+                                </ul>
+                                <hr />
+                                <h4 className="text-end text-success fw-bold">Total: ${Math.round(transaccionSeleccionada.total_pagar).toLocaleString('es-CL')}</h4>
+                            </div>
+                            <div className="modal-footer">
+                                <button type="button" className="btn btn-secondary" onClick={cerrarModal}>Cerrar</button>
+                                <button type="button" className="btn btn-primary" onClick={() => imprimirVoucher(transaccionSeleccionada)}>
+                                    <Printer size={18} className="me-2" /> Imprimir
+                                </button>
                             </div>
                         </div>
                     </div>

@@ -5,7 +5,7 @@ import { Save, Calculator, Printer, CheckCircle, AlertCircle, PlusCircle, XCircl
 const NuevaCompra = () => {
     const [metales, setMetales] = useState([]);
     const [cliente, setCliente] = useState({ cliente_nombre: '', cliente_rut_dni: '' });
-    const [detalles, setDetalles] = useState([{ metal_id: '', peso_kilos: '' }]);
+    const [detalles, setDetalles] = useState([{ metal_id: '', peso_kilos: '', precio_especial: '' }]);
     const [loading, setLoading] = useState(false);
     const [mensaje, setMensaje] = useState({ type: '', text: '' });
     const [voucher, setVoucher] = useState(null);
@@ -38,7 +38,7 @@ const NuevaCompra = () => {
     };
 
     const agregarDetalle = () => {
-        setDetalles([...detalles, { metal_id: '', peso_kilos: '' }]);
+        setDetalles([...detalles, { metal_id: '', peso_kilos: '', precio_especial: '' }]);
     };
 
     const quitarDetalle = (index) => {
@@ -76,7 +76,7 @@ const NuevaCompra = () => {
 
             // Limpiar formulario
             setCliente({ cliente_nombre: '', cliente_rut_dni: '' });
-            setDetalles([{ metal_id: '', peso_kilos: '' }]);
+            setDetalles([{ metal_id: '', peso_kilos: '', precio_especial: '' }]);
 
         } catch (error) {
             setMensaje({ type: 'error', text: error.response?.data?.error || 'Error al registrar compra' });
@@ -89,21 +89,32 @@ const NuevaCompra = () => {
         return Math.round(detalles.reduce((total, detalle) => {
             if (!detalle.metal_id || !detalle.peso_kilos) return total;
             const metal = metales.find(m => m.id === parseInt(detalle.metal_id));
-            const subtotal = metal ? metal.valor_por_kilo * parseFloat(detalle.peso_kilos) : 0;
+
+            // Usar precio especial si existe, sino el del metal
+            const precio = (detalle.precio_especial && parseFloat(detalle.precio_especial) > 0)
+                ? parseFloat(detalle.precio_especial)
+                : (metal ? metal.valor_por_kilo : 0);
+
+            const subtotal = precio * parseFloat(detalle.peso_kilos);
             return total + subtotal;
         }, 0));
     };
 
     const imprimirVoucher = () => {
         if (!voucher) return;
-        const detallesHTML = voucher.detalles.map(d => `
+        const detallesHTML = voucher.detalles.map(d => {
+            const precioDisplay = (d.precio_oficial && d.precio_unitario !== d.precio_oficial)
+                ? `<span style="text-decoration: line-through; color: #666; font-size: 0.9em;">$${Math.round(d.precio_oficial).toLocaleString('es-CL')}</span><br/>Precio Especial: <b>$${Math.round(d.precio_unitario).toLocaleString('es-CL')}</b>`
+                : `$${Math.round(d.precio_unitario).toLocaleString('es-CL')}`;
+
+            return `
             <div style="margin-top: 10px;">
                 <p>Metal: ${d.metal}</p>
                 <p>Peso: ${d.peso_kilos} kg</p>
-                <p>Precio/kg: $${Math.round(d.precio_unitario)}</p>
-                <p>Subtotal: $${Math.round(d.subtotal)}</p>
+                <p>Precio/kg: ${precioDisplay}</p>
+                <p>Subtotal: $${Math.round(d.subtotal).toLocaleString('es-CL')}</p>
             </div>
-        `).join('<hr style="border-style: dashed;"/>');
+        `}).join('<hr style="border-style: dashed;"/>');
 
         const logoHTML = voucher.logo_url ? `<img src="${voucher.logo_url}" alt="Logo" style="max-width: 150px; margin: 0 auto 20px auto; display: block;">` : '';
 
@@ -124,7 +135,7 @@ const NuevaCompra = () => {
                     <hr/>
                     ${detallesHTML}
                     <hr/>
-                    <h3>TOTAL: $${Math.round(voucher.total_pagado)}</h3>
+                    <h3>TOTAL: $${Math.round(voucher.total_pagado).toLocaleString('es-CL')}</h3>
                     <br/>
                 </body>
             </html>
@@ -181,7 +192,7 @@ const NuevaCompra = () => {
                             <legend className="float-none w-auto px-2 h5 fw-bold">Metales a Vender</legend>
                             {detalles.map((detalle, index) => (
                                 <div key={index} className="row g-3 align-items-end mb-3 pb-3 border-bottom">
-                                    <div className="col-md-5">
+                                    <div className="col-md-4">
                                         <label className="form-label">Metal</label>
                                         <select name="metal_id" value={detalle.metal_id} onChange={(e) => handleDetalleChange(index, e)} className="form-select" required>
                                             <option value="">Seleccione...</option>
@@ -190,7 +201,11 @@ const NuevaCompra = () => {
                                             ))}
                                         </select>
                                     </div>
-                                    <div className="col-md-5">
+                                    <div className="col-md-3">
+                                        <label className="form-label text-primary fw-bold">Precio Especial</label>
+                                        <input type="number" name="precio_especial" value={detalle.precio_especial} onChange={(e) => handleDetalleChange(index, e)} className="form-control border-primary" placeholder="Opcional" />
+                                    </div>
+                                    <div className="col-md-3">
                                         <label className="form-label">Peso (kilos)</label>
                                         <input type="number" step="0.01" name="peso_kilos" value={detalle.peso_kilos} onChange={(e) => handleDetalleChange(index, e)} className="form-control" placeholder="0.00" required />
                                     </div>

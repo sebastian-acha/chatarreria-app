@@ -19,6 +19,9 @@ exports.crearTransaccion = async (req, res) => {
         if (!metal.metal_id || !metal.peso_kilos || parseFloat(metal.peso_kilos) <= 0) {
             return res.status(400).json({ error: `Datos de metal inválidos: ${JSON.stringify(metal)}` });
         }
+        if (metal.precio_especial && parseFloat(metal.precio_especial) < 0) {
+            return res.status(400).json({ error: `El precio especial no puede ser negativo.` });
+        }
     }
 
     const client = await db.connect();
@@ -47,13 +50,21 @@ exports.crearTransaccion = async (req, res) => {
                 throw new Error(`No se encontró el precio para el metal con ID ${metalIdInt}.`);
             }
             const peso = parseFloat(m.peso_kilos);
-            const subtotal = peso * precioInfo.valor;
+
+            // Determinar precio a aplicar (Especial o de Lista)
+            let valor_aplicado = precioInfo.valor;
+            if (m.precio_especial && parseFloat(m.precio_especial) > 0) {
+                valor_aplicado = parseFloat(m.precio_especial);
+            }
+
+            const subtotal = peso * valor_aplicado;
             total_pagar += subtotal;
 
             return {
                 metal_id: metalIdInt,
                 peso_kilos: peso,
-                valor_kilo_aplicado: precioInfo.valor,
+                valor_kilo_aplicado: valor_aplicado,
+                valor_kilo_oficial: precioInfo.valor,
                 subtotal
             };
         });
@@ -71,14 +82,15 @@ exports.crearTransaccion = async (req, res) => {
         // 4. Insertar los detalles de la transacción
         const transaccionId = nuevaTransaccion.id;
         const detallesQuery = `
-            INSERT INTO transaccion_detalles (transaccion_id, metal_id, peso_kilos, valor_kilo_aplicado, subtotal)
-            SELECT $1, unnest($2::int[]), unnest($3::decimal[]), unnest($4::decimal[]), unnest($5::decimal[])
+            INSERT INTO transaccion_detalles (transaccion_id, metal_id, peso_kilos, valor_kilo_aplicado, valor_kilo_oficial, subtotal)
+            SELECT $1, unnest($2::int[]), unnest($3::decimal[]), unnest($4::decimal[]), unnest($5::decimal[]), unnest($6::decimal[])
         `;
         const detallesValues = [
             transaccionId,
             detallesParaInsertar.map(d => d.metal_id),
             detallesParaInsertar.map(d => d.peso_kilos),
             detallesParaInsertar.map(d => d.valor_kilo_aplicado),
+            detallesParaInsertar.map(d => d.valor_kilo_oficial),
             detallesParaInsertar.map(d => d.subtotal),
         ];
         await client.query(detallesQuery, detallesValues);
@@ -100,6 +112,7 @@ exports.crearTransaccion = async (req, res) => {
                     metal: preciosMap.get(d.metal_id).nombre,
                     peso_kilos: d.peso_kilos,
                     precio_unitario: d.valor_kilo_aplicado,
+                    precio_oficial: d.valor_kilo_oficial,
                     subtotal: d.subtotal
                 }))
             }
@@ -147,9 +160,10 @@ exports.listarTransacciones = async (req, res) => {
                 u.nombres as ejecutivo_nombre,
                 s.nombre as sucursal_nombre,
                 (SELECT json_agg(json_build_object(
-                    'metal_nombre', m.nombre,
+                    'metal', m.nombre,
                     'peso_kilos', td.peso_kilos,
-                    'valor_kilo_aplicado', td.valor_kilo_aplicado,
+                    'precio_unitario', td.valor_kilo_aplicado,
+                    'precio_oficial', td.valor_kilo_oficial,
                     'subtotal', td.subtotal
                 ))
                 FROM transaccion_detalles td
@@ -199,9 +213,10 @@ exports.obtenerTransaccion = async (req, res) => {
                 u.nombres as ejecutivo_nombre,
                 s.nombre as sucursal_nombre,
                 (SELECT json_agg(json_build_object(
-                    'metal_nombre', m.nombre,
+                    'metal', m.nombre,
                     'peso_kilos', td.peso_kilos,
-                    'valor_kilo_aplicado', td.valor_kilo_aplicado,
+                    'precio_unitario', td.valor_kilo_aplicado,
+                    'precio_oficial', td.valor_kilo_oficial,
                     'subtotal', td.subtotal
                 ))
                 FROM transaccion_detalles td
