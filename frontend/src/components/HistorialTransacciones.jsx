@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { Eye, Printer, Search, Calendar, X, ChevronLeft, ChevronRight } from 'lucide-react';
+import Footer from './Footer';
 
 const HistorialTransacciones = () => {
     const [transacciones, setTransacciones] = useState([]);
@@ -125,126 +126,129 @@ const HistorialTransacciones = () => {
     };
 
     return (
-        <div className="container my-4">
-            <div className="card shadow-sm">
-                <div className="card-body p-4">
-                    <h2 className="card-title mb-4 d-flex align-items-center gap-2">
-                        <Search className="text-primary" /> Historial de Transacciones
-                    </h2>
+        <>
+            <div className="container my-4">
+                <div className="card shadow-sm">
+                    <div className="card-body p-4">
+                        <h2 className="card-title mb-4 d-flex align-items-center gap-2">
+                            <Search className="text-primary" /> Historial de Transacciones
+                        </h2>
 
-                    {/* Filtros */}
-                    <div className="row g-3 mb-4">
-                        <div className="col-md-4">
-                            <label className="form-label fw-bold text-secondary"><Calendar size={16} /> Fecha Inicio</label>
-                            <input type="date" name="fecha_inicio" className="form-control" value={filtros.fecha_inicio} onChange={handleFiltroChange} />
-                        </div>
-                        <div className="col-md-4">
-                            <label className="form-label fw-bold text-secondary"><Calendar size={16} /> Fecha Fin</label>
-                            <input type="date" name="fecha_fin" className="form-control" value={filtros.fecha_fin} onChange={handleFiltroChange} />
-                        </div>
-                    </div>
-
-                    {/* Tabla */}
-                    <div className="table-responsive">
-                        <table className="table table-hover align-middle">
-                            <thead className="table-light">
-                                <tr>
-                                    <th>ID</th>
-                                    <th>Fecha</th>
-                                    <th>Cliente</th>
-                                    <th>Total</th>
-                                    <th className="text-end">Acciones</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {loading ? (
-                                    <tr><td colSpan="5" className="text-center py-4">Cargando...</td></tr>
-                                ) : transacciones.length === 0 ? (
-                                    <tr><td colSpan="5" className="text-center py-4">No se encontraron transacciones.</td></tr>
-                                ) : (
-                                    transacciones.map(t => (
-                                        <tr key={t.id}>
-                                            <td>#{t.id}</td>
-                                            <td>{new Date(t.fecha_hora).toLocaleDateString()} {new Date(t.fecha_hora).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</td>
-                                            <td>{t.cliente_nombre}</td>
-                                            <td className="fw-bold text-success">${Math.round(t.total_pagar).toLocaleString('es-CL')}</td>
-                                            <td className="text-end">
-                                                <button className="btn btn-sm btn-outline-primary me-2" onClick={() => abrirModal(t)} title="Ver Detalles">
-                                                    <Eye size={18} />
-                                                </button>
-                                                <button className="btn btn-sm btn-outline-secondary" onClick={() => imprimirVoucher(t)} title="Imprimir Voucher">
-                                                    <Printer size={18} />
-                                                </button>
-                                            </td>
-                                        </tr>
-                                    ))
-                                )}
-                            </tbody>
-                        </table>
-                    </div>
-
-                    {/* Paginación */}
-                    <div className="d-flex justify-content-between align-items-center mt-3">
-                        <span className="text-muted">Página {paginacion.page} de {paginacion.totalPages}</span>
-                        <div>
-                            <button className="btn btn-outline-secondary btn-sm me-2" disabled={paginacion.page <= 1} onClick={() => setPaginacion(p => ({ ...p, page: p.page - 1 }))}>
-                                <ChevronLeft size={16} /> Anterior
-                            </button>
-                            <button className="btn btn-outline-secondary btn-sm" disabled={paginacion.page >= paginacion.totalPages} onClick={() => setPaginacion(p => ({ ...p, page: p.page + 1 }))}>
-                                Siguiente <ChevronRight size={16} />
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            {/* Modal de Detalles */}
-            {transaccionSeleccionada && (
-                <div className="modal show d-block" style={{ backgroundColor: 'rgba(0,0,0,0.5)' }} tabIndex="-1">
-                    <div className="modal-dialog modal-dialog-centered">
-                        <div className="modal-content">
-                            <div className="modal-header">
-                                <h5 className="modal-title">Detalle Transacción #{transaccionSeleccionada.id}</h5>
-                                <button type="button" className="btn-close" onClick={cerrarModal}></button>
+                        {/* Filtros */}
+                        <div className="row g-3 mb-4">
+                            <div className="col-md-4">
+                                <label className="form-label fw-bold text-secondary"><Calendar size={16} /> Fecha Inicio</label>
+                                <input type="date" name="fecha_inicio" className="form-control" value={filtros.fecha_inicio} onChange={handleFiltroChange} />
                             </div>
-                            <div className="modal-body">
-                                <p><strong>Cliente:</strong> {transaccionSeleccionada.cliente_nombre}</p>
-                                <p><strong>Ejecutivo:</strong> {transaccionSeleccionada.ejecutivo_nombre}</p>
-                                <hr />
-                                <ul className="list-group list-group-flush">
-                                    {transaccionSeleccionada.detalles.map((d, idx) => (
-                                        <li key={idx} className="list-group-item d-flex justify-content-between align-items-center">
-                                            <div>
-                                                <span className="fw-bold">{d.metal}</span> <span className="text-muted">({d.peso_kilos} kg)</span>
-                                                {/* Visualización de Precio Especial en Modal */}
-                                                {d.precio_oficial && d.precio_unitario !== d.precio_oficial && (
-                                                    <div className="small text-primary">
-                                                        <span className="text-decoration-line-through text-muted me-1">${Math.round(d.precio_oficial)}</span>
-                                                        <strong>${Math.round(d.precio_unitario)}</strong> (Especial)
-                                                    </div>
-                                                )}
-                                                {(!d.precio_oficial || d.precio_unitario === d.precio_oficial) && (
-                                                    <div className="small text-muted">${Math.round(d.precio_unitario)} / kg</div>
-                                                )}
-                                            </div>
-                                            <span className="fw-bold">${Math.round(d.subtotal).toLocaleString('es-CL')}</span>
-                                        </li>
-                                    ))}
-                                </ul>
-                                <hr />
-                                <h4 className="text-end text-success fw-bold">Total: ${Math.round(transaccionSeleccionada.total_pagar).toLocaleString('es-CL')}</h4>
+                            <div className="col-md-4">
+                                <label className="form-label fw-bold text-secondary"><Calendar size={16} /> Fecha Fin</label>
+                                <input type="date" name="fecha_fin" className="form-control" value={filtros.fecha_fin} onChange={handleFiltroChange} />
                             </div>
-                            <div className="modal-footer">
-                                <button type="button" className="btn btn-secondary" onClick={cerrarModal}>Cerrar</button>
-                                <button type="button" className="btn btn-primary" onClick={() => imprimirVoucher(transaccionSeleccionada)}>
-                                    <Printer size={18} className="me-2" /> Imprimir
+                        </div>
+
+                        {/* Tabla */}
+                        <div className="table-responsive">
+                            <table className="table table-hover align-middle">
+                                <thead className="table-light">
+                                    <tr>
+                                        <th>ID</th>
+                                        <th>Fecha</th>
+                                        <th>Cliente</th>
+                                        <th>Total</th>
+                                        <th className="text-end">Acciones</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {loading ? (
+                                        <tr><td colSpan="5" className="text-center py-4">Cargando...</td></tr>
+                                    ) : transacciones.length === 0 ? (
+                                        <tr><td colSpan="5" className="text-center py-4">No se encontraron transacciones.</td></tr>
+                                    ) : (
+                                        transacciones.map(t => (
+                                            <tr key={t.id}>
+                                                <td>#{t.id}</td>
+                                                <td>{new Date(t.fecha_hora).toLocaleDateString()} {new Date(t.fecha_hora).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</td>
+                                                <td>{t.cliente_nombre}</td>
+                                                <td className="fw-bold text-success">${Math.round(t.total_pagar).toLocaleString('es-CL')}</td>
+                                                <td className="text-end">
+                                                    <button className="btn btn-sm btn-outline-primary me-2" onClick={() => abrirModal(t)} title="Ver Detalles">
+                                                        <Eye size={18} />
+                                                    </button>
+                                                    <button className="btn btn-sm btn-outline-secondary" onClick={() => imprimirVoucher(t)} title="Imprimir Voucher">
+                                                        <Printer size={18} />
+                                                    </button>
+                                                </td>
+                                            </tr>
+                                        ))
+                                    )}
+                                </tbody>
+                            </table>
+                        </div>
+
+                        {/* Paginación */}
+                        <div className="d-flex justify-content-between align-items-center mt-3">
+                            <span className="text-muted">Página {paginacion.page} de {paginacion.totalPages}</span>
+                            <div>
+                                <button className="btn btn-outline-secondary btn-sm me-2" disabled={paginacion.page <= 1} onClick={() => setPaginacion(p => ({ ...p, page: p.page - 1 }))}>
+                                    <ChevronLeft size={16} /> Anterior
+                                </button>
+                                <button className="btn btn-outline-secondary btn-sm" disabled={paginacion.page >= paginacion.totalPages} onClick={() => setPaginacion(p => ({ ...p, page: p.page + 1 }))}>
+                                    Siguiente <ChevronRight size={16} />
                                 </button>
                             </div>
                         </div>
                     </div>
                 </div>
-            )}
-        </div>
+
+                {/* Modal de Detalles */}
+                {transaccionSeleccionada && (
+                    <div className="modal show d-block" style={{ backgroundColor: 'rgba(0,0,0,0.5)' }} tabIndex="-1">
+                        <div className="modal-dialog modal-dialog-centered">
+                            <div className="modal-content">
+                                <div className="modal-header">
+                                    <h5 className="modal-title">Detalle Transacción #{transaccionSeleccionada.id}</h5>
+                                    <button type="button" className="btn-close" onClick={cerrarModal}></button>
+                                </div>
+                                <div className="modal-body">
+                                    <p><strong>Cliente:</strong> {transaccionSeleccionada.cliente_nombre}</p>
+                                    <p><strong>Ejecutivo:</strong> {transaccionSeleccionada.ejecutivo_nombre}</p>
+                                    <hr />
+                                    <ul className="list-group list-group-flush">
+                                        {transaccionSeleccionada.detalles.map((d, idx) => (
+                                            <li key={idx} className="list-group-item d-flex justify-content-between align-items-center">
+                                                <div>
+                                                    <span className="fw-bold">{d.metal}</span> <span className="text-muted">({d.peso_kilos} kg)</span>
+                                                    {/* Visualización de Precio Especial en Modal */}
+                                                    {d.precio_oficial && d.precio_unitario !== d.precio_oficial && (
+                                                        <div className="small text-primary">
+                                                            <span className="text-decoration-line-through text-muted me-1">${Math.round(d.precio_oficial)}</span>
+                                                            <strong>${Math.round(d.precio_unitario)}</strong> (Especial)
+                                                        </div>
+                                                    )}
+                                                    {(!d.precio_oficial || d.precio_unitario === d.precio_oficial) && (
+                                                        <div className="small text-muted">${Math.round(d.precio_unitario)} / kg</div>
+                                                    )}
+                                                </div>
+                                                <span className="fw-bold">${Math.round(d.subtotal).toLocaleString('es-CL')}</span>
+                                            </li>
+                                        ))}
+                                    </ul>
+                                    <hr />
+                                    <h4 className="text-end text-success fw-bold">Total: ${Math.round(transaccionSeleccionada.total_pagar).toLocaleString('es-CL')}</h4>
+                                </div>
+                                <div className="modal-footer">
+                                    <button type="button" className="btn btn-secondary" onClick={cerrarModal}>Cerrar</button>
+                                    <button type="button" className="btn btn-primary" onClick={() => imprimirVoucher(transaccionSeleccionada)}>
+                                        <Printer size={18} className="me-2" /> Imprimir
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                )}
+            </div>
+            <Footer />
+        </>
     );
 };
 
