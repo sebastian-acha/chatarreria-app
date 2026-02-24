@@ -4,6 +4,7 @@ const cors = require('cors');
 const db = require('./config/db'); // Importamos nuestra conexión
 const authRoutes = require('./routes/authRoutes'); // Importamos rutas de auth
 const metalRoutes = require('./routes/metalRoutes'); // Importamos rutas de metales
+const familiaRoutes = require('./routes/familiaRoutes'); // Importamos rutas de familias
 const sucursalRoutes = require('./routes/sucursalRoutes'); // Importar rutas de sucursales
 const userRoutes = require('./routes/userRoutes'); // Importar rutas de usuarios
 const transaccionRoutes = require('./routes/transaccionRoutes'); // Importamos rutas de transacciones
@@ -24,6 +25,7 @@ app.use('/uploads', express.static('uploads')); // Servir archivos estáticos
 // Rutas de la API
 app.use('/api/auth', authRoutes);
 app.use('/api/metales', metalRoutes);
+app.use('/api/familias', familiaRoutes);
 app.use('/api/sucursales', sucursalRoutes);
 app.use('/api/usuarios', userRoutes);
 app.use('/api/transacciones', transaccionRoutes);

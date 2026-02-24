@@ -21,15 +21,24 @@ CREATE TABLE IF NOT EXISTS usuarios (
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
--- 3. Tabla de Metales (Precios actuales)
-CREATE TABLE IF NOT EXISTS metales (
+-- 3. Tabla de Familias de Metales
+CREATE TABLE IF NOT EXISTS familias (
     id SERIAL PRIMARY KEY,
     nombre VARCHAR(50) NOT NULL UNIQUE,
-    valor_por_kilo DECIMAL(10, 2) NOT NULL,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
--- 4. Tabla de Transacciones (Compras / Vouchers)
+-- 4. Tabla de Metales (Precios actuales)
+CREATE TABLE IF NOT EXISTS metales (
+    id SERIAL PRIMARY KEY,
+    familia_id INT REFERENCES familias(id) ON DELETE SET NULL,
+    nombre VARCHAR(50) NOT NULL,
+    valor_por_kilo DECIMAL(10, 2) NOT NULL,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    UNIQUE (familia_id, nombre)
+);
+
+-- 5. Tabla de Transacciones (Compras / Vouchers)
 CREATE TABLE IF NOT EXISTS transacciones (
     id SERIAL PRIMARY KEY, -- Número correlativo del voucher
     sucursal_id INT REFERENCES sucursales(id),
@@ -45,7 +54,7 @@ total_pagar DECIMAL(12, 2) NOT NULL,
     fecha_hora TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
--- 5. Tabla de Detalles de Transacción
+-- 6. Tabla de Detalles de Transacción
 CREATE TABLE IF NOT EXISTS transaccion_detalles (
     id SERIAL PRIMARY KEY,
     transaccion_id INT NOT NULL REFERENCES transacciones (id) ON DELETE CASCADE,
@@ -56,7 +65,7 @@ CREATE TABLE IF NOT EXISTS transaccion_detalles (
     subtotal DECIMAL(12, 2) NOT NULL
 );
 
--- 6. Tabla de Configuración de la Empresa (Singleton)
+-- 7. Tabla de Configuración de la Empresa (Singleton)
 CREATE TABLE IF NOT EXISTS configuracion (
     id INT PRIMARY KEY DEFAULT 1,
     nombre_empresa VARCHAR(255) NOT NULL DEFAULT 'Chatarrería',

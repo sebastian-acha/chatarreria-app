@@ -4,7 +4,8 @@ import { Save, Calculator, Printer, CheckCircle, AlertCircle, PlusCircle, XCircl
 import Footer from './Footer';
 
 const NuevaCompra = () => {
-    const [metales, setMetales] = useState([]);
+    const [metalesPorFamilia, setMetalesPorFamilia] = useState([]);
+    const [metalesSinFamilia, setMetalesSinFamilia] = useState([]);
     const [cliente, setCliente] = useState({ cliente_nombre: '', cliente_rut_dni: '' });
     const [detalles, setDetalles] = useState([{ metal_id: '', peso_kilos: '', precio_especial: '' }]);
     const [loading, setLoading] = useState(false);
@@ -17,7 +18,8 @@ const NuevaCompra = () => {
         const fetchMetales = async () => {
             try {
                 const res = await axios.get(`${API_URL}/metales`);
-                setMetales(res.data);
+                setMetalesPorFamilia(res.data.familias || []);
+                setMetalesSinFamilia(res.data.sinFamilia || []);
             } catch (error) {
                 console.error("Error cargando metales", error);
                 setMensaje({ type: 'error', text: 'No se pudo cargar la lista de metales.' });
@@ -53,7 +55,6 @@ const NuevaCompra = () => {
         setMensaje({ type: '', text: '' });
         setVoucher(null);
 
-        // Validar que los detalles no estén vacíos
         const metalesParaEnviar = detalles.filter(d => d.metal_id && d.peso_kilos > 0);
         if (metalesParaEnviar.length === 0) {
             setMensaje({ type: 'error', text: 'Debe agregar al menos un metal con peso válido.' });
@@ -75,7 +76,6 @@ const NuevaCompra = () => {
             setMensaje({ type: 'success', text: 'Compra registrada con éxito' });
             setVoucher(res.data.voucher);
 
-            // Limpiar formulario
             setCliente({ cliente_nombre: '', cliente_rut_dni: '' });
             setDetalles([{ metal_id: '', peso_kilos: '', precio_especial: '' }]);
 
@@ -89,9 +89,21 @@ const NuevaCompra = () => {
     const getTotalEstimado = () => {
         return Math.round(detalles.reduce((total, detalle) => {
             if (!detalle.metal_id || !detalle.peso_kilos) return total;
-            const metal = metales.find(m => m.id === parseInt(detalle.metal_id));
 
-            // Usar precio especial si existe, sino el del metal
+            const metalId = parseInt(detalle.metal_id);
+            let metal = null;
+
+            // Buscar en metales con familia
+            for (const familia of metalesPorFamilia) {
+                metal = familia.metales.find(m => m.id === metalId);
+                if (metal) break;
+            }
+            
+            // Si no se encontró, buscar en metales sin familia
+            if (!metal) {
+                metal = metalesSinFamilia.find(m => m.id === metalId);
+            }
+
             const precio = (detalle.precio_especial && parseFloat(detalle.precio_especial) > 0)
                 ? parseFloat(detalle.precio_especial)
                 : (metal ? metal.valor_por_kilo : 0);
@@ -174,7 +186,6 @@ const NuevaCompra = () => {
                         )}
 
                         <form onSubmit={handleSubmit}>
-                            {/* Datos del Cliente */}
                             <fieldset className="border p-3 rounded mb-4">
                                 <legend className="float-none w-auto px-2 h5 fw-bold">Datos del Cliente</legend>
                                 <div className="row g-3">
@@ -189,7 +200,6 @@ const NuevaCompra = () => {
                                 </div>
                             </fieldset>
 
-                            {/* Detalles de Metales */}
                             <fieldset className="border p-3 rounded mb-4">
                                 <legend className="float-none w-auto px-2 h5 fw-bold">Metales a Vender</legend>
                                 {detalles.map((detalle, index) => (
@@ -198,9 +208,24 @@ const NuevaCompra = () => {
                                             <label className="form-label">Metal</label>
                                             <select name="metal_id" value={detalle.metal_id} onChange={(e) => handleDetalleChange(index, e)} className="form-select" required>
                                                 <option value="">Seleccione...</option>
-                                                {metales.map(m => (
-                                                    <option key={m.id} value={m.id}>{m.nombre} (${Math.round(m.valor_por_kilo).toLocaleString('es-CL')}/kg)</option>
+                                                {metalesPorFamilia.map(familia => (
+                                                    <optgroup key={familia.familia_id} label={familia.familia_nombre}>
+                                                        {familia.metales.map(m => (
+                                                            <option key={m.id} value={m.id}>
+                                                                {m.nombre} (${Math.round(m.valor_por_kilo).toLocaleString('es-CL')}/kg)
+                                                            </option>
+                                                        ))}
+                                                    </optgroup>
                                                 ))}
+                                                {metalesSinFamilia.length > 0 && (
+                                                    <optgroup label="Otros">
+                                                        {metalesSinFamilia.map(m => (
+                                                             <option key={m.id} value={m.id}>
+                                                                {m.nombre} (${Math.round(m.valor_por_kilo).toLocaleString('es-CL')}/kg)
+                                                            </option>
+                                                        ))}
+                                                    </optgroup>
+                                                )}
                                             </select>
                                         </div>
                                         <div className="col-md-3">
@@ -225,7 +250,6 @@ const NuevaCompra = () => {
                                 </button>
                             </fieldset>
 
-                            {/* Total y Submit */}
                             <div className="d-flex justify-content-between align-items-center bg-light p-3 rounded mb-4">
                                 <span className="fw-bold text-secondary">Total Estimado:</span>
                                 <span className="h4 mb-0 fw-bold text-success">${getTotalEstimado().toLocaleString('es-CL')}</span>
