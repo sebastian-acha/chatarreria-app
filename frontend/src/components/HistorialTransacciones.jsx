@@ -77,52 +77,155 @@ const HistorialTransacciones = () => {
     const imprimirVoucher = (transaccion) => {
         if (!transaccion) return;
 
-        const detallesHTML = transaccion.detalles.map(d => {
-            // Lógica de visualización de Precio Especial
+        const voucher = {
+            correlativo: transaccion.id,
+            fecha: transaccion.fecha_hora,
+            cliente: {
+                nombre: transaccion.cliente_nombre,
+                rut: transaccion.cliente_rut_dni
+            },
+            detalles: transaccion.detalles,
+            total_pagado: transaccion.total_pagar,
+            logo_url: configuracion?.logo_url,
+        };
+
+        const detallesHTML = voucher.detalles.map(d => {
             const precioDisplay = (d.precio_oficial && d.precio_unitario !== d.precio_oficial)
-                ? `<span style="text-decoration: line-through; color: #666; font-size: 0.9em;">$${Math.round(d.precio_oficial).toLocaleString('es-CL')}</span><br/>Precio Especial: <b>$${Math.round(d.precio_unitario).toLocaleString('es-CL')}</b>`
-                : `$${Math.round(d.precio_unitario).toLocaleString('es-CL')}`;
+                ? `<span class="texto-tachado">$${Math.round(d.precio_oficial).toLocaleString('es-CL')}</span><br/>Precio Especial: <b>$${Math.round(d.precio_unitario).toLocaleString('es-CL')}</b>`
+                : `<b>$${Math.round(d.precio_unitario).toLocaleString('es-CL')}</b>`;
 
             return `
-            <div style="margin-top: 10px;">
-                <p>Metal: ${d.metal}</p>
-                <p>Peso: ${d.peso_kilos} kg</p>
-                <p>Precio/kg: ${precioDisplay}</p>
-                <p>Subtotal: $${Math.round(d.subtotal).toLocaleString('es-CL')}</p>
-            </div>
-        `}).join('<hr style="border-style: dashed;"/>');
+            <tr>
+              <td>
+                <table class="font11"> 
+                  <tr> 
+                    <td>
+                      <b>${d.peso_kilos} kg </b>| ${d.metal}
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>
+                      <span> Valor kg: ${precioDisplay}</span>
+                    </td>
+                  </tr>
+                </table> 
+              </td>
+              <td class="text-center">
+                Subtotal:
+                <br>
+                <b>$${Math.round(d.subtotal).toLocaleString('es-CL')}</b>
+              </td>
+            </tr>
+        `}).join('');
 
-        const logoHTML = configuracion?.logo_url
-            ? `<img src="${configuracion.logo_url}" alt="Logo" style="max-width: 150px; margin: 0 auto 20px auto; display: block;">`
-            : '';
+        const logoHTML = voucher.logo_url ? `<img class="logo" src="${voucher.logo_url}" alt="Logo" style="max-width: 150px; margin: 0 auto 20px auto; display: block;">` : '';
 
         const ventana = window.open('', 'PRINT', 'height=600,width=400');
         ventana.document.write(`
             <html>
-                <head><title>Voucher #${transaccion.id}</title></head>
-                <body style="font-family: monospace; text-align: center; padding: 20px;">
-                    ${logoHTML}
-                    <h2>CHATARRERÍA</h2>
-                    <p>Fecha: ${new Date(transaccion.fecha_hora).toLocaleString()}</p>
-                    <p>Voucher N°: <strong>${transaccion.id}</strong></p>
-                    <hr/>
-                    <div style="text-align: left;">
-                        <p>Cliente: ${transaccion.cliente_nombre}</p>
-                        <p>RUT/DNI: ${transaccion.cliente_rut_dni || '-'}</p>
-                        <p>Atendido por: ${transaccion.ejecutivo_nombre || '-'}</p>
-                    </div>
-                    <hr/>
-                    ${detallesHTML}
-                    <hr/>
-                    <h3>TOTAL: $${Math.round(transaccion.total_pagar).toLocaleString('es-CL')}</h3>
-                    <br/>
-                </body>
-            </html>
+                <head><title>Voucher #${voucher.correlativo}</title>
+                <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+                <meta name="viewport" content="width=device-width, initial-scale=1.0">
+                <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB" crossorigin="anonymous">
+                <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js" integrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI" crossorigin="anonymous"></script>
+                    <style type="text/css">
+                        .container{padding:0;}
+                        body {font-size:11px; font-family: tahoma, sans-serif; font-weight:100; letter-spacing: 0.02em;}
+                        .font11{font-size:11px }
+                        footer{font-size:10px;}
+                        .table-container{border:1px solid black; margin-bottom:8px; overflow-x: auto; -webkit-overflow-scrolling: touch;}
+                        .table{margin-bottom:0;font-size:11px}
+                        .table b,
+                        table strong,
+                        footer b{font-weight:600; letter-spacing:0.03em;}
+                        footer b{letter-spacing:0;}
+                        .logo{max-height:35px;}
+                        h1{font-size:16px; margin:4px 0;}
+                        .table td{vertical-align: middle;}
+                        .table-materials tr{border-bottom: 1px solid black;}
+                        .table-materials tr:last-child{border-bottom: transparent;}
+                        .table-materials tr td:first-child,
+                        .table-info-user tr td:first-child{border-right: 1px solid black;}
+                        .table-materials tr td table{width:100%;}
+                        .table-materials tr td table tr{border-bottom: 1px dashed black;}
+                        .table-materials tr td table tr td{border-right: none !important;}
+                        .table-materials tr td table tr td{border-right: none !important; padding-bottom:0px; line-height:1.4em; padding-bottom:4px;}
+                        .table-materials tr td table tr:last-child td{padding-bottom:0px;}
+                        .table-info-user{margin-bottom:20px;}
+                        .table-info-user tbody tr{border-style: hidden;}
+                        .table-info-user table tr td:first-child{padding-right: 11px;}
+                        .table-container.total .table {font-size:16px; margin-bottom:5px;}
+                        .texto-tachado{text-decoration: line-through;}
+                        .table>:not(caption)>*>*{border-bottom-width:0; padding:6px;}
+                    </style>
+                </head>
+                <body class="font11">
+                    <main>
+                        <div class="container">
+                            <header class="text-center mb-3">
+                                ${logoHTML}
+                                <h1> ${configuracion?.nombre_empresa || 'Chatarrería'}</h1>
+                            </header>
+                            <div class="d-flex justify-content-between align-items-center mb-1">
+                                <span>
+                                    Fecha: ${new Date(voucher.fecha).toLocaleDateString()}
+                                </span>
+                                <span>
+                                    Hora: ${new Date(voucher.fecha).toLocaleTimeString()};
+                                </span>
+                            </div>
+                            <div class="table-container table-info-user rounded">
+                                <table class="table">
+                                    <tbody>
+                                        <tr>
+                                            <td class="text-start">
+                                                Cliente: ${voucher.cliente.nombre}
+                                                <br>
+                                                Rut: ${voucher.cliente.rut || '-'}
+                                            </td>
+                                            <td class="text-center">
+                                                Comprobante
+                                                <br>
+                                                <b>Nº: ${voucher.correlativo}</b>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                    </table>
+                                </div>
+                                <div class="table-container table-materials rounded">
+                                    <table class="table mb-0">
+                                        <tbody>
+                                            ${detallesHTML}
+                                        </tbody>
+                                    </table>
+                                </div>
+                                <div class="table-container total rounded">
+                                    <table class="table">
+                                        <tbody>
+                                            <tr>
+                                                <td class="text-center">
+                                                    Total <b>$${Math.round(voucher.total_pagado).toLocaleString('es-CL')}</b>
+                                                </td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                                <footer class="d-flex justify-content-end mb-2">
+                                    <span>
+                                        <!-- Atendido por: <b>Leonardo Aguirre</b> -->
+                                    </span>
+                                </footer>
+                            </div>
+                        </main>
+                    </body>
+                </html>
         `);
-        ventana.document.close();
-        ventana.focus();
-        ventana.print();
-        ventana.close();
+        //ventana.document.close();
+        ventana.onload = () => {
+            ventana.focus();
+            ventana.print();
+            ventana.close();
+        };
     };
 
     return (

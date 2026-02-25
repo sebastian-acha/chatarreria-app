@@ -196,7 +196,7 @@ const NuevaCompra = () => {
                             </header>
                             <div class="d-flex justify-content-between align-items-center mb-1">
                                 <span>
-                                    Fecha: ${new Date(voucher.fecha).toLocaleString()}
+                                    Fecha: ${new Date(voucher.fecha).toLocaleDateString()}
                                 </span>
                                 <span>
                                     Hora: ${new Date(voucher.fecha).toLocaleTimeString()};
@@ -248,7 +248,7 @@ const NuevaCompra = () => {
                     </body>
                 </html>
         `);
-        ventana.document.close();
+        //ventana.document.close();
         ventana.onload = () => {
             ventana.focus();
             ventana.print();
