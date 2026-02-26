@@ -220,7 +220,7 @@ const HistorialTransacciones = () => {
                     </body>
                 </html>
         `);
-        //ventana.document.close();
+        ventana.document.close();
         ventana.onload = () => {
             ventana.focus();
             ventana.print();
