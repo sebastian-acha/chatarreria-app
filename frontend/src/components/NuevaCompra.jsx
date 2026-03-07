@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useContext } from 'react';
+import React, { useState, useEffect, useContext, useRef } from 'react';
 import apiClient from '../api/axios';
 import { Save, Calculator, Printer, CheckCircle, AlertCircle, PlusCircle, XCircle } from 'lucide-react';
 import Footer from './Footer';
@@ -13,9 +13,14 @@ const NuevaCompra = () => {
     const [mensaje, setMensaje] = useState({ type: '', text: '' });
     const [voucher, setVoucher] = useState(null);
     const { configuracion } = useContext(ConfiguracionContext);
+    const [showModal, setShowModal] = useState(false);
+    const modalRef = useRef(null);
 
-
-
+    useEffect(() => {
+        if (showModal) {
+            modalRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
+    }, [showModal]);
 
     useEffect(() => {
         const fetchMetales = async () => {
@@ -57,6 +62,7 @@ const NuevaCompra = () => {
         setLoading(true);
         setMensaje({ type: '', text: '' });
         setVoucher(null);
+        setShowModal(false);
 
         const metalesParaEnviar = detalles.filter(d => d.metal_id && d.peso_kilos > 0);
         if (metalesParaEnviar.length === 0) {
@@ -75,6 +81,7 @@ const NuevaCompra = () => {
 
             setMensaje({ type: 'success', text: 'Compra registrada con éxito' });
             setVoucher(res.data.voucher);
+            setShowModal(true);
 
             setCliente({ cliente_nombre: '', cliente_rut_dni: '' });
             setDetalles([{ metal_id: '', peso_kilos: '', precio_especial: '' }]);
@@ -93,13 +100,11 @@ const NuevaCompra = () => {
             const metalId = parseInt(detalle.metal_id);
             let metal = null;
 
-            // Buscar en metales con familia
             for (const familia of metalesPorFamilia) {
                 metal = familia.metales.find(m => m.id === metalId);
                 if (metal) break;
             }
 
-            // Si no se encontró, buscar en metales sin familia
             if (!metal) {
                 metal = metalesSinFamilia.find(m => m.id === metalId);
             }
@@ -112,6 +117,7 @@ const NuevaCompra = () => {
             return total + subtotal;
         }, 0));
     };
+
     const imprimirVoucher = () => {
         if (!voucher) return;
         const detallesHTML = voucher.detalles.map(d => {
@@ -253,29 +259,50 @@ const NuevaCompra = () => {
         };
     };
 
+    const closeModal = () => {
+        setShowModal(false);
+        setVoucher(null);
+        setMensaje({ type: '', text: '' });
+    };
+
     return (
         <>
             <div className="container my-4">
+                {showModal && voucher && (
+                    <div ref={modalRef} className="modal-custom-backdrop" style={{
+                        position: 'fixed', top: 0, left: 0, width: '100%', height: '100%',
+                        backgroundColor: 'rgba(0,0,0,0.5)', display: 'flex',
+                        justifyContent: 'center', alignItems: 'center', zIndex: 1050
+                    }}>
+                        <div className="modal-custom-content card shadow-lg" style={{ width: '90%', maxWidth: '500px' }}>
+                            <div className="modal-custom-header card-header d-flex justify-content-between align-items-center">
+                                <h5 className="modal-custom-title mb-0 d-flex align-items-center gap-2">
+                                    <CheckCircle className="text-success" />
+                                    {mensaje.text}
+                                </h5>
+                                <button type="button" className="btn-close" onClick={closeModal}></button>
+                            </div>
+                            <div className="modal-custom-body card-body text-center">
+                                <h3 className="h5 fw-bold text-primary">¡Transacción #{voucher.correlativo} completada!</h3>
+                                <p className="mb-3">Total a pagar: <strong>$${Math.round(voucher.total_pagado).toLocaleString('es-CL')}</strong></p>
+                                <button onClick={imprimirVoucher} className="btn btn-primary d-inline-flex align-items-center gap-2">
+                                    <Printer size={20} /> Imprimir Voucher
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                )}
+
                 <div className="card shadow-sm">
                     <div className="card-body p-4">
                         <h2 className="card-title mb-4 d-flex align-items-center gap-2">
                             <Calculator className="text-primary" /> Nueva Compra
                         </h2>
 
-                        {mensaje.text && (
-                            <div className={`alert ${mensaje.type === 'success' ? 'alert-success' : 'alert-danger'} d-flex align-items-center gap-2`}>
-                                {mensaje.type === 'success' ? <CheckCircle size={20} /> : <AlertCircle size={20} />}
+                        {mensaje.text && mensaje.type === 'error' && (
+                            <div className={`alert alert-danger d-flex align-items-center gap-2`}>
+                                <AlertCircle size={20} />
                                 {mensaje.text}
-                            </div>
-                        )}
-
-                        {voucher && (
-                            <div className="alert alert-info text-center mb-4">
-                                <h3 className="h5 fw-bold text-primary">¡Transacción #{voucher.correlativo} completada!</h3>
-                                <p className="mb-3">Total a pagar: <strong>$${Math.round(voucher.total_pagado).toLocaleString('es-CL')}</strong></p>
-                                <button onClick={imprimirVoucher} className="btn btn-primary d-inline-flex align-items-center gap-2">
-                                    <Printer size={20} /> Imprimir Voucher
-                                </button>
                             </div>
                         )}
 
