@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import axios from 'axios';
+import apiClient from '../api/axios';
 
 const Configuracion = () => {
     const [config, setConfig] = useState({
@@ -14,10 +14,7 @@ const Configuracion = () => {
     useEffect(() => {
         const fetchConfig = async () => {
             try {
-                const token = localStorage.getItem('token');
-                const res = await axios.get('/api/configuracion', {
-                    headers: { Authorization: `Bearer ${token}` }
-                });
+                const res = await apiClient.get('/configuracion');
                 setConfig(res.data);
             } catch (error) {
                 console.error('Error al obtener la configuración:', error);
@@ -37,7 +34,6 @@ const Configuracion = () => {
     const handleSubmit = async (e) => {
         e.preventDefault();
         try {
-            const token = localStorage.getItem('token');
             const formData = new FormData();
             formData.append('nombre_empresa', config.nombre_empresa);
             formData.append('direccion', config.direccion);
@@ -47,9 +43,8 @@ const Configuracion = () => {
                 formData.append('logo', logo);
             }
 
-            const res = await axios.put('/api/configuracion', formData, {
+            const res = await apiClient.put('/configuracion', formData, {
                 headers: {
-                    Authorization: `Bearer ${token}`,
                     'Content-Type': 'multipart/form-data'
                 }
             });

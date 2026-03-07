@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useContext } from 'react';
-import axios from 'axios';
+import apiClient from '../api/axios';
 import { Save, Calculator, Printer, CheckCircle, AlertCircle, PlusCircle, XCircle } from 'lucide-react';
 import Footer from './Footer';
 import { ConfiguracionContext } from '../context/ConfiguracionContext';
@@ -15,12 +15,12 @@ const NuevaCompra = () => {
     const { configuracion } = useContext(ConfiguracionContext);
 
 
-    const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000/api';
+
 
     useEffect(() => {
         const fetchMetales = async () => {
             try {
-                const res = await axios.get(`${API_URL}/metales`);
+                const res = await apiClient.get(`/metales`);
                 setMetalesPorFamilia(res.data.familias || []);
                 setMetalesSinFamilia(res.data.sinFamilia || []);
             } catch (error) {
@@ -29,7 +29,7 @@ const NuevaCompra = () => {
             }
         };
         fetchMetales();
-    }, [API_URL]);
+    }, []);
 
     const handleClienteChange = (e) => {
         setCliente({ ...cliente, [e.target.name]: e.target.value });
@@ -71,10 +71,7 @@ const NuevaCompra = () => {
         };
 
         try {
-            const token = localStorage.getItem('token');
-            const res = await axios.post(`${API_URL}/transacciones`, payload, {
-                headers: { Authorization: `Bearer ${token}` }
-            });
+            const res = await apiClient.post(`/transacciones`, payload);
 
             setMensaje({ type: 'success', text: 'Compra registrada con éxito' });
             setVoucher(res.data.voucher);

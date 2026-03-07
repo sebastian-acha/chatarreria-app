@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import axios from 'axios';
+import apiClient from '../api/axios';
 import { Eye, Printer, Search, Calendar, X, ChevronLeft, ChevronRight } from 'lucide-react';
 import Footer from './Footer';
 
@@ -13,20 +13,20 @@ const HistorialTransacciones = () => {
     const [transaccionSeleccionada, setTransaccionSeleccionada] = useState(null);
     const [configuracion, setConfiguracion] = useState(null);
 
-    const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000/api';
+
 
     // Cargar configuración (para el logo del voucher) al montar
     useEffect(() => {
         const fetchConfig = async () => {
             try {
-                const res = await axios.get(`${API_URL}/configuracion`);
+                const res = await apiClient.get(`/configuracion`);
                 setConfiguracion(res.data);
             } catch (error) {
                 console.error("Error cargando configuración", error);
             }
         };
         fetchConfig();
-    }, [API_URL]);
+    }, []);
 
     // Cargar transacciones cuando cambian filtros o página
     useEffect(() => {
@@ -37,7 +37,6 @@ const HistorialTransacciones = () => {
     const fetchTransacciones = async () => {
         setLoading(true);
         try {
-            const token = localStorage.getItem('token');
             const params = {
                 page: paginacion.page,
                 limit: 10,
@@ -47,8 +46,7 @@ const HistorialTransacciones = () => {
             // Eliminar claves vacías
             Object.keys(params).forEach(key => params[key] === '' && delete params[key]);
 
-            const res = await axios.get(`${API_URL}/transacciones`, {
-                headers: { Authorization: `Bearer ${token}` },
+            const res = await apiClient.get(`/transacciones`, {
                 params
             });
 

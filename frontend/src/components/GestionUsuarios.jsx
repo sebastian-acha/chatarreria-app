@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import axios from 'axios';
+import apiClient from '../api/axios';
 import { Users, Plus, Save } from 'lucide-react';
 
 const GestionUsuarios = () => {
@@ -14,15 +14,13 @@ const GestionUsuarios = () => {
         rol: 'EJECUTIVO',
         sucursal_id: ''
     });
-    const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000/api';
 
     const fetchData = async () => {
         setLoading(true);
         try {
-            const token = localStorage.getItem('token');
             const [resUsuarios, resSucursales] = await Promise.all([
-                axios.get(`${API_URL}/usuarios`, { headers: { Authorization: `Bearer ${token}` } }),
-                axios.get(`${API_URL}/sucursales`, { headers: { Authorization: `Bearer ${token}` } })
+                apiClient.get(`/usuarios`),
+                apiClient.get(`/sucursales`)
             ]);
             setUsuarios(resUsuarios.data);
             setSucursales(resSucursales.data);
@@ -49,10 +47,7 @@ const GestionUsuarios = () => {
             return;
         }
         try {
-            const token = localStorage.getItem('token');
-            await axios.post(`${API_URL}/usuarios`, form, {
-                headers: { Authorization: `Bearer ${token}` }
-            });
+            await apiClient.post(`/usuarios`, form);
             alert('Usuario creado con éxito');
             setForm({ nombres: '', apellido_paterno: '', email: '', password: '', rol: 'EJECUTIVO', sucursal_id: '' });
             fetchData(); // Recargar lista de usuarios
