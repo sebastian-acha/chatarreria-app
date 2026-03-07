@@ -74,7 +74,7 @@ const NuevaCompra = () => {
 
         // Combina las líneas consolidadas con las incompletas.
         const nuevosDetalles = [...detallesConsolidados, ...lineasIncompletas];
-        
+
         // Opcional: podrías querer limpiar líneas incompletas duplicadas si es necesario,
         // pero por ahora, esto evita que se borre el trabajo del usuario.
 
@@ -164,7 +164,7 @@ const NuevaCompra = () => {
                 <table class="font11"> 
                   <tr> 
                     <td>
-                      <b>${d.peso_kilos} kg </b>| ${d.metal}
+                      <b>${d.peso_kilos} kg </b>| ${d.familia ? `${d.familia} - ` : ''}${d.metal}
                     </td>
                   </tr>
                   <tr>

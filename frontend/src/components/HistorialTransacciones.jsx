@@ -98,7 +98,7 @@ const HistorialTransacciones = () => {
                 <table class="font11"> 
                   <tr> 
                     <td>
-                      <b>${d.peso_kilos} kg </b>| ${d.metal}
+                      <b>${d.peso_kilos} kg </b>| ${d.familia ? `${d.familia} - ` : ''}${d.metal}
                     </td>
                   </tr>
                   <tr>
