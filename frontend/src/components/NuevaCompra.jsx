@@ -48,6 +48,39 @@ const NuevaCompra = () => {
         if (voucher) setVoucher(null);
     };
 
+    const handleDetalleBlur = () => {
+        // Filtra las líneas que están completas y listas para ser agrupadas.
+        const lineasCompletas = detalles.filter(d => d.metal_id && d.peso_kilos && parseFloat(d.peso_kilos) > 0);
+        // Conserva las líneas incompletas, que el usuario podría estar editando.
+        const lineasIncompletas = detalles.filter(d => !d.metal_id || !d.peso_kilos || parseFloat(d.peso_kilos) <= 0);
+
+        const metalesAgrupados = new Map();
+
+        // Agrupa solo las líneas completas.
+        lineasCompletas.forEach(detalle => {
+            const precioClave = detalle.precio_especial ? detalle.precio_especial.toString() : '0';
+            const key = `${detalle.metal_id}-${precioClave}`;
+
+            if (metalesAgrupados.has(key)) {
+                const itemExistente = metalesAgrupados.get(key);
+                itemExistente.peso_kilos = (parseFloat(itemExistente.peso_kilos) + parseFloat(detalle.peso_kilos)).toString();
+            } else {
+                // Clona el objeto para evitar mutaciones directas del estado.
+                metalesAgrupados.set(key, { ...detalle });
+            }
+        });
+
+        const detallesConsolidados = Array.from(metalesAgrupados.values());
+
+        // Combina las líneas consolidadas con las incompletas.
+        const nuevosDetalles = [...detallesConsolidados, ...lineasIncompletas];
+        
+        // Opcional: podrías querer limpiar líneas incompletas duplicadas si es necesario,
+        // pero por ahora, esto evita que se borre el trabajo del usuario.
+
+        setDetalles(nuevosDetalles);
+    };
+
     const agregarDetalle = () => {
         setDetalles([...detalles, { metal_id: '', peso_kilos: '', precio_especial: '' }]);
     };
@@ -327,7 +360,7 @@ const NuevaCompra = () => {
                                     <div key={index} className="row g-3 align-items-end mb-3 pb-3 border-bottom">
                                         <div className="col-md-4">
                                             <label className="form-label">Metal</label>
-                                            <select name="metal_id" value={detalle.metal_id} onChange={(e) => handleDetalleChange(index, e)} className="form-select" required>
+                                            <select name="metal_id" value={detalle.metal_id} onChange={(e) => handleDetalleChange(index, e)} onBlur={handleDetalleBlur} className="form-select" required>
                                                 <option value="">Seleccione...</option>
                                                 {metalesPorFamilia.map(familia => (
                                                     <optgroup key={familia.familia_id} label={familia.familia_nombre}>
@@ -351,11 +384,11 @@ const NuevaCompra = () => {
                                         </div>
                                         <div className="col-md-3">
                                             <label className="form-label text-primary fw-bold">Precio Especial</label>
-                                            <input type="number" name="precio_especial" value={detalle.precio_especial} onChange={(e) => handleDetalleChange(index, e)} className="form-control border-primary" placeholder="Opcional" />
+                                            <input type="number" name="precio_especial" value={detalle.precio_especial} onChange={(e) => handleDetalleChange(index, e)} onBlur={handleDetalleBlur} className="form-control border-primary" placeholder="Opcional" />
                                         </div>
                                         <div className="col-md-3">
                                             <label className="form-label">Peso (kilos)</label>
-                                            <input type="number" step="0.01" name="peso_kilos" value={detalle.peso_kilos} onChange={(e) => handleDetalleChange(index, e)} className="form-control" placeholder="0.00" required />
+                                            <input type="number" step="0.01" name="peso_kilos" value={detalle.peso_kilos} onChange={(e) => handleDetalleChange(index, e)} onBlur={handleDetalleBlur} className="form-control" placeholder="0.00" required />
                                         </div>
                                         <div className="col-md-2 text-end">
                                             {detalles.length > 1 && (

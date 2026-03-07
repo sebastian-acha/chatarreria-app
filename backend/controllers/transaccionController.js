@@ -31,10 +31,11 @@ exports.crearTransaccion = async (req, res) => {
         const configuracionResult = await client.query('SELECT logo_url FROM configuracion WHERE id = 1');
         const logoUrl = configuracionResult.rows.length > 0 ? configuracionResult.rows[0].logo_url : null;
         // 1. Obtener precios de TODOS los metales implicados en una sola consulta
-        const metalIds = metales.map(m => parseInt(m.metal_id, 10));
-        const preciosResult = await client.query('SELECT id, nombre, valor_por_kilo FROM metales WHERE id = ANY($1::int[])', [metalIds]);
+        const uniqueMetalIds = [...new Set(metales.map(m => parseInt(m.metal_id, 10)))];
+        const preciosResult = await client.query('SELECT id, nombre, valor_por_kilo FROM metales WHERE id = ANY($1::int[])', [uniqueMetalIds]);
 
-        if (preciosResult.rows.length !== metalIds.length) {
+        if (preciosResult.rows.length !== uniqueMetalIds.length) {
+            // Lanza un error si algún ID de metal no se encontró en la base de datos.
             throw new Error('Uno o más de los metales especificados no existen.');
         }
 

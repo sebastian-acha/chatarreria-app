@@ -1,5 +1,5 @@
 import React, { createContext, useState, useEffect } from 'react';
-import axios from 'axios';
+import apiClient from '../api/axios';
 
 export const ConfiguracionContext = createContext();
 
@@ -9,7 +9,7 @@ export const ConfiguracionProvider = ({ children }) => {
     useEffect(() => {
         const fetchConfiguracion = async () => {
             try {
-                const res = await axios.get('/api/configuracion');
+                const res = await apiClient.get('/configuracion');
                 setConfiguracion(res.data);
             } catch (error) {
                 console.error('Error al obtener la configuración:', error);
