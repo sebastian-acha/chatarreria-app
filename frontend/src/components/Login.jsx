@@ -1,8 +1,8 @@
 import React, { useState, useContext } from 'react';
-import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import { User, Lock, LogIn } from 'lucide-react';
 import { ConfiguracionContext } from '../context/ConfiguracionContext';
+import apiClient from '../api/axios';
 
 const Login = () => {
     const [formData, setFormData] = useState({
@@ -27,8 +27,7 @@ const Login = () => {
         setLoading(true);
 
         try {
-            const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000/api';
-            const response = await axios.post(`${API_URL}/auth/login`, formData);
+            const response = await apiClient.post('/auth/login', formData);
 
             // Guardar token y usuario en localStorage
             localStorage.setItem('token', response.data.token);

@@ -41,7 +41,8 @@ exports.login = async (req, res) => {
             sucursal_id: usuario.sucursal_id
         };
 
-        const token = jwt.sign(payload, process.env.JWT_SECRET, { expiresIn: '8h' });
+        const expiresIn = process.env.JWT_EXPIRATION_TIME || '12h';
+        const token = jwt.sign(payload, process.env.JWT_SECRET, { expiresIn });
 
         // 5. Responder con el token y datos del usuario (sin el password)
         res.json({

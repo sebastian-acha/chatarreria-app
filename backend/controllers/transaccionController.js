@@ -31,14 +31,15 @@ exports.crearTransaccion = async (req, res) => {
         const configuracionResult = await client.query('SELECT logo_url FROM configuracion WHERE id = 1');
         const logoUrl = configuracionResult.rows.length > 0 ? configuracionResult.rows[0].logo_url : null;
         // 1. Obtener precios de TODOS los metales implicados en una sola consulta
-        const metalIds = metales.map(m => parseInt(m.metal_id, 10));
-        const preciosResult = await client.query('SELECT id, nombre, valor_por_kilo FROM metales WHERE id = ANY($1::int[])', [metalIds]);
+        const uniqueMetalIds = [...new Set(metales.map(m => parseInt(m.metal_id, 10)))];
+        const preciosResult = await client.query('SELECT m.id, m.nombre, m.valor_por_kilo, f.nombre as familia_nombre FROM metales m LEFT JOIN familias f ON m.familia_id = f.id WHERE m.id = ANY($1::int[])', [uniqueMetalIds]);
 
-        if (preciosResult.rows.length !== metalIds.length) {
+        if (preciosResult.rows.length !== uniqueMetalIds.length) {
+            // Lanza un error si algún ID de metal no se encontró en la base de datos.
             throw new Error('Uno o más de los metales especificados no existen.');
         }
 
-        const preciosMap = new Map(preciosResult.rows.map(p => [p.id, { nombre: p.nombre, valor: parseFloat(p.valor_por_kilo) }]));
+        const preciosMap = new Map(preciosResult.rows.map(p => [p.id, { nombre: p.nombre, valor: parseFloat(p.valor_por_kilo), familia: p.familia_nombre }]));
 
         // 2. Calcular subtotales y total general
         let total_pagar = 0;
@@ -110,6 +111,7 @@ exports.crearTransaccion = async (req, res) => {
                 total_pagado: total_pagar,
                 detalles: detallesParaInsertar.map(d => ({
                     metal: preciosMap.get(d.metal_id).nombre,
+                    familia: preciosMap.get(d.metal_id).familia,
                     peso_kilos: d.peso_kilos,
                     precio_unitario: d.valor_kilo_aplicado,
                     precio_oficial: d.valor_kilo_oficial,
@@ -161,6 +163,7 @@ exports.listarTransacciones = async (req, res) => {
                 s.nombre as sucursal_nombre,
                 (SELECT json_agg(json_build_object(
                     'metal', m.nombre,
+                    'familia', f.nombre,
                     'peso_kilos', td.peso_kilos,
                     'precio_unitario', td.valor_kilo_aplicado,
                     'precio_oficial', td.valor_kilo_oficial,
@@ -168,6 +171,7 @@ exports.listarTransacciones = async (req, res) => {
                 ))
                 FROM transaccion_detalles td
                 JOIN metales m ON td.metal_id = m.id
+                LEFT JOIN familias f ON m.familia_id = f.id
                 WHERE td.transaccion_id = t.id
                 ) as detalles,
                 COUNT(*) OVER() as total_count
@@ -214,6 +218,7 @@ exports.obtenerTransaccion = async (req, res) => {
                 s.nombre as sucursal_nombre,
                 (SELECT json_agg(json_build_object(
                     'metal', m.nombre,
+                    'familia', f.nombre,
                     'peso_kilos', td.peso_kilos,
                     'precio_unitario', td.valor_kilo_aplicado,
                     'precio_oficial', td.valor_kilo_oficial,
@@ -221,6 +226,7 @@ exports.obtenerTransaccion = async (req, res) => {
                 ))
                 FROM transaccion_detalles td
                 JOIN metales m ON td.metal_id = m.id
+                LEFT JOIN familias f ON m.familia_id = f.id
                 WHERE td.transaccion_id = t.id
                 ) as detalles
             FROM transacciones t

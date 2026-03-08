@@ -1,21 +1,18 @@
 import React, { useState, useEffect } from 'react';
-import axios from 'axios';
+import apiClient from '../api/axios';
 import { BarChart3, TrendingUp, DollarSign, Scale, Download } from 'lucide-react';
 
 const ReporteDiario = () => {
     const [datos, setDatos] = useState([]);
     const [loading, setLoading] = useState(false);
     const [resumen, setResumen] = useState({ totalKilos: 0, totalDinero: 0 });
-    const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000/api';
+
 
     useEffect(() => {
         const fetchReporte = async () => {
             setLoading(true);
             try {
-                const token = localStorage.getItem('token');
-                const res = await axios.get(`${API_URL}/transacciones/reporte-diario`, {
-                    headers: { Authorization: `Bearer ${token}` }
-                });
+                const res = await apiClient.get(`/transacciones/reporte-diario`);
                 setDatos(res.data);
 
                 // Calcular totales generales
@@ -34,9 +31,7 @@ const ReporteDiario = () => {
 
     const handleExportarExcel = async () => {
         try {
-            const token = localStorage.getItem('token');
-            const response = await axios.get(`${API_URL}/transacciones/reporte-diario/excel`, {
-                headers: { Authorization: `Bearer ${token}` },
+            const response = await apiClient.get(`/transacciones/reporte-diario/excel`, {
                 responseType: 'blob', // Importante para recibir archivos binarios
             });
 

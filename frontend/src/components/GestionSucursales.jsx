@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import axios from 'axios';
+import apiClient from '../api/axios';
 import { Building, Plus, Save, Edit2, X } from 'lucide-react';
 
 const GestionSucursales = () => {
@@ -8,15 +8,11 @@ const GestionSucursales = () => {
     const [form, setForm] = useState({ nombre: '', direccion: '' });
     const [editingId, setEditingId] = useState(null);
     const [editForm, setEditForm] = useState({ nombre: '', direccion: '' });
-    const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000/api';
 
     const fetchSucursales = async () => {
         setLoading(true);
         try {
-            const token = localStorage.getItem('token');
-            const res = await axios.get(`${API_URL}/sucursales`, {
-                headers: { Authorization: `Bearer ${token}` }
-            });
+            const res = await apiClient.get(`/sucursales`);
             setSucursales(res.data);
         } catch (error) {
             console.error(error);
@@ -33,10 +29,7 @@ const GestionSucursales = () => {
     const handleCreate = async (e) => {
         e.preventDefault();
         try {
-            const token = localStorage.getItem('token');
-            await axios.post(`${API_URL}/sucursales`, form, {
-                headers: { Authorization: `Bearer ${token}` }
-            });
+            await apiClient.post(`/sucursales`, form);
             setForm({ nombre: '', direccion: '' });
             fetchSucursales();
             alert('Sucursal creada');
@@ -57,10 +50,7 @@ const GestionSucursales = () => {
 
     const handleUpdate = async (id) => {
         try {
-            const token = localStorage.getItem('token');
-            await axios.put(`${API_URL}/sucursales/${id}`, editForm, {
-                headers: { Authorization: `Bearer ${token}` }
-            });
+            await apiClient.put(`/sucursales/${id}`, editForm);
             setEditingId(null);
             fetchSucursales();
         } catch (error) {

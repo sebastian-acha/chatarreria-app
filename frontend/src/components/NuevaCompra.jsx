@@ -1,5 +1,5 @@
-import React, { useState, useEffect, useContext } from 'react';
-import axios from 'axios';
+import React, { useState, useEffect, useContext, useRef } from 'react';
+import apiClient from '../api/axios';
 import { Save, Calculator, Printer, CheckCircle, AlertCircle, PlusCircle, XCircle } from 'lucide-react';
 import Footer from './Footer';
 import { ConfiguracionContext } from '../context/ConfiguracionContext';
@@ -13,14 +13,19 @@ const NuevaCompra = () => {
     const [mensaje, setMensaje] = useState({ type: '', text: '' });
     const [voucher, setVoucher] = useState(null);
     const { configuracion } = useContext(ConfiguracionContext);
+    const [showModal, setShowModal] = useState(false);
+    const modalRef = useRef(null);
 
-
-    const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000/api';
+    useEffect(() => {
+        if (showModal) {
+            modalRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
+    }, [showModal]);
 
     useEffect(() => {
         const fetchMetales = async () => {
             try {
-                const res = await axios.get(`${API_URL}/metales`);
+                const res = await apiClient.get(`/metales`);
                 setMetalesPorFamilia(res.data.familias || []);
                 setMetalesSinFamilia(res.data.sinFamilia || []);
             } catch (error) {
@@ -29,7 +34,7 @@ const NuevaCompra = () => {
             }
         };
         fetchMetales();
-    }, [API_URL]);
+    }, []);
 
     const handleClienteChange = (e) => {
         setCliente({ ...cliente, [e.target.name]: e.target.value });
@@ -41,6 +46,39 @@ const NuevaCompra = () => {
         nuevosDetalles[index][e.target.name] = e.target.value;
         setDetalles(nuevosDetalles);
         if (voucher) setVoucher(null);
+    };
+
+    const handleDetalleBlur = () => {
+        // Filtra las líneas que están completas y listas para ser agrupadas.
+        const lineasCompletas = detalles.filter(d => d.metal_id && d.peso_kilos && parseFloat(d.peso_kilos) > 0);
+        // Conserva las líneas incompletas, que el usuario podría estar editando.
+        const lineasIncompletas = detalles.filter(d => !d.metal_id || !d.peso_kilos || parseFloat(d.peso_kilos) <= 0);
+
+        const metalesAgrupados = new Map();
+
+        // Agrupa solo las líneas completas.
+        lineasCompletas.forEach(detalle => {
+            const precioClave = detalle.precio_especial ? detalle.precio_especial.toString() : '0';
+            const key = `${detalle.metal_id}-${precioClave}`;
+
+            if (metalesAgrupados.has(key)) {
+                const itemExistente = metalesAgrupados.get(key);
+                itemExistente.peso_kilos = (parseFloat(itemExistente.peso_kilos) + parseFloat(detalle.peso_kilos)).toString();
+            } else {
+                // Clona el objeto para evitar mutaciones directas del estado.
+                metalesAgrupados.set(key, { ...detalle });
+            }
+        });
+
+        const detallesConsolidados = Array.from(metalesAgrupados.values());
+
+        // Combina las líneas consolidadas con las incompletas.
+        const nuevosDetalles = [...detallesConsolidados, ...lineasIncompletas];
+
+        // Opcional: podrías querer limpiar líneas incompletas duplicadas si es necesario,
+        // pero por ahora, esto evita que se borre el trabajo del usuario.
+
+        setDetalles(nuevosDetalles);
     };
 
     const agregarDetalle = () => {
@@ -57,6 +95,7 @@ const NuevaCompra = () => {
         setLoading(true);
         setMensaje({ type: '', text: '' });
         setVoucher(null);
+        setShowModal(false);
 
         const metalesParaEnviar = detalles.filter(d => d.metal_id && d.peso_kilos > 0);
         if (metalesParaEnviar.length === 0) {
@@ -71,13 +110,11 @@ const NuevaCompra = () => {
         };
 
         try {
-            const token = localStorage.getItem('token');
-            const res = await axios.post(`${API_URL}/transacciones`, payload, {
-                headers: { Authorization: `Bearer ${token}` }
-            });
+            const res = await apiClient.post(`/transacciones`, payload);
 
             setMensaje({ type: 'success', text: 'Compra registrada con éxito' });
             setVoucher(res.data.voucher);
+            setShowModal(true);
 
             setCliente({ cliente_nombre: '', cliente_rut_dni: '' });
             setDetalles([{ metal_id: '', peso_kilos: '', precio_especial: '' }]);
@@ -96,13 +133,11 @@ const NuevaCompra = () => {
             const metalId = parseInt(detalle.metal_id);
             let metal = null;
 
-            // Buscar en metales con familia
             for (const familia of metalesPorFamilia) {
                 metal = familia.metales.find(m => m.id === metalId);
                 if (metal) break;
             }
 
-            // Si no se encontró, buscar en metales sin familia
             if (!metal) {
                 metal = metalesSinFamilia.find(m => m.id === metalId);
             }
@@ -115,6 +150,7 @@ const NuevaCompra = () => {
             return total + subtotal;
         }, 0));
     };
+
     const imprimirVoucher = () => {
         if (!voucher) return;
         const detallesHTML = voucher.detalles.map(d => {
@@ -128,7 +164,7 @@ const NuevaCompra = () => {
                 <table class="font11"> 
                   <tr> 
                     <td>
-                      <b>${d.peso_kilos} kg </b>| ${d.metal}
+                      <b>${d.peso_kilos} kg </b>| ${d.familia ? `${d.familia} - ` : ''}${d.metal}
                     </td>
                   </tr>
                   <tr>
@@ -256,29 +292,50 @@ const NuevaCompra = () => {
         };
     };
 
+    const closeModal = () => {
+        setShowModal(false);
+        setVoucher(null);
+        setMensaje({ type: '', text: '' });
+    };
+
     return (
         <>
             <div className="container my-4">
+                {showModal && voucher && (
+                    <div ref={modalRef} className="modal-custom-backdrop" style={{
+                        position: 'fixed', top: 0, left: 0, width: '100%', height: '100%',
+                        backgroundColor: 'rgba(0,0,0,0.5)', display: 'flex',
+                        justifyContent: 'center', alignItems: 'center', zIndex: 1050
+                    }}>
+                        <div className="modal-custom-content card shadow-lg" style={{ width: '90%', maxWidth: '500px' }}>
+                            <div className="modal-custom-header card-header d-flex justify-content-between align-items-center">
+                                <h5 className="modal-custom-title mb-0 d-flex align-items-center gap-2">
+                                    <CheckCircle className="text-success" />
+                                    {mensaje.text}
+                                </h5>
+                                <button type="button" className="btn-close" onClick={closeModal}></button>
+                            </div>
+                            <div className="modal-custom-body card-body text-center">
+                                <h3 className="h5 fw-bold text-primary">¡Transacción #{voucher.correlativo} completada!</h3>
+                                <p className="mb-3">Total a pagar: <strong>$${Math.round(voucher.total_pagado).toLocaleString('es-CL')}</strong></p>
+                                <button onClick={imprimirVoucher} className="btn btn-primary d-inline-flex align-items-center gap-2">
+                                    <Printer size={20} /> Imprimir Voucher
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                )}
+
                 <div className="card shadow-sm">
                     <div className="card-body p-4">
                         <h2 className="card-title mb-4 d-flex align-items-center gap-2">
                             <Calculator className="text-primary" /> Nueva Compra
                         </h2>
 
-                        {mensaje.text && (
-                            <div className={`alert ${mensaje.type === 'success' ? 'alert-success' : 'alert-danger'} d-flex align-items-center gap-2`}>
-                                {mensaje.type === 'success' ? <CheckCircle size={20} /> : <AlertCircle size={20} />}
+                        {mensaje.text && mensaje.type === 'error' && (
+                            <div className={`alert alert-danger d-flex align-items-center gap-2`}>
+                                <AlertCircle size={20} />
                                 {mensaje.text}
-                            </div>
-                        )}
-
-                        {voucher && (
-                            <div className="alert alert-info text-center mb-4">
-                                <h3 className="h5 fw-bold text-primary">¡Transacción #{voucher.correlativo} completada!</h3>
-                                <p className="mb-3">Total a pagar: <strong>$${Math.round(voucher.total_pagado).toLocaleString('es-CL')}</strong></p>
-                                <button onClick={imprimirVoucher} className="btn btn-primary d-inline-flex align-items-center gap-2">
-                                    <Printer size={20} /> Imprimir Voucher
-                                </button>
                             </div>
                         )}
 
@@ -303,7 +360,7 @@ const NuevaCompra = () => {
                                     <div key={index} className="row g-3 align-items-end mb-3 pb-3 border-bottom">
                                         <div className="col-md-4">
                                             <label className="form-label">Metal</label>
-                                            <select name="metal_id" value={detalle.metal_id} onChange={(e) => handleDetalleChange(index, e)} className="form-select" required>
+                                            <select name="metal_id" value={detalle.metal_id} onChange={(e) => handleDetalleChange(index, e)} onBlur={handleDetalleBlur} className="form-select" required>
                                                 <option value="">Seleccione...</option>
                                                 {metalesPorFamilia.map(familia => (
                                                     <optgroup key={familia.familia_id} label={familia.familia_nombre}>
@@ -327,11 +384,11 @@ const NuevaCompra = () => {
                                         </div>
                                         <div className="col-md-3">
                                             <label className="form-label text-primary fw-bold">Precio Especial</label>
-                                            <input type="number" name="precio_especial" value={detalle.precio_especial} onChange={(e) => handleDetalleChange(index, e)} className="form-control border-primary" placeholder="Opcional" />
+                                            <input type="number" name="precio_especial" value={detalle.precio_especial} onChange={(e) => handleDetalleChange(index, e)} onBlur={handleDetalleBlur} className="form-control border-primary" placeholder="Opcional" />
                                         </div>
                                         <div className="col-md-3">
                                             <label className="form-label">Peso (kilos)</label>
-                                            <input type="number" step="0.01" name="peso_kilos" value={detalle.peso_kilos} onChange={(e) => handleDetalleChange(index, e)} className="form-control" placeholder="0.00" required />
+                                            <input type="number" step="0.01" name="peso_kilos" value={detalle.peso_kilos} onChange={(e) => handleDetalleChange(index, e)} onBlur={handleDetalleBlur} className="form-control" placeholder="0.00" required />
                                         </div>
                                         <div className="col-md-2 text-end">
                                             {detalles.length > 1 && (

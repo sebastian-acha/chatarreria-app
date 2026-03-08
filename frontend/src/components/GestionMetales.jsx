@@ -1,8 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import axios from 'axios';
+import apiClient from '../api/axios';
 import { Edit2, Save, Plus, X, DollarSign, Tag, Trash2, Box, PlusCircle } from 'lucide-react';
-
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000/api';
 
 const GestionMetales = () => {
     const [metalesPorFamilia, setMetalesPorFamilia] = useState([]);
@@ -23,10 +21,9 @@ const GestionMetales = () => {
     const fetchAllData = async () => {
         setLoading(true);
         try {
-            const token = localStorage.getItem('token');
             const [resMetales, resFamilias] = await Promise.all([
-                axios.get(`${API_URL}/metales`, { headers: { Authorization: `Bearer ${token}` } }),
-                axios.get(`${API_URL}/familias`, { headers: { Authorization: `Bearer ${token}` } })
+                apiClient.get(`/metales`),
+                apiClient.get(`/familias`)
             ]);
             
             setMetalesPorFamilia(resMetales.data.familias);
@@ -47,12 +44,9 @@ const GestionMetales = () => {
     const handleCrearMetal = async (e) => {
         e.preventDefault();
         try {
-            const token = localStorage.getItem('token');
-            await axios.post(`${API_URL}/metales`, {
+            await apiClient.post(`/metales`, {
                 ...nuevoMetal,
                 familia_id: nuevoMetal.familia_id || null
-            }, {
-                headers: { Authorization: `Bearer ${token}` }
             });
             setNuevoMetal({ nombre: '', valor_por_kilo: '', familia_id: '' });
             fetchAllData();
@@ -68,10 +62,7 @@ const GestionMetales = () => {
             return;
         }
         try {
-            const token = localStorage.getItem('token');
-            const res = await axios.post(`${API_URL}/familias`, nuevaFamilia, {
-                headers: { Authorization: `Bearer ${token}` }
-            });
+            const res = await apiClient.post(`/familias`, nuevaFamilia);
             setNuevaFamilia({ nombre: '' });
             setIsCreatingFamilia(false);
             // Seleccionar automáticamente la familia recién creada
@@ -99,12 +90,9 @@ const GestionMetales = () => {
 
     const guardarEdicion = async (id) => {
         try {
-            const token = localStorage.getItem('token');
-            await axios.put(`${API_URL}/metales/${id}`, {
+            await apiClient.put(`/metales/${id}`, {
                 ...editForm,
                 familia_id: editForm.familia_id || null
-            }, {
-                headers: { Authorization: `Bearer ${token}` }
             });
             setEditingId(null);
             fetchAllData();
