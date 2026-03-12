@@ -8,7 +8,7 @@ const NuevaCompra = () => {
     const [metalesPorFamilia, setMetalesPorFamilia] = useState([]);
     const [metalesSinFamilia, setMetalesSinFamilia] = useState([]);
     const [cliente, setCliente] = useState({ cliente_nombre: '', cliente_rut_dni: '' });
-    const [detalles, setDetalles] = useState([{ metal_id: '', peso_kilos: '', precio_especial: '' }]);
+    const [detalles, setDetalles] = useState([{ metal_id: '', peso_kilos: '', precio_especial: '', familia_nombre: '' }]);
     const [loading, setLoading] = useState(false);
     const [mensaje, setMensaje] = useState({ type: '', text: '' });
     const [voucher, setVoucher] = useState(null);
@@ -44,6 +44,19 @@ const NuevaCompra = () => {
     const handleDetalleChange = (index, e) => {
         const nuevosDetalles = [...detalles];
         nuevosDetalles[index][e.target.name] = e.target.value;
+
+        if (e.target.name === 'metal_id' && e.target.value) {
+            const selectedOption = e.target.options[e.target.selectedIndex];
+            const optgroup = selectedOption.parentElement;
+            if (optgroup.tagName.toLowerCase() === 'optgroup') {
+                nuevosDetalles[index].familia_nombre = optgroup.label;
+            } else {
+                nuevosDetalles[index].familia_nombre = '';
+            }
+        } else if (e.target.name === 'metal_id' && !e.target.value) {
+            nuevosDetalles[index].familia_nombre = '';
+        }
+
         setDetalles(nuevosDetalles);
         if (voucher) setVoucher(null);
     };
@@ -82,7 +95,7 @@ const NuevaCompra = () => {
     };
 
     const agregarDetalle = () => {
-        setDetalles([...detalles, { metal_id: '', peso_kilos: '', precio_especial: '' }]);
+        setDetalles([...detalles, { metal_id: '', peso_kilos: '', precio_especial: '', familia_nombre: '' }]);
     };
 
     const quitarDetalle = (index) => {
@@ -117,7 +130,7 @@ const NuevaCompra = () => {
             setShowModal(true);
 
             setCliente({ cliente_nombre: '', cliente_rut_dni: '' });
-            setDetalles([{ metal_id: '', peso_kilos: '', precio_especial: '' }]);
+            setDetalles([{ metal_id: '', peso_kilos: '', precio_especial: '', familia_nombre: '' }]);
 
         } catch (error) {
             setMensaje({ type: 'error', text: error.response?.data?.error || 'Error al registrar compra' });
@@ -381,6 +394,7 @@ const NuevaCompra = () => {
                                                     </optgroup>
                                                 )}
                                             </select>
+                                            {detalle.familia_nombre && <div className="form-text mt-1 text-muted">{detalle.familia_nombre}</div>}
                                         </div>
                                         <div className="col-md-3">
                                             <label className="form-label text-primary fw-bold">Precio Especial</label>
