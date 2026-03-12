@@ -372,7 +372,7 @@ const NuevaCompra = () => {
                                 {detalles.map((detalle, index) => (
                                     <div key={index} className="row g-3 align-items-end mb-3 pb-3 border-bottom">
                                         <div className="col-md-4">
-                                            <label className="form-label">Metal</label>
+                                            <label className="form-label">Metal {detalle.familia_nombre && <span className="text-muted fw-normal">({detalle.familia_nombre})</span>}</label>
                                             <select name="metal_id" value={detalle.metal_id} onChange={(e) => handleDetalleChange(index, e)} onBlur={handleDetalleBlur} className="form-select" required>
                                                 <option value="">Seleccione...</option>
                                                 {metalesPorFamilia.map(familia => (
@@ -394,7 +394,6 @@ const NuevaCompra = () => {
                                                     </optgroup>
                                                 )}
                                             </select>
-                                            {detalle.familia_nombre && <div className="form-text mt-1 text-muted">{detalle.familia_nombre}</div>}
                                         </div>
                                         <div className="col-md-3">
                                             <label className="form-label text-primary fw-bold">Precio Especial</label>
