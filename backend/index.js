@@ -17,8 +17,10 @@ if (!db || typeof db.query !== 'function') {
 
 const app = express();
 
-// Middlewares
-app.use(cors()); // Permite que el frontend (React) se comunique con este backend
+// Configuración de CORS más segura para producción
+app.use(cors({
+  origin: ['https://cromat.cl', 'https://www.cromat.cl'] // Lista de orígenes permitidos
+}));
 app.use(express.json()); // Permite recibir datos en formato JSON (req.body)
 app.use('/uploads', express.static('uploads')); // Servir archivos estáticos
 
