@@ -134,7 +134,7 @@ exports.listarTransacciones = async (req, res) => {
         const { page = 1, limit = 20, sort = 'id', order = 'DESC', metal_id, fecha_inicio, fecha_fin } = req.query;
         const offset = (page - 1) * limit;
 
-        const validSortFields = ['id', 'fecha_hora', 'cliente_nombre', 'total_pagar'];
+        const validSortFields = ['id', 'fecha_hora', 'cliente_nombre', 'total_pagar', 'estado'];
         const sortBy = validSortFields.includes(sort) ? `t.${sort}` : 't.id';
         const sortOrder = order.toUpperCase() === 'ASC' ? 'ASC' : 'DESC';
 
@@ -158,7 +158,7 @@ exports.listarTransacciones = async (req, res) => {
 
         const query = `
             SELECT 
-                t.id, t.fecha_hora, t.cliente_nombre, t.cliente_rut_dni, t.total_pagar,
+                t.id, t.fecha_hora, t.cliente_nombre, t.cliente_rut_dni, t.total_pagar, t.estado,
                 u.nombres as ejecutivo_nombre,
                 s.nombre as sucursal_nombre,
                 (SELECT json_agg(json_build_object(
@@ -205,6 +205,34 @@ exports.listarTransacciones = async (req, res) => {
     } catch (error) {
         console.error('Error al listar transacciones:', error);
         res.status(500).json({ error: 'Error del servidor al obtener el historial' });
+    }
+};
+
+exports.anularTransaccion = async (req, res) => {
+    const { id } = req.params;
+
+    try {
+        const query = `
+            UPDATE transacciones
+            SET estado = 'anulada'
+            WHERE id = $1
+            RETURNING id, estado
+        `;
+
+        const result = await db.query(query, [id]);
+
+        if (result.rows.length === 0) {
+            return res.status(404).json({ error: 'Transacción no encontrada' });
+        }
+
+        res.json({
+            mensaje: 'Transacción anulada exitosamente',
+            transaccion: result.rows[0]
+        });
+
+    } catch (error) {
+        console.error('Error al anular transacción:', error);
+        res.status(500).json({ error: 'Error del servidor' });
     }
 };
 
@@ -257,7 +285,7 @@ exports.obtenerReporteDiario = async (req, res) => {
             FROM transaccion_detalles td
             JOIN metales m ON td.metal_id = m.id
             JOIN transacciones t ON td.transaccion_id = t.id
-            WHERE t.fecha_hora::date = CURRENT_DATE
+            WHERE t.fecha_hora::date = CURRENT_DATE AND t.estado = 'activa'
             GROUP BY m.nombre
             ORDER BY total_kilos DESC
         `;
@@ -269,56 +297,110 @@ exports.obtenerReporteDiario = async (req, res) => {
     }
 };
 
+
+
 exports.exportarReporteDiarioExcel = async (req, res) => {
+
     try {
+
         // La misma consulta que obtenerReporteDiario
+
         const query = `
+
             SELECT 
+
                 m.nombre as metal, 
+
                 SUM(td.peso_kilos) as total_kilos, 
+
                 SUM(td.subtotal) as total_pagado,
+
                 COUNT(DISTINCT td.transaccion_id) as cantidad_transacciones
+
             FROM transaccion_detalles td
+
             JOIN metales m ON td.metal_id = m.id
+
             JOIN transacciones t ON td.transaccion_id = t.id
-            WHERE t.fecha_hora::date = CURRENT_DATE
+
+            WHERE t.fecha_hora::date = CURRENT_DATE AND t.estado = 'activa'
+
             GROUP BY m.nombre
+
             ORDER BY total_kilos DESC
+
         `;
+
         const result = await db.query(query);
 
+
+
         const data = result.rows.map(row => ({
+
             'Metal': row.metal,
+
             'Transacciones': parseInt(row.cantidad_transacciones),
+
             'Peso Total (kg)': parseFloat(row.total_kilos),
+
             'Total Pagado ($)': Math.round(parseFloat(row.total_pagado))
+
         }));
 
+
+
         const wb = XLSX.utils.book_new();
+
         const ws = XLSX.utils.json_to_sheet(data);
 
+
+
         // Aplicar formato de número con separador de miles a las celdas correspondientes
+
         const range = XLSX.utils.decode_range(ws['!ref']);
+
         for (let R = range.s.r + 1; R <= range.e.r; ++R) { // Iniciar en 1 para saltar la cabecera
+
             // Columna C: Peso Total (kg)
+
             const pesoCell = ws[XLSX.utils.encode_cell({ c: 2, r: R })];
+
             if (pesoCell) pesoCell.z = '#,##0.000'; // Formato con 3 decimales y separador de miles
 
+
+
             // Columna D: Total Pagado ($)
+
             const totalCell = ws[XLSX.utils.encode_cell({ c: 3, r: R })];
+
             if (totalCell) totalCell.z = '$ #,##0'; // Formato de moneda con separador de miles
+
         }
 
+
+
         ws['!cols'] = [{ wch: 20 }, { wch: 15 }, { wch: 15 }, { wch: 20 }];
+
         XLSX.utils.book_append_sheet(wb, ws, "Reporte Diario");
+
         const buffer = XLSX.write(wb, { type: 'buffer', bookType: 'xlsx' });
 
+
+
         res.setHeader('Content-Disposition', 'attachment; filename="Reporte_Diario.xlsx"');
+
         res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+
         res.send(buffer);
 
+
+
     } catch (error) {
+
         console.error('Error al exportar Excel:', error);
+
         res.status(500).json({ error: 'Error al generar el archivo Excel' });
+
     }
+
 };

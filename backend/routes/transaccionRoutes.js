@@ -15,7 +15,18 @@ router.get('/reporte-diario', authMiddleware, transaccionController.obtenerRepor
 // GET /api/transacciones/reporte-diario/excel - Exportar Excel (Protegido)
 router.get('/reporte-diario/excel', authMiddleware, transaccionController.exportarReporteDiarioExcel);
 
+
+
 // GET /api/transacciones/:id - Obtener detalles por ID (Protegido)
+
 router.get('/:id', authMiddleware, transaccionController.obtenerTransaccion);
+
+
+
+// PUT /api/transacciones/:id/anular - Anular una transacción (Protegido)
+
+router.put('/:id/anular', authMiddleware, transaccionController.anularTransaccion);
+
+
 
 module.exports = router;

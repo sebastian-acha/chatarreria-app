@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import apiClient from '../api/axios';
-import { Eye, Printer, Search, Calendar, X, ChevronLeft, ChevronRight } from 'lucide-react';
+import { Eye, Printer, Search, Calendar, X, ChevronLeft, ChevronRight, Ban } from 'lucide-react';
 import Footer from './Footer';
 
 const HistorialTransacciones = () => {
@@ -62,6 +62,18 @@ const HistorialTransacciones = () => {
     const handleFiltroChange = (e) => {
         setFiltros({ ...filtros, [e.target.name]: e.target.value });
         setPaginacion({ ...paginacion, page: 1 }); // Resetear a página 1 al filtrar
+    };
+
+    const handleAnular = async (id) => {
+        if (window.confirm('¿Está seguro que desea anular esta transacción?')) {
+            try {
+                await apiClient.put(`/transacciones/${id}/anular`);
+                fetchTransacciones();
+            } catch (error) {
+                console.error("Error al anular la transacción", error);
+                alert('Hubo un error al anular la transacción.');
+            }
+        }
     };
 
     const abrirModal = (transaccion) => {
@@ -255,23 +267,34 @@ const HistorialTransacciones = () => {
                                         <th>ID</th>
                                         <th>Fecha</th>
                                         <th>Cliente</th>
-                                        <th>Total</th>
+                                        <th className="text-end">Total</th>
+                                        <th>Estado</th>
                                         <th className="text-end">Acciones</th>
                                     </tr>
                                 </thead>
                                 <tbody>
                                     {loading ? (
-                                        <tr><td colSpan="5" className="text-center py-4">Cargando...</td></tr>
+                                        <tr><td colSpan="6" className="text-center py-4">Cargando...</td></tr>
                                     ) : transacciones.length === 0 ? (
-                                        <tr><td colSpan="5" className="text-center py-4">No se encontraron transacciones.</td></tr>
+                                        <tr><td colSpan="6" className="text-center py-4">No se encontraron transacciones.</td></tr>
                                     ) : (
                                         transacciones.map(t => (
-                                            <tr key={t.id}>
+                                            <tr key={t.id} className={t.estado === 'anulada' ? 'table-danger' : ''}>
                                                 <td>#{t.id}</td>
                                                 <td>{new Date(t.fecha_hora).toLocaleDateString()} {new Date(t.fecha_hora).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</td>
                                                 <td>{t.cliente_nombre}</td>
-                                                <td className="fw-bold text-success">${Math.round(t.total_pagar).toLocaleString('es-CL')}</td>
+                                                <td className="fw-bold text-success">${t.estado === 'anulada' ? 0 : Math.round(t.total_pagar).toLocaleString('es-CL')}</td>
+                                                <td>
+                                                    <span className={`badge ${t.estado === 'activa' ? 'bg-success' : 'bg-danger'}`}>
+                                                        {t.estado}
+                                                    </span>
+                                                </td>
                                                 <td className="text-end">
+                                                    {t.estado === 'activa' && (
+                                                        <button className="btn btn-sm btn-outline-danger me-2" onClick={() => handleAnular(t.id)} title="Anular Transacción">
+                                                            <Ban size={18} />
+                                                        </button>
+                                                    )}
                                                     <button className="btn btn-sm btn-outline-primary me-2" onClick={() => abrirModal(t)} title="Ver Detalles">
                                                         <Eye size={18} />
                                                     </button>
@@ -313,6 +336,7 @@ const HistorialTransacciones = () => {
                                 <div className="modal-body">
                                     <p><strong>Cliente:</strong> {transaccionSeleccionada.cliente_nombre}</p>
                                     <p><strong>Ejecutivo:</strong> {transaccionSeleccionada.ejecutivo_nombre}</p>
+                                     <p><strong>Estado:</strong> <span className={`badge ${transaccionSeleccionada.estado === 'activa' ? 'bg-success' : 'bg-danger'}`}>{transaccionSeleccionada.estado}</span></p>
                                     <hr />
                                     <ul className="list-group list-group-flush">
                                         {transaccionSeleccionada.detalles.map((d, idx) => (
@@ -335,7 +359,7 @@ const HistorialTransacciones = () => {
                                         ))}
                                     </ul>
                                     <hr />
-                                    <h4 className="text-end text-success fw-bold">Total: ${Math.round(transaccionSeleccionada.total_pagar).toLocaleString('es-CL')}</h4>
+                                    <h4 className="text-end text-success fw-bold">Total: ${transaccionSeleccionada.estado === 'anulada' ? 0 : Math.round(transaccionSeleccionada.total_pagar).toLocaleString('es-CL')}</h4>
                                 </div>
                                 <div className="modal-footer">
                                     <button type="button" className="btn btn-secondary" onClick={cerrarModal}>Cerrar</button>
