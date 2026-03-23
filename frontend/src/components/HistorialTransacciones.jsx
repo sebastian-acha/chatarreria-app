@@ -278,7 +278,9 @@ const HistorialTransacciones = () => {
                                     ) : transacciones.length === 0 ? (
                                         <tr><td colSpan="6" className="text-center py-4">No se encontraron transacciones.</td></tr>
                                     ) : (
-                                        transacciones.map(t => (
+                                        transacciones.map(t => {
+                                            console.log('Transaction state:', t.estado); // Log para depuración
+                                            return (
                                             <tr key={t.id} className={t.estado === 'anulada' ? 'table-danger' : ''}>
                                                 <td>#{t.id}</td>
                                                 <td>{new Date(t.fecha_hora).toLocaleDateString()} {new Date(t.fecha_hora).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</td>
@@ -303,7 +305,7 @@ const HistorialTransacciones = () => {
                                                     </button>
                                                 </td>
                                             </tr>
-                                        ))
+                                        )})
                                     )}
                                 </tbody>
                             </table>
