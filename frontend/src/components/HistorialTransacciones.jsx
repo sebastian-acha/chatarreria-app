@@ -278,21 +278,19 @@ const HistorialTransacciones = () => {
                                     ) : transacciones.length === 0 ? (
                                         <tr><td colSpan="6" className="text-center py-4">No se encontraron transacciones.</td></tr>
                                     ) : (
-                                        transacciones.map(t => {
-                                            console.log('Transaction state:', t.estado); // Log para depuración
-                                            return (
-                                            <tr key={t.id} className={t.estado === 'anulada' ? 'table-danger' : ''}>
+                                        transacciones.map(t => (
+                                            <tr key={t.id} className={t.estado && t.estado.toLowerCase() === 'anulada' ? 'table-danger' : ''}>
                                                 <td>#{t.id}</td>
                                                 <td>{new Date(t.fecha_hora).toLocaleDateString()} {new Date(t.fecha_hora).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</td>
                                                 <td>{t.cliente_nombre}</td>
-                                                <td className="fw-bold text-success">${t.estado === 'anulada' ? 0 : Math.round(t.total_pagar).toLocaleString('es-CL')}</td>
+                                                <td className="fw-bold text-success">${t.estado && t.estado.toLowerCase() === 'anulada' ? 0 : Math.round(t.total_pagar).toLocaleString('es-CL')}</td>
                                                 <td>
-                                                    <span className={`badge ${t.estado === 'activa' ? 'bg-success' : 'bg-danger'}`}>
+                                                    <span className={`badge ${t.estado && t.estado.toLowerCase() === 'activa' ? 'bg-success' : 'bg-danger'}`}>
                                                         {t.estado}
                                                     </span>
                                                 </td>
                                                 <td className="text-end">
-                                                    {t.estado === 'activa' && (
+                                                    {t.estado && t.estado.toLowerCase() === 'activa' && (
                                                         <button className="btn btn-sm btn-outline-danger me-2" onClick={() => handleAnular(t.id)} title="Anular Transacción">
                                                             <Ban size={18} />
                                                         </button>
@@ -338,7 +336,7 @@ const HistorialTransacciones = () => {
                                 <div className="modal-body">
                                     <p><strong>Cliente:</strong> {transaccionSeleccionada.cliente_nombre}</p>
                                     <p><strong>Ejecutivo:</strong> {transaccionSeleccionada.ejecutivo_nombre}</p>
-                                     <p><strong>Estado:</strong> <span className={`badge ${transaccionSeleccionada.estado === 'activa' ? 'bg-success' : 'bg-danger'}`}>{transaccionSeleccionada.estado}</span></p>
+                                     <p><strong>Estado:</strong> <span className={`badge ${transaccionSeleccionada.estado && transaccionSeleccionada.estado.toLowerCase() === 'activa' ? 'bg-success' : 'bg-danger'}`}>{transaccionSeleccionada.estado}</span></p>
                                     <hr />
                                     <ul className="list-group list-group-flush">
                                         {transaccionSeleccionada.detalles.map((d, idx) => (
@@ -361,7 +359,7 @@ const HistorialTransacciones = () => {
                                         ))}
                                     </ul>
                                     <hr />
-                                    <h4 className="text-end text-success fw-bold">Total: ${transaccionSeleccionada.estado === 'anulada' ? 0 : Math.round(transaccionSeleccionada.total_pagar).toLocaleString('es-CL')}</h4>
+                                    <h4 className="text-end text-success fw-bold">Total: ${transaccionSeleccionada.estado && transaccionSeleccionada.estado.toLowerCase() === 'anulada' ? 0 : Math.round(transaccionSeleccionada.total_pagar).toLocaleString('es-CL')}</h4>
                                 </div>
                                 <div className="modal-footer">
                                     <button type="button" className="btn btn-secondary" onClick={cerrarModal}>Cerrar</button>
