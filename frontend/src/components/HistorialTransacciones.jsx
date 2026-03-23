@@ -50,6 +50,8 @@ const HistorialTransacciones = () => {
                 params
             });
 
+            console.log('Datos recibidos del backend:', res.data);
+
             setTransacciones(res.data.data);
             setPaginacion(prev => ({ ...prev, ...res.data.pagination }));
         } catch (error) {

@@ -192,6 +192,8 @@ exports.listarTransacciones = async (req, res) => {
             return rest;
         });
 
+        console.log('Datos a enviar al frontend:', data);
+
         res.json({
             data,
             pagination: {
