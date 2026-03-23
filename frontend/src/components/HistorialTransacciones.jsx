@@ -303,7 +303,7 @@ const HistorialTransacciones = () => {
                                                     </button>
                                                 </td>
                                             </tr>
-                                        )})
+                                        ))
                                     )}
                                 </tbody>
                             </table>
