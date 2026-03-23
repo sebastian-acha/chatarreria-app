@@ -107,6 +107,7 @@ const ReporteDiario = () => {
                             datos.map((item, index) => {
                                 const kilos = parseFloat(item.total_kilos || 0);
                                 const porcentaje = (kilos / maxKilos) * 100;
+                                const label = item.familia ? `${item.familia} - ${item.metal}` : item.metal;
 
                                 return (
                                     <div key={index} className="d-flex flex-column align-items-center flex-fill h-100 justify-content-end position-relative" style={{ maxWidth: '60px' }}>
@@ -114,11 +115,11 @@ const ReporteDiario = () => {
                                             <div
                                                 className="w-100 bg-primary rounded-top position-relative"
                                                 style={{ height: `${Math.max(porcentaje, 1)}%` }}
-                                                title={`${kilos.toFixed(2)} kg`}
+                                                title={`${label}: ${kilos.toFixed(2)} kg`}
                                             >
                                             </div>
                                         </div>
-                                        <p className="small text-muted mt-2 fw-medium text-truncate w-100 text-center" title={item.metal}>
+                                        <p className="small text-muted mt-2 fw-medium text-truncate w-100 text-center" title={label}>
                                             {item.metal}
                                         </p>
                                     </div>
@@ -138,6 +139,7 @@ const ReporteDiario = () => {
                     <table className="table table-hover mb-0">
                         <thead className="table-light text-uppercase small">
                             <tr>
+                                <th className="p-4">Familia</th>
                                 <th className="p-4">Metal</th>
                                 <th className="p-4">Transacciones</th>
                                 <th className="p-4">Peso Total (kg)</th>
@@ -146,12 +148,13 @@ const ReporteDiario = () => {
                         </thead>
                         <tbody>
                             {loading ? (
-                                <tr><td colSpan="4" className="p-4 text-center">Cargando datos...</td></tr>
+                                <tr><td colSpan="5" className="p-4 text-center">Cargando datos...</td></tr>
                             ) : datos.length === 0 ? (
-                                <tr><td colSpan="4" className="p-4 text-center text-muted">No hay movimientos hoy.</td></tr>
+                                <tr><td colSpan="5" className="p-4 text-center text-muted">No hay movimientos hoy.</td></tr>
                             ) : (
                                 datos.map((item, index) => (
                                     <tr key={index}>
+                                        <td className="p-4">{item.familia || 'Sin familia'}</td>
                                         <td className="p-4 fw-medium">{item.metal}</td>
                                         <td className="p-4">{item.cantidad_transacciones}</td>
                                         <td className="p-4 fw-bold text-primary">{parseFloat(item.total_kilos || 0).toFixed(2)} kg</td>

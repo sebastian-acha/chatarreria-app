@@ -281,14 +281,16 @@ exports.obtenerReporteDiario = async (req, res) => {
         const query = `
             SELECT 
                 m.nombre as metal, 
+                f.nombre as familia,
                 SUM(td.peso_kilos) as total_kilos, 
                 SUM(td.subtotal) as total_pagado,
                 COUNT(DISTINCT td.transaccion_id) as cantidad_transacciones
             FROM transaccion_detalles td
             JOIN metales m ON td.metal_id = m.id
+            LEFT JOIN familias f ON m.familia_id = f.id
             JOIN transacciones t ON td.transaccion_id = t.id
             WHERE t.fecha_hora::date = CURRENT_DATE AND t.estado = 'activa'
-            GROUP BY m.nombre
+            GROUP BY f.nombre, m.nombre
             ORDER BY total_kilos DESC
         `;
         const result = await db.query(query);
@@ -310,25 +312,17 @@ exports.exportarReporteDiarioExcel = async (req, res) => {
         const query = `
 
             SELECT 
-
+                f.nombre as familia,
                 m.nombre as metal, 
-
                 SUM(td.peso_kilos) as total_kilos, 
-
                 SUM(td.subtotal) as total_pagado,
-
                 COUNT(DISTINCT td.transaccion_id) as cantidad_transacciones
-
             FROM transaccion_detalles td
-
             JOIN metales m ON td.metal_id = m.id
-
+            LEFT JOIN familias f ON m.familia_id = f.id
             JOIN transacciones t ON td.transaccion_id = t.id
-
             WHERE t.fecha_hora::date = CURRENT_DATE AND t.estado = 'activa'
-
-            GROUP BY m.nombre
-
+            GROUP BY f.nombre, m.nombre
             ORDER BY total_kilos DESC
 
         `;
@@ -338,13 +332,10 @@ exports.exportarReporteDiarioExcel = async (req, res) => {
 
 
         const data = result.rows.map(row => ({
-
+            'Familia': row.familia,
             'Metal': row.metal,
-
             'Transacciones': parseInt(row.cantidad_transacciones),
-
             'Peso Total (kg)': parseFloat(row.total_kilos),
-
             'Total Pagado ($)': Math.round(parseFloat(row.total_pagado))
 
         }));
@@ -363,17 +354,17 @@ exports.exportarReporteDiarioExcel = async (req, res) => {
 
         for (let R = range.s.r + 1; R <= range.e.r; ++R) { // Iniciar en 1 para saltar la cabecera
 
-            // Columna C: Peso Total (kg)
+            // Columna D: Peso Total (kg)
 
-            const pesoCell = ws[XLSX.utils.encode_cell({ c: 2, r: R })];
+            const pesoCell = ws[XLSX.utils.encode_cell({ c: 3, r: R })];
 
             if (pesoCell) pesoCell.z = '#,##0.000'; // Formato con 3 decimales y separador de miles
 
 
 
-            // Columna D: Total Pagado ($)
+            // Columna E: Total Pagado ($)
 
-            const totalCell = ws[XLSX.utils.encode_cell({ c: 3, r: R })];
+            const totalCell = ws[XLSX.utils.encode_cell({ c: 4, r: R })];
 
             if (totalCell) totalCell.z = '$ #,##0'; // Formato de moneda con separador de miles
 
@@ -381,7 +372,7 @@ exports.exportarReporteDiarioExcel = async (req, res) => {
 
 
 
-        ws['!cols'] = [{ wch: 20 }, { wch: 15 }, { wch: 15 }, { wch: 20 }];
+        ws['!cols'] = [{ wch: 20 }, { wch: 20 }, { wch: 15 }, { wch: 15 }, { wch: 20 }];
 
         XLSX.utils.book_append_sheet(wb, ws, "Reporte Diario");
 
