@@ -344,7 +344,7 @@ const HistorialTransacciones = () => {
                                         {transaccionSeleccionada.detalles.map((d, idx) => (
                                             <li key={idx} className="list-group-item d-flex justify-content-between align-items-center">
                                                 <div>
-                                                    <span className="fw-bold">{d.metal}</span> <span className="text-muted">({d.peso_kilos} kg)</span>
+                                                    <span className="fw-bold">{d.familia ? `${d.familia} - ` : ''}{d.metal}</span> <span className="text-muted">({d.peso_kilos} kg)</span>
                                                     {/* Visualización de Precio Especial en Modal */}
                                                     {d.precio_oficial && d.precio_unitario !== d.precio_oficial && (
                                                         <div className="small text-primary">
