@@ -289,7 +289,9 @@ exports.obtenerReporteDiario = async (req, res) => {
             JOIN metales m ON td.metal_id = m.id
             LEFT JOIN familias f ON m.familia_id = f.id
             JOIN transacciones t ON td.transaccion_id = t.id
-            WHERE t.fecha_hora::date = CURRENT_DATE AND t.estado = 'activa'
+            WHERE t.fecha_hora >= DATE_TRUNC('day', NOW() AT TIME ZONE 'America/Santiago') 
+              AND t.fecha_hora < DATE_TRUNC('day', NOW() AT TIME ZONE 'America/Santiago') + INTERVAL '1 day'
+              AND t.estado = 'activa'
             GROUP BY f.nombre, m.nombre
             ORDER BY total_kilos DESC
         `;
@@ -321,7 +323,9 @@ exports.exportarReporteDiarioExcel = async (req, res) => {
             JOIN metales m ON td.metal_id = m.id
             LEFT JOIN familias f ON m.familia_id = f.id
             JOIN transacciones t ON td.transaccion_id = t.id
-            WHERE t.fecha_hora::date = CURRENT_DATE AND t.estado = 'activa'
+            WHERE t.fecha_hora >= DATE_TRUNC('day', NOW() AT TIME ZONE 'America/Santiago')
+              AND t.fecha_hora < DATE_TRUNC('day', NOW() AT TIME ZONE 'America/Santiago') + INTERVAL '1 day'
+              AND t.estado = 'activa'
             GROUP BY f.nombre, m.nombre
             ORDER BY total_kilos DESC
 
