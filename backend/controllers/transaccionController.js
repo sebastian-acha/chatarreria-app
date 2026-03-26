@@ -148,8 +148,11 @@ exports.listarTransacciones = async (req, res) => {
             values.push(fecha_inicio);
         }
         if (fecha_fin) {
-            whereClauses.push(`t.fecha_hora <= $${paramIndex++}`);
-            values.push(fecha_fin);
+            // Se ajusta la fecha para que incluya todo el día
+            const fechaFinDate = new Date(fecha_fin);
+            fechaFinDate.setDate(fechaFinDate.getDate() + 1);
+            whereClauses.push(`t.fecha_hora < $${paramIndex++}`);
+            values.push(fechaFinDate.toISOString().split('T')[0]);
         }
         if (metal_id) {
             whereClauses.push(`EXISTS (SELECT 1 FROM transaccion_detalles td WHERE td.transaccion_id = t.id AND td.metal_id = $${paramIndex++})`);
