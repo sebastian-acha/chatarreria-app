@@ -74,7 +74,7 @@ exports.crearTransaccion = async (req, res) => {
         const transaccionQuery = `
             INSERT INTO transacciones (sucursal_id, ejecutivo_id, cliente_nombre, cliente_rut_dni, total_pagar)
             VALUES ($1, $2, $3, $4, $5)
-            RETURNING id, fecha_hora
+            RETURNING id, fecha_hora AT TIME ZONE 'UTC' AT TIME ZONE 'America/Santiago' AS fecha_hora;
         `;
         const transaccionValues = [sucursal_id, ejecutivo_id, cliente_nombre, cliente_rut_dni, total_pagar];
         const transaccionResult = await client.query(transaccionQuery, transaccionValues);
