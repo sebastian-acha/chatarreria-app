@@ -246,7 +246,7 @@ exports.obtenerTransaccion = async (req, res) => {
     try {
         const query = `
             SELECT 
-                t.id, t.fecha_hora, t.cliente_nombre, t.cliente_rut_dni, t.total_pagar, t.estado,
+                t.id, t.fecha_hora AT TIME ZONE 'UTC' AT TIME ZONE 'America/Santiago' AS fecha_hora, t.cliente_nombre, t.cliente_rut_dni, t.total_pagar, t.estado,
                 u.nombres as ejecutivo_nombre,
                 s.nombre as sucursal_nombre,
                 (SELECT json_agg(json_build_object(
