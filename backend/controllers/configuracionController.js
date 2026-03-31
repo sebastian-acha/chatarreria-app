@@ -40,3 +40,39 @@ exports.updateConfiguracion = async (req, res) => {
         res.status(500).json({ message: 'Error interno del servidor' });
     }
 };
+
+// Obtiene los estilos personalizados
+exports.getEstilos = async (req, res) => {
+    try {
+        const result = await db.query('SELECT custom_css FROM configuracion WHERE id = 1');
+        if (result.rows.length > 0) {
+            res.json({ custom_css: result.rows[0].custom_css || '' });
+        } else {
+            res.json({ custom_css: '' });
+        }
+    } catch (error) {
+        console.error('Error al obtener los estilos:', error);
+        res.status(500).json({ message: 'Error interno del servidor' });
+    }
+};
+
+// Actualiza los estilos personalizados
+exports.updateEstilos = async (req, res) => {
+    const { custom_css } = req.body;
+
+    try {
+        // Primero, asegurar que la fila de configuración exista (UPSERT)
+        await db.query(
+            'INSERT INTO configuracion (id, nombre_empresa) VALUES (1, \'Mi Chatarrería\') ON CONFLICT (id) DO NOTHING;'
+        );
+
+        // Luego, actualizar la columna custom_css
+        const query = 'UPDATE configuracion SET custom_css = $1 WHERE id = 1 RETURNING custom_css';
+        const params = [custom_css];
+        const result = await db.query(query, params);
+        res.json(result.rows[0]);
+    } catch (error) {
+        console.error('Error al actualizar los estilos:', error);
+        res.status(500).json({ message: 'Error interno del servidor' });
+    }
+};

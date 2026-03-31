@@ -12,4 +12,8 @@ const upload = multer({ storage: storage });
 router.get('/', configuracionController.getConfiguracion);
 router.put('/', [authMiddleware, adminMiddleware, upload.single('logo')], configuracionController.updateConfiguracion);
 
+// Rutas para estilos personalizados
+router.get('/estilos', configuracionController.getEstilos);
+router.put('/estilos', [authMiddleware, adminMiddleware], configuracionController.updateEstilos);
+
 module.exports = router;

@@ -4,6 +4,7 @@ import Login from './components/Login';
 import Dashboard from './components/Dashboard';
 import RutaPrivada from './components/RutaPrivada';
 import Configuracion from './components/Configuracion';
+import Diseno from './components/Diseno';
 import { ConfiguracionContext } from './context/ConfiguracionContext';
 
 const TitleUpdater = () => {
@@ -55,6 +56,14 @@ function App() {
           element={
             <RutaPrivada>
               <Configuracion />
+            </RutaPrivada>
+          } 
+        />
+        <Route 
+          path="/diseno" 
+          element={
+            <RutaPrivada>
+              <Diseno />
             </RutaPrivada>
           } 
         />
