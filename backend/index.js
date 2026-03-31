@@ -19,7 +19,7 @@ const app = express();
 
 // Configuración de CORS más segura para producción
 app.use(cors({
-  origin: ['https://cromat.cl', 'https://www.cromat.cl', 'https://chatarreria-app.vercel.app'] // Lista de orígenes permitidos
+  origin: ['https://cromat.cl', 'https://www.cromat.cl', 'https://chatarreria-app.vercel.app', 'http://localhost:5173'] // Lista de orígenes permitidos
 }));
 app.use(express.json()); // Permite recibir datos en formato JSON (req.body)
 app.use('/uploads', express.static('uploads')); // Servir archivos estáticos
