@@ -243,89 +243,97 @@ const HistorialTransacciones = () => {
     return (
         <>
             <div className="container my-4">
-                <div className="card shadow-sm">
-                    <div className="card-body p-4">
-                        <h2 className="card-title mb-4 d-flex align-items-center gap-2">
-                            <Search className="text-primary" /> Historial de Transacciones
-                        </h2>
+              <div className="row justify-content-center">
+                <h2 className="h3 fw-bold text-center mb-4 gap-2">
+                  <span>
+                    <svg class="w-6 h-6 text-gray-800 dark:text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24">
+                    <path stroke="currentColor" stroke-linecap="round" stroke-width="2" d="M8 7V6a1 1 0 0 1 1-1h11a1 1 0 0 1 1 1v7a1 1 0 0 1-1 1h-1M3 18v-7a1 1 0 0 1 1-1h11a1 1 0 0 1 1 1v7a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1Zm8-3.5a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0Z"></path>
+                    </svg>
+                  </span>
+                  Historial de Transacciones
+                </h2>
+                <div className="col">
+                  <div className="card shadow-sm">
+                      <div className="card-body p-4">
 
-                        {/* Filtros */}
-                        <div className="row g-3 mb-4">
-                            <div className="col-md-4">
-                                <label className="form-label fw-bold text-secondary"><Calendar size={16} /> Fecha Inicio</label>
-                                <input type="date" name="fecha_inicio" className="form-control" value={filtros.fecha_inicio} onChange={handleFiltroChange} />
-                            </div>
-                            <div className="col-md-4">
-                                <label className="form-label fw-bold text-secondary"><Calendar size={16} /> Fecha Fin</label>
-                                <input type="date" name="fecha_fin" className="form-control" value={filtros.fecha_fin} onChange={handleFiltroChange} />
-                            </div>
-                        </div>
+                          {/* Filtros */}
+                          <div className="row g-3 mb-4">
+                              <div className="col-md-4">
+                                  <label className="form-label fw-bold text-secondary"><Calendar size={16} /> Fecha Inicio</label>
+                                  <input type="date" name="fecha_inicio" className="form-control" value={filtros.fecha_inicio} onChange={handleFiltroChange} />
+                              </div>
+                              <div className="col-md-4">
+                                  <label className="form-label fw-bold text-secondary"><Calendar size={16} /> Fecha Fin</label>
+                                  <input type="date" name="fecha_fin" className="form-control" value={filtros.fecha_fin} onChange={handleFiltroChange} />
+                              </div>
+                          </div>
 
-                        {/* Tabla */}
-                        <div className="table-responsive">
-                            <table className="table table-hover align-middle">
-                                <thead className="table-light">
-                                    <tr>
-                                        <th>ID</th>
-                                        <th>Fecha</th>
-                                        <th>Cliente</th>
-                                        <th className="text-end">Total</th>
-                                        <th>Estado</th>
-                                        <th className="text-end">Acciones</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    {loading ? (
-                                        <tr><td colSpan="6" className="text-center py-4">Cargando...</td></tr>
-                                    ) : transacciones.length === 0 ? (
-                                        <tr><td colSpan="6" className="text-center py-4">No se encontraron transacciones.</td></tr>
-                                    ) : (
-                                        transacciones.map(t => (
-                                            <tr key={t.id} className={t.estado && t.estado.toLowerCase() === 'anulada' ? 'table-danger' : ''}>
-                                                <td>#{t.id}</td>
-                                                <td>{new Date(t.fecha_hora).toLocaleDateString()} {new Date(t.fecha_hora).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</td>
-                                                <td>{t.cliente_nombre}</td>
-                                                <td className="fw-bold text-success">${t.estado && t.estado.toLowerCase() === 'anulada' ? 0 : Math.round(t.total_pagar).toLocaleString('es-CL')}</td>
-                                                <td>
-                                                    <span className={`badge ${t.estado && t.estado.toLowerCase() === 'activa' ? 'bg-success' : 'bg-danger'}`}>
-                                                        {t.estado}
-                                                    </span>
-                                                </td>
-                                                <td className="text-end">
-                                                    {t.estado && t.estado.toLowerCase() === 'activa' && (
-                                                        <button className="btn btn-sm btn-outline-danger me-2" onClick={() => handleAnular(t.id)} title="Anular Transacción">
-                                                            <Ban size={18} />
-                                                        </button>
-                                                    )}
-                                                    <button className="btn btn-sm btn-outline-primary me-2" onClick={() => abrirModal(t)} title="Ver Detalles">
-                                                        <Eye size={18} />
-                                                    </button>
-                                                    <button className="btn btn-sm btn-outline-secondary" onClick={() => imprimirVoucher(t)} title="Imprimir Voucher">
-                                                        <Printer size={18} />
-                                                    </button>
-                                                </td>
-                                            </tr>
-                                        ))
-                                    )}
-                                </tbody>
-                            </table>
-                        </div>
+                          {/* Tabla */}
+                          <div className="table-responsive">
+                              <table className="table table-hover align-middle">
+                                  <thead className="table-light">
+                                      <tr>
+                                          <th>ID</th>
+                                          <th>Fecha</th>
+                                          <th>Cliente</th>
+                                          <th className="text-end">Total</th>
+                                          <th>Estado</th>
+                                          <th className="text-end">Acciones</th>
+                                      </tr>
+                                  </thead>
+                                  <tbody>
+                                      {loading ? (
+                                          <tr><td colSpan="6" className="text-center py-4">Cargando...</td></tr>
+                                      ) : transacciones.length === 0 ? (
+                                          <tr><td colSpan="6" className="text-center py-4">No se encontraron transacciones.</td></tr>
+                                      ) : (
+                                          transacciones.map(t => (
+                                              <tr key={t.id} className={t.estado && t.estado.toLowerCase() === 'anulada' ? 'table-danger' : ''}>
+                                                  <td>#{t.id}</td>
+                                                  <td>{new Date(t.fecha_hora).toLocaleDateString()} {new Date(t.fecha_hora).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</td>
+                                                  <td>{t.cliente_nombre}</td>
+                                                  <td className="fw-bold text-success">${t.estado && t.estado.toLowerCase() === 'anulada' ? 0 : Math.round(t.total_pagar).toLocaleString('es-CL')}</td>
+                                                  <td>
+                                                      <span className={`badge ${t.estado && t.estado.toLowerCase() === 'activa' ? 'bg-success' : 'bg-danger'}`}>
+                                                          {t.estado}
+                                                      </span>
+                                                  </td>
+                                                  <td className="text-end">
+                                                      {t.estado && t.estado.toLowerCase() === 'activa' && (
+                                                          <button className="btn btn-sm btn-outline-danger me-2" onClick={() => handleAnular(t.id)} title="Anular Transacción">
+                                                              <Ban size={18} />
+                                                          </button>
+                                                      )}
+                                                      <button className="btn btn-sm btn-outline-primary me-2" onClick={() => abrirModal(t)} title="Ver Detalles">
+                                                          <Eye size={18} />
+                                                      </button>
+                                                      <button className="btn btn-sm btn-outline-secondary" onClick={() => imprimirVoucher(t)} title="Imprimir Voucher">
+                                                          <Printer size={18} />
+                                                      </button>
+                                                  </td>
+                                              </tr>
+                                          ))
+                                      )}
+                                  </tbody>
+                              </table>
+                          </div>
 
-                        {/* Paginación */}
-                        <div className="d-flex justify-content-between align-items-center mt-3">
-                            <span className="text-muted">Página {paginacion.page} de {paginacion.totalPages}</span>
-                            <div>
-                                <button className="btn btn-outline-secondary btn-sm me-2" disabled={paginacion.page <= 1} onClick={() => setPaginacion(p => ({ ...p, page: p.page - 1 }))}>
-                                    <ChevronLeft size={16} /> Anterior
-                                </button>
-                                <button className="btn btn-outline-secondary btn-sm" disabled={paginacion.page >= paginacion.totalPages} onClick={() => setPaginacion(p => ({ ...p, page: p.page + 1 }))}>
-                                    Siguiente <ChevronRight size={16} />
-                                </button>
-                            </div>
-                        </div>
-                    </div>
+                          {/* Paginación */}
+                          <div className="d-flex justify-content-between align-items-center mt-3">
+                              <span className="text-muted">Página {paginacion.page} de {paginacion.totalPages}</span>
+                              <div>
+                                  <button className="btn btn-outline-secondary btn-sm me-2" disabled={paginacion.page <= 1} onClick={() => setPaginacion(p => ({ ...p, page: p.page - 1 }))}>
+                                      <ChevronLeft size={16} /> Anterior
+                                  </button>
+                                  <button className="btn btn-outline-secondary btn-sm" disabled={paginacion.page >= paginacion.totalPages} onClick={() => setPaginacion(p => ({ ...p, page: p.page + 1 }))}>
+                                      Siguiente <ChevronRight size={16} />
+                                  </button>
+                              </div>
+                          </div>
+                      </div>
+                  </div>
                 </div>
-
+              </div>
                 {/* Modal de Detalles */}
                 {transaccionSeleccionada && (
                     <div className="modal show d-block" style={{ backgroundColor: 'rgba(0,0,0,0.5)' }} tabIndex="-1">

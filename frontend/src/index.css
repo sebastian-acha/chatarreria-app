@@ -111,7 +111,7 @@ badge{line-height: 1.1;}
   background: #f8f9fa;
   border: 1px solid #dee2e6;
   border-radius: 0.75rem !important;
-  padding:1rem !important;
+  padding:1.5rem !important;
   margin-bottom:20px;
 } 
 .box-s-n{
@@ -125,6 +125,20 @@ badge{line-height: 1.1;}
   font-size: 15px;
 }
 .card h3.h5 svg{width: 18px;}
+
+h2.h3 span{
+  border-radius: 50%;
+  background: #fcfcfc;
+  line-height: 1px;
+  padding: 8px;
+  display: inline-block;
+  vertical-align: middle;
+  margin-top: -4px;
+}
+h2.h3 span svg{
+  width: 20px;
+  height: 20px;
+}
 
 
 
@@ -144,9 +158,8 @@ badge{line-height: 1.1;}
 
 /* Media Queries */
 @media (max-width:992px){
-  .container{max-width: 100%;}
-  main.bg-light{ background: #f1f1f1 !important;}
-  header .container{max-width: 100%;}
+  .container{max-width: 100%; padding-left:25px; padding-right:25px;}
+  header .container{max-width: 100%; padding-left:10px; padding-right:10px;}
   .navbar .navbar-collapse{padding-right:50px;}
   .navbar-nav .nav-item .nav-link{padding-left:12px !important; gap: 0 !important;}
   .navbar-nav .nav-item .nav-link span{display:none;}
@@ -154,6 +167,7 @@ badge{line-height: 1.1;}
   .navbar-nav .nav-item { margin: 0 5px 0 0;}
 }
 @media (max-width: 768px) {
+  body main{ background: #f1f1f1 !important;}
   header .container-fluid{border-radius:27px;}
   header .config ul{background:transparent; box-shadow:none; margin:0 0 0 15px !important; padding:0;}
   header .navbar-brand{padding-top:13px !important;}
@@ -175,7 +189,6 @@ badge{line-height: 1.1;}
   #bdNavbar .navbar-nav .nav-item .nav-link.cta{background: none !important; border: none !important;}
   #bdNavbar .navbar-nav .nav-item .nav-link.active:after{display:none;}
   #bdNavbar .navbar-nav.user{ margin-bottom:20px; border:none; margin-top:0; position:relative; right:auto;}
-  #bdNavbar .navbar-nav.user .dropdown{/*float:right;*/}
   #bdNavbar .navbar-nav.user .dropdown .dropdown-menu{ padding:0; border:none;}
   #bdNavbar .navbar-nav.user .dropdown .dropdown-item{font-size:14px; padding-left: 2px;}
   .table-responsive-new{
