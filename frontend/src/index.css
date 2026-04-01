@@ -26,7 +26,7 @@ main .flex-grow-1{padding-top:75px;}
   width: 100%;
 }
 .navbar-brand{padding:12px 5px 12px 16px !important;}
-.navbar .navbar-collapse{justify-content: center; padding-right:155px; position:relative;}
+.navbar .navbar-collapse{justify-content: center; padding-right:10%; position:relative;}
 #bdNavbar .navbar-nav.user{position: absolute; right: 5px;}
 header .container-fluid,
 header .container{
@@ -61,7 +61,6 @@ header .container{
 .navbar-nav .nav-item.config .dropdown-menu .nav-link{
   border:none;
   border-radius: 0;
-  display: block !important;
   width: 100%;
   padding:8px 8px 5px 5px !important;
 }
@@ -99,6 +98,7 @@ header .config ul{
   .navbar-nav .nav-item .nav-link{padding-left:12px !important; gap: 0 !important;}
   .navbar-nav .nav-item .nav-link span{display:none;}
   #bdNavbar .navbar-nav .nav-item .nav-link.active:after{bottom: -13px; margin-left: -8px;}
+  .navbar-nav .nav-item { margin: 0 5px 0 0;}
 }
 @media (max-width: 768px) {
   header .container-fluid{border-radius:27px;}

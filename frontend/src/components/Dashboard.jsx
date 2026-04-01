@@ -115,7 +115,7 @@ const Dashboard = () => {
 
           <ul className="navbar-nav flex-row flex-wrap ms-md-auto user">
             <li className="nav-item col-6 col-md-auto">
-              <div className="dropdown text-end">
+              <div className="dropdown">
                 <a href="#" className="d-block link-light text-decoration-none dropdown-toggle" id="dropdownUser1" data-bs-toggle="dropdown" aria-expanded="false">
                   <img src={`https://ui-avatars.com/api/?name=${usuario.nombres || 'User'}&background=random`} alt="user" width="32" height="32" className="rounded-circle" />
                 </a>
