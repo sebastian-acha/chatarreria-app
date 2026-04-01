@@ -92,7 +92,7 @@ const GestionSucursales = () => {
                         />
                       </div>
                       <div className="col-md-2">
-                        <button type="submit" className="btn btn-primary w-100 d-flex align-items-center justify-content-center gap-2">
+                        <button type="submit" className="btn btn-success w-100 d-flex align-items-center justify-content-center gap-2">
                             <Save size={18} /> Guardar
                         </button>
                       </div>
