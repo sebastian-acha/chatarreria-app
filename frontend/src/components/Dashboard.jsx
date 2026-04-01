@@ -82,7 +82,7 @@ const Dashboard = () => {
                   <>
                 <li className="nav-item col-12 col-md-auto config">
                   <div className="dropdown">
-                    <a className={`nav-link p-2 d-flex align-items-center gap-2 dropdown-toggle ${vistaActual === 'configuracion' ? 'active' : ''}`} id="dropdownConfig" data-bs-toggle="dropdown" aria-expanded="false">
+                    <a className="nav-link p-2 d-flex align-items-center gap-2 dropdown-toggle" id="dropdownConfig" data-bs-toggle="dropdown" aria-expanded="false">
                       <span> <Settings size={16} /></span>
                         Configuración
                     </a>
@@ -97,6 +97,12 @@ const Dashboard = () => {
                         <a className={`nav-link p-2 d-flex align-items-center gap-2 ${vistaActual === 'usuarios' ? 'active' : ''}`} href="#" onClick={(e) => { e.preventDefault(); setVistaActual('usuarios'); }}>
                           <span> <Users size={16} /></span>
                             Usuarios
+                        </a>
+                      </li>
+                      <li className="nav-item col-12 col-md-auto">
+                        <a className={`nav-link p-2 d-flex align-items-center gap-2 ${vistaActual === 'configuracion' ? 'active' : ''}`} href="#" onClick={(e) => { e.preventDefault(); setVistaActual('configuracion'); }}>
+                          <span> <Settings size={16} /></span>
+                            Datos empresa
                         </a>
                       </li>
                       <li className="nav-item col-12 col-md-auto">
