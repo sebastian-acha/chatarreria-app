@@ -6,7 +6,7 @@ body main{
   background-color:#f1f1f1 !important;
   background: linear-gradient(90deg,rgba(255, 255, 255, 1) 0%, rgba(241, 241, 241, 1) 15%, rgba(241, 241, 241, 1) 85%, rgba(255, 255, 255, 1) 100%);
 }
-main .flex-grow-1{padding-top:85px;}
+main .flex-grow-1{padding-top:72px;}
 
 
 .cta{
@@ -125,7 +125,7 @@ badge{line-height: 1.1;}
   font-size: 15px;
 }
 .card h3.h5 svg{width: 18px;}
-
+h2.h3{font-size:24px;}
 h2.h3 span{
   border-radius: 50%;
   background: #fcfcfc;

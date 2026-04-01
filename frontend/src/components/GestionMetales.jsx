@@ -155,7 +155,7 @@ const GestionMetales = () => {
     return (
       <div className="container my-4">
         <div className="row justify-content-center">
-          <h2 className="h3 fw-bold text-center mb-4 gap-2">
+          <h2 className="h3 fw-bold text-center mb-3 gap-2">
             <span><DollarSign /></span>
             Gestión de Precios y Metales
           </h2>

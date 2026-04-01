@@ -244,7 +244,7 @@ const HistorialTransacciones = () => {
         <>
             <div className="container my-4">
               <div className="row justify-content-center">
-                <h2 className="h3 fw-bold text-center mb-4 gap-2">
+                <h2 className="h3 fw-bold text-center mb-3 gap-2">
                   <span>
                     <svg class="w-6 h-6 text-gray-800 dark:text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24">
                     <path stroke="currentColor" stroke-linecap="round" stroke-width="2" d="M8 7V6a1 1 0 0 1 1-1h11a1 1 0 0 1 1 1v7a1 1 0 0 1-1 1h-1M3 18v-7a1 1 0 0 1 1-1h11a1 1 0 0 1 1 1v7a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1Zm8-3.5a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0Z"></path>
