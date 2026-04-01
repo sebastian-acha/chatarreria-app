@@ -55,7 +55,7 @@ const ReporteDiario = () => {
     const maxKilos = maxVal === 0 ? 1 : maxVal;
 
     return (
-        <div className="container-fluid p-4">
+        <div className="container my-4">
             <div className="d-flex justify-content-between align-items-center mb-4">
                 <h2 className="h3 fw-bold d-flex align-items-center gap-2"><BarChart3 /> Reporte Diario ({new Date().toLocaleDateString()})</h2>
                 <button onClick={handleExportarExcel} className="btn btn-success d-flex align-items-center gap-2"><Download size={18} /> Exportar Excel</button>

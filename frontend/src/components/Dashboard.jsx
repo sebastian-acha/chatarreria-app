@@ -13,7 +13,7 @@ import { ConfiguracionContext } from '../context/ConfiguracionContext';
 const Dashboard = () => {
   const navigate = useNavigate();
   const usuario = JSON.parse(localStorage.getItem('usuario') || '{}');
-  const [vistaActual, setVistaActual] = useState('historial');
+  const [vistaActual, setVistaActual] = useState('reporte');
   const { configuracion } = useContext(ConfiguracionContext);
 
   const handleLogout = () => {
