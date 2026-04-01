@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import apiClient from '../api/axios';
 import { Eye, Printer, Search, Calendar, X, ChevronLeft, ChevronRight, Ban } from 'lucide-react';
-import Footer from './Footer';
+// import Footer from './Footer';
 
 const HistorialTransacciones = () => {
     const [transacciones, setTransacciones] = useState([]);
@@ -382,7 +382,6 @@ const HistorialTransacciones = () => {
                     </div>
                 )}
             </div>
-            <Footer />
         </>
     );
 };

@@ -9,6 +9,7 @@ import GestionSucursales from './GestionSucursales';
 import Configuracion from './Configuracion';
 import { LogOut, LayoutDashboard, ShoppingCart, DollarSign, BarChart3, Users, Building, Settings } from 'lucide-react';
 import { ConfiguracionContext } from '../context/ConfiguracionContext';
+import Footer from './Footer';
 
 const Dashboard = () => {
   const navigate = useNavigate();
@@ -131,6 +132,7 @@ const Dashboard = () => {
       <div className="flex-grow-1">
           {renderVista()}
       </div>
+       <Footer />
   </main>
     );
 };
