@@ -167,7 +167,9 @@ h2.h3 span svg{
   .navbar-nav .nav-item { margin: 0 5px 0 0;}
 }
 @media (max-width: 768px) {
+  .container{max-width: 100%; padding-left:5px; padding-right:5px;}
   body main{ background: #f1f1f1 !important;}
+  .navbar { padding-left: 15px; padding-right: 15px;}
   header .container-fluid{border-radius:27px;}
   header .config ul{background:transparent; box-shadow:none; margin:0 0 0 15px !important; padding:0;}
   header .navbar-brand{padding-top:13px !important;}
