@@ -139,8 +139,18 @@ h2.h3 span svg{
   width: 20px;
   height: 20px;
 }
-
-
+footer{
+  background: #e6e6e6;
+  text-align: center;
+  padding: 10px 0;
+  border-top: 1px solid #b1b1b1;
+  font-size: 12px;
+}
+.logo-config{
+  margin: 0 auto;
+  display: block;
+  max-width: 100%;
+}
 
 /* button */
 .btn{
@@ -158,7 +168,7 @@ h2.h3 span svg{
 
 /* Media Queries */
 @media (max-width:992px){
-  .container{max-width: 100%; padding-left:25px; padding-right:25px;}
+  .container{max-width: 100%; padding-left:15px; padding-right:15px;}
   header .container{max-width: 100%; padding-left:10px; padding-right:10px;}
   .navbar .navbar-collapse{padding-right:50px;}
   .navbar-nav .nav-item .nav-link{padding-left:12px !important; gap: 0 !important;}
@@ -167,7 +177,6 @@ h2.h3 span svg{
   .navbar-nav .nav-item { margin: 0 5px 0 0;}
 }
 @media (max-width: 768px) {
-  .container{max-width: 100%; padding-left:5px; padding-right:5px;}
   body main{ background: #f1f1f1 !important;}
   .navbar { padding-left: 15px; padding-right: 15px;}
   header .container-fluid{border-radius:27px;}
@@ -177,21 +186,22 @@ h2.h3 span svg{
   #bdNavbar.navbar-collapse{
     padding:0 20px;
   }
+  .navbar-nav .dropdown-menu{padding-top:8px;}
   #bdNavbar .navbar-nav{border-top: 1px solid #e3e3e3; margin-top: 6px;}
-  #bdNavbar .navbar-nav .nav-item{margin:0 0 10px 0;}
+  #bdNavbar .navbar-nav .nav-item{margin:0 0 8px 0;}
   #bdNavbar .navbar-nav .nav-item:last-child{margin:0;}
   #bdNavbar .navbar-nav .nav-item .nav-link{
     background:none;
     padding-left: 0 !important;
     padding-right: 0 !important;
     border:none;
-    font-size: 15px;
+    font-size: 16px;
     gap: .5rem !important;
   }
   #bdNavbar .navbar-nav .nav-item .nav-link.cta{background: none !important; border: none !important;}
   #bdNavbar .navbar-nav .nav-item .nav-link.active:after{display:none;}
   #bdNavbar .navbar-nav.user{ margin-bottom:20px; border:none; margin-top:0; position:relative; right:auto;}
-  #bdNavbar .navbar-nav.user .dropdown .dropdown-menu{ padding:0; border:none;}
+  #bdNavbar .navbar-nav.user .dropdown .dropdown-menu{ padding:0; padding-top:8px; border:none;}
   #bdNavbar .navbar-nav.user .dropdown .dropdown-item{font-size:14px; padding-left: 2px;}
   .table-responsive-new{
     display: block;

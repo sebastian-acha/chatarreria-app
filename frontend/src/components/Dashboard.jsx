@@ -118,7 +118,7 @@ const Dashboard = () => {
                 )}
             </ul>
 
-          <hr className="d-md-none text-white-50" />
+          <hr className="d-md-none" />
 
           <ul className="navbar-nav flex-row flex-wrap ms-md-auto user">
             <li className="nav-item col-6 col-md-auto">

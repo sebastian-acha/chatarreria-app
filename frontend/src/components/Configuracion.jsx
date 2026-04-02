@@ -60,7 +60,7 @@ const Configuracion = () => {
     <div className="container my-4">
       <div className="row justify-content-center">
         <h2 className="h3 fw-bold text-center mb-4 gap-2">Configuración de la Empresa</h2>
-        <div className="col">
+        <div className="col col-xl-8 col-lg-10">
           <div className="card shadow-sm">
             <div className="card-body p-4">
               <div className="box">
@@ -111,7 +111,7 @@ const Configuracion = () => {
                   </div>
                   <div className="row justify-content-center">
                     <div className="mb-4 col-sm-12 col-md-4">
-                      {config.logo_url && <img src={config.logo_url} alt="Logo" className="mt-4 mb-2" style={{ height: '80px'}} />}
+                      {config.logo_url && <img src={config.logo_url} alt="Logo" className="mt-4 mb-2 logo-config"/>}
                       <input
                           type="file"
                           name="logo"
