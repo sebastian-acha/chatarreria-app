@@ -7,8 +7,9 @@ body main{
   background: linear-gradient(90deg,rgba(255, 255, 255, 1) 0%, rgba(241, 241, 241, 1) 15%, rgba(241, 241, 241, 1) 85%, rgba(255, 255, 255, 1) 100%);
 }
 main .flex-grow-1{padding-top:72px;}
+main .flex-grow-1.login{padding-top:42px;}
 .bg-light{background-color: #f5f5f5 !important;}
-
+.box-s-n{box-shadow:none !important;}
 .cta{
   background: #d9fdd3 !important;
   color: #16603e;
@@ -43,6 +44,7 @@ header .container{
   padding: 6px 17px 5px 5px !important;
   border: 1px solid #ebebeb;
   position:relative;
+  cursor:pointer;
 }
 #bdNavbar .navbar-nav .nav-item .nav-link.active:after{
   content: "";
@@ -64,6 +66,7 @@ header .container{
   width: 100%;
   padding:8px 8px 5px 5px !important;
 }
+
 .navbar-nav .nav-item .nav-link:hover{background: #ebecf2;}
 .navbar-nav .nav-item .nav-link span{
   border-radius: 50%;
@@ -134,6 +137,7 @@ h2.h3 span{
   display: inline-block;
   vertical-align: middle;
   margin-top: -4px;
+  margin-right:5px;
 }
 h2.h3 span svg{
   width: 20px;
@@ -142,7 +146,9 @@ h2.h3 span svg{
 .login h2.h3{
   border-top: 1px solid #ebebeb; 
   padding-top: 15px;
+  font-size:20px;
 }
+.login h2.h3 + p{font-size:14px; margin-bottom:10px;}
 footer{
   background: #ffffff;
   text-align: center;
@@ -246,4 +252,9 @@ footer{
 }
 @media (max-width: 580px) {
   .flex-sm-column-vl{flex-direction: column !important;}
+  .login .logo{
+    max-width: 80%;
+    max-height: 100%;
+    height:auto !important;
+  }
 }

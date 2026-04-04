@@ -417,12 +417,12 @@ const NuevaCompra = () => {
                                           </div>
                                       </div>
                                   ))}
-                                  <button type="button" onClick={agregarDetalle} className="btn btn-link text-decoration-none d-flex align-items-center gap-2 p-0 mt-2">
+                                  <button type="button" onClick={agregarDetalle} className="btn btn-link text-decoration-none d-flex align-items-center gap-2 p-0 mt-2 box-s-n">
                                       <PlusCircle size={20} /> Añadir otro metal
                                   </button>
                               </fieldset>
 
-                              <div className="d-flex justify-content-between align-items-center bg-light p-3 rounded mb-4">
+                              <div className="d-flex justify-content-between align-items-center bg-light p-3 rounded mb-4 border">
                                   <span className="fw-bold text-secondary">Total Estimado:</span>
                                   <span className="h4 mb-0 fw-bold text-success">${getTotalEstimado().toLocaleString('es-CL')}</span>
                               </div>

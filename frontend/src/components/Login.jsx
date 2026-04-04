@@ -58,7 +58,7 @@ const Login = () => {
                 <div className="card-body p-2 ">
                   <div className="text-center pb-2 pt-4">
                     {configuracion?.logo_url && (
-                        <img src={configuracion.logo_url} alt="Logo" className="mx-auto mb-4" style={{ height: '54px' }} />
+                        <img src={configuracion.logo_url} alt="Logo" className="mx-auto mb-4 logo" style={{ height: '54px' }} />
                     )}
                     <h2 className="h3 fw-bold text-center mb-2 gap-2">
                         {configuracion?.nombre_empresa || 'Chatarrapp'}
