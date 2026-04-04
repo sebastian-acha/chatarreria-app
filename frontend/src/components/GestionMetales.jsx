@@ -162,7 +162,7 @@ const GestionMetales = () => {
           <div className="col">
             {/* Formulario de Creación */}
             <div className="card shadow-sm">
-              <div className="card-body p-4">
+              <div className="card-body p-2">
                 <div className="g-3 mb-4 box">
                   <h3 className="h5 mb-3 d-flex align-items-center gap-2"><Plus size={20} /> Agregar Nuevo Metal</h3>
                   <form onSubmit={handleCrearMetal} className="row g-3 align-items-end">

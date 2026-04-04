@@ -44,7 +44,7 @@ const Dashboard = () => {
             {configuracion?.logo_url ? (
                 <img src={configuracion.logo_url} alt="Logo" style={{ height: '32px' }} />
             ) : (
-                <span className="h6 fw-bold mb-0 text-white">{configuracion?.nombre_empresa || 'Chatarrería'}</span>
+                <span className="h6 fw-bold mb-0 text-white">{configuracion?.nombre_empresa || 'Chatarrapp'}</span>
             )}
         </a>
 
@@ -138,7 +138,7 @@ const Dashboard = () => {
       <div className="flex-grow-1">
           {renderVista()}
       </div>
-       <Footer />
+      <Footer /> 
   </main>
     );
 };
