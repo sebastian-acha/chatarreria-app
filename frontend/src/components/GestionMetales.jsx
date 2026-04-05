@@ -212,14 +212,14 @@ const GestionMetales = () => {
                   </div>
                 )}
               {/* Tabla de Metales */}
-              <div className="table-responsive">
+              <div className="table-responsive table-list">
                   <table className="table table-hover align-middle">
                       <thead className="table-light">
                           <tr>
-                              <th className="p-3">Metal</th>
-                              <th className="p-3">Precio / Kilo</th>
-                              <th className="p-3">Familia</th>
-                              <th className="p-3">Acciones</th>
+                              <th className="p-2">Metal</th>
+                              <th className="p-2">Precio / Kilo</th>
+                              <th className="p-2">Familia</th>
+                              <th className="p-2">Acciones</th>
                           </tr>
                       </thead>
                       <tbody>
