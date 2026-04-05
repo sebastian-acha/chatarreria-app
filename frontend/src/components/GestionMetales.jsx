@@ -143,7 +143,7 @@ const GestionMetales = () => {
                     <td className="p-3 fw-bold text-primary">${Math.round(metal.valor_por_kilo)}</td>
                     <td className="p-3 text-muted">{familia ? familia.familia_nombre : 'Sin Familia'}</td>
                     <td className="p-3">
-                        <button onClick={() => iniciarEdicion(metal, familia?.familia_id)} className="btn btn-sm btn-outline-primary d-flex align-items-center gap-1">
+                        <button onClick={() => iniciarEdicion(metal, familia?.familia_id)} className="btn btn-sm btn-outline-success d-flex align-items-center gap-1">
                             <Edit2 size={16} /> Editar
                         </button>
                     </td>
@@ -162,7 +162,7 @@ const GestionMetales = () => {
           <div className="col">
             {/* Formulario de Creación */}
             <div className="card shadow-sm">
-              <div className="card-body p-2">
+              <div className="card-body p-4">
                 <div className="g-3 mb-4 box">
                   <h3 className="h5 mb-3 d-flex align-items-center gap-2"><Plus size={20} /> Agregar Nuevo Metal</h3>
                   <form onSubmit={handleCrearMetal} className="row g-3 align-items-end">
@@ -195,7 +195,7 @@ const GestionMetales = () => {
                 
 
                 {isCreatingFamilia && (
-                  <div className="mt-3 bg-white p-3 rounded border">
+                  <div className="g-3 mb-4 box">
                     <h4 className="h6">Crear Nueva Familia</h4>
                     <form onSubmit={handleCrearFamilia} className="row g-2 align-items-end">
                       <div className="col">
@@ -203,10 +203,10 @@ const GestionMetales = () => {
                         <input type="text" className="form-control" placeholder="Ej: Aluminios" value={nuevaFamilia.nombre} onChange={e => setNuevaFamilia({ ...nuevaFamilia, nombre: e.target.value })} required />
                       </div>
                       <div className="col-auto">
-                        <button type="submit" className="btn btn-primary">Crear y Usar</button>
+                        <button type="submit" className="btn btn-success">Crear y Usar</button>
                       </div>
                         <div className="col-auto">
-                        <button type="button" className="btn btn-secondary" onClick={() => setIsCreatingFamilia(false)}>Cancelar</button>
+                        <button type="button" className="btn btn-outline-success" onClick={() => setIsCreatingFamilia(false)}>Cancelar</button>
                       </div>
                     </form>
                   </div>

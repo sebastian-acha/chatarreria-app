@@ -70,7 +70,7 @@ const GestionSucursales = () => {
               <div className="card shadow-sm">
                 <div className="card-body p-4">
                   {/* Formulario Crear */}
-                  <div className="mb-4 bg-light p-4 rounded border">
+                  <div className="mb-4 box">
                     <h3 className="h5 mb-3 d-flex align-items-center gap-2"><Plus /> Nueva Sucursal</h3>
                     <form onSubmit={handleCreate} className="row g-3 align-items-end">
                       <div className="col-md-4">
@@ -128,7 +128,7 @@ const GestionSucursales = () => {
                                   <td className="p-3 fw-medium">{s.nombre}</td>
                                   <td className="p-3">{s.direccion}</td>
                                   <td className="p-3">
-                                      <button onClick={() => startEdit(s)} className="btn btn-sm btn-outline-primary d-flex gap-1 align-items-center"><Edit2 size={16} /> Editar</button>
+                                      <button onClick={() => startEdit(s)} className="btn btn-sm btn-outline-success d-flex gap-1 align-items-center"><Edit2 size={16} /> Editar</button>
                                   </td>
                                 </>
                             )}

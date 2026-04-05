@@ -247,7 +247,7 @@ const HistorialTransacciones = () => {
                 <h2 className="h3 fw-bold text-center mb-3 gap-2">
                   <span>
                     <svg class="w-6 h-6 text-gray-800 dark:text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24">
-                    <path stroke="currentColor" stroke-linecap="round" stroke-width="2" d="M8 7V6a1 1 0 0 1 1-1h11a1 1 0 0 1 1 1v7a1 1 0 0 1-1 1h-1M3 18v-7a1 1 0 0 1 1-1h11a1 1 0 0 1 1 1v7a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1Zm8-3.5a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0Z"></path>
+                      <path stroke="currentColor" stroke-linecap="round" stroke-width="2" d="M5 7h14M5 12h14M5 17h10"/>
                     </svg>
                   </span>
                   Historial de Transacciones
@@ -257,26 +257,28 @@ const HistorialTransacciones = () => {
                       <div className="card-body p-4">
 
                           {/* Filtros */}
-                          <div className="row g-3 mb-4">
-                              <div className="col-md-4">
-                                  <label className="form-label fw-bold text-secondary"><Calendar size={16} /> Fecha Inicio</label>
-                                  <input type="date" name="fecha_inicio" className="form-control" value={filtros.fecha_inicio} onChange={handleFiltroChange} />
-                              </div>
-                              <div className="col-md-4">
-                                  <label className="form-label fw-bold text-secondary"><Calendar size={16} /> Fecha Fin</label>
-                                  <input type="date" name="fecha_fin" className="form-control" value={filtros.fecha_fin} onChange={handleFiltroChange} />
-                              </div>
+                          <div className="box">
+                            <div className="row g-3 mb-4 justify-content-center">
+                                <div className="col-md-3">
+                                    <label className="form-label fw-bold text-secondary"><Calendar size={16} /> Fecha Inicio</label>
+                                    <input type="date" name="fecha_inicio" className="form-control" value={filtros.fecha_inicio} onChange={handleFiltroChange} />
+                                </div>
+                                <div className="col-md-3">
+                                    <label className="form-label fw-bold text-secondary"><Calendar size={16} /> Fecha Fin</label>
+                                    <input type="date" name="fecha_fin" className="form-control" value={filtros.fecha_fin} onChange={handleFiltroChange} />
+                                </div>
+                            </div>
                           </div>
 
                           {/* Tabla */}
-                          <div className="table-responsive">
+                          <div className="table-responsive table-list">
                               <table className="table table-hover align-middle">
                                   <thead className="table-light">
                                       <tr>
                                           <th>ID</th>
                                           <th>Fecha</th>
                                           <th>Cliente</th>
-                                          <th className="text-end">Total</th>
+                                          <th>Total</th>
                                           <th>Estado</th>
                                           <th className="text-end">Acciones</th>
                                       </tr>
@@ -299,17 +301,17 @@ const HistorialTransacciones = () => {
                                                       </span>
                                                   </td>
                                                   <td className="text-end">
-                                                      {t.estado && t.estado.toLowerCase() === 'activa' && (
-                                                          <button className="btn btn-sm btn-outline-danger me-2" onClick={() => handleAnular(t.id)} title="Anular Transacción">
-                                                              <Ban size={18} />
-                                                          </button>
-                                                      )}
                                                       <button className="btn btn-sm btn-outline-primary me-2" onClick={() => abrirModal(t)} title="Ver Detalles">
                                                           <Eye size={18} />
                                                       </button>
-                                                      <button className="btn btn-sm btn-outline-secondary" onClick={() => imprimirVoucher(t)} title="Imprimir Voucher">
+                                                      <button className="btn btn-sm btn-outline-secondary me-2" onClick={() => imprimirVoucher(t)} title="Imprimir Voucher">
                                                           <Printer size={18} />
                                                       </button>
+                                                      {t.estado && t.estado.toLowerCase() === 'activa' && (
+                                                          <button className="btn btn-sm btn-outline-danger me-1" onClick={() => handleAnular(t.id)} title="Anular Transacción">
+                                                              <Ban size={18} />
+                                                          </button>
+                                                      )}
                                                   </td>
                                               </tr>
                                           ))

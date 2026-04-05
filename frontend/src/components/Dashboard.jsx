@@ -64,8 +64,12 @@ const Dashboard = () => {
               </li>
               <li className="nav-item col-12 col-md-auto">
                 <a className={`nav-link p-2 d-flex align-items-center gap-2 ${vistaActual === 'historial' ? 'active' : ''}`} href="#" onClick={(e) => { e.preventDefault(); setVistaActual('historial'); }}>
-                  <span> <LayoutDashboard size={16} /> </span>
-                    Historial
+                  <span>
+                    <svg class="w-6 h-6 text-gray-800 dark:text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24">
+                      <path stroke="currentColor" stroke-linecap="round" stroke-width="2" d="M5 7h14M5 12h14M5 17h10"/>
+                    </svg>
+                  </span>
+                  Historial
                 </a>
               </li>
               <li className="nav-item col-12 col-md-auto">
