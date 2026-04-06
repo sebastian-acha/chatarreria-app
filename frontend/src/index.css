@@ -210,6 +210,11 @@ footer{
   color: #0b5d37 !important;
 }
 .table-list .table-group-divider td svg{margin-right: .2rem !important}
+.table-list .actions{min-width:150px; width:150px;}
+.table-list .date{min-width:100px; width:100px;}
+.table-list .date .fecha{font-weight:600;}
+.table-list .date .hora{font-style:italic;}
+.table-list .id{min-width:70px; width:70px; text-align:center;}
 .table-responsive-new-container {
   border: 1px solid #dee2e6;
   border-radius: 14px;

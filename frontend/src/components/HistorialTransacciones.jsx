@@ -275,7 +275,7 @@ const HistorialTransacciones = () => {
                               <table className="table table-hover align-middle">
                                   <thead className="table-light">
                                       <tr>
-                                          <th>ID</th>
+                                          <th className="text-center">ID</th>
                                           <th>Fecha</th>
                                           <th>Cliente</th>
                                           <th>Total</th>
@@ -291,8 +291,8 @@ const HistorialTransacciones = () => {
                                       ) : (
                                           transacciones.map(t => (
                                               <tr key={t.id} className={t.estado && t.estado.toLowerCase() === 'anulada' ? 'table-danger' : ''}>
-                                                  <td>#{t.id}</td>
-                                                  <td>{new Date(t.fecha_hora).toLocaleDateString()} {new Date(t.fecha_hora).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</td>
+                                                  <td className="id">#{t.id}</td>
+                                                  <td className="date"><span className="fecha"> {new Date(t.fecha_hora).toLocaleDateString()}</span> <span className="hora">{new Date(t.fecha_hora).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span> </td>
                                                   <td>{t.cliente_nombre}</td>
                                                   <td className="fw-bold text-success">${t.estado && t.estado.toLowerCase() === 'anulada' ? 0 : Math.round(t.total_pagar).toLocaleString('es-CL')}</td>
                                                   <td>
@@ -300,7 +300,7 @@ const HistorialTransacciones = () => {
                                                           {t.estado}
                                                       </span>
                                                   </td>
-                                                  <td className="text-end">
+                                                  <td className="text-end actions">
                                                       <button className="btn btn-sm btn-outline-primary me-2" onClick={() => abrirModal(t)} title="Ver Detalles">
                                                           <Eye size={18} />
                                                       </button>
