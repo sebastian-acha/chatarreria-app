@@ -314,122 +314,128 @@ const NuevaCompra = () => {
     return (
         <>
             <div className="container my-4">
-                {showModal && voucher && (
-                    <div ref={modalRef} className="modal-custom-backdrop" style={{
-                        position: 'fixed', top: 0, left: 0, width: '100%', height: '100%',
-                        backgroundColor: 'rgba(0,0,0,0.5)', display: 'flex',
-                        justifyContent: 'center', alignItems: 'center', zIndex: 1050
-                    }}>
+              <div className="row justify-content-center">
+                <div className="col col-xl-8 col-lg-10">
+                  {showModal && voucher && (
+                      <div ref={modalRef} className="modal-custom-backdrop" style={{
+                          position: 'fixed', top: 0, left: 0, width: '100%', height: '100%',
+                          backgroundColor: 'rgba(0,0,0,0.5)', display: 'flex',
+                          justifyContent: 'center', alignItems: 'center', zIndex: 1050
+                      }}>
                         <div className="modal-custom-content card shadow-lg" style={{ width: '90%', maxWidth: '500px' }}>
-                            <div className="modal-custom-header card-header d-flex justify-content-between align-items-center">
-                                <h5 className="modal-custom-title mb-0 d-flex align-items-center gap-2">
-                                    <CheckCircle className="text-success" />
-                                    {mensaje.text}
-                                </h5>
-                                <button type="button" className="btn-close" onClick={closeModal}></button>
-                            </div>
-                            <div className="modal-custom-body card-body text-center">
-                                <h3 className="h5 fw-bold text-primary">¡Transacción #{voucher.correlativo} completada!</h3>
-                                <p className="mb-3">Total a pagar: <strong>$${Math.round(voucher.total_pagado).toLocaleString('es-CL')}</strong></p>
-                                <button onClick={imprimirVoucher} className="btn btn-primary d-inline-flex align-items-center gap-2">
-                                    <Printer size={20} /> Imprimir Voucher
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-                )}
-
-                <div className="card shadow-sm">
-                    <div className="card-body p-4">
-                        <h2 className="card-title mb-4 d-flex align-items-center gap-2">
-                            <Calculator className="text-primary" /> Nueva Compra
-                        </h2>
-
-                        {mensaje.text && mensaje.type === 'error' && (
-                            <div className={`alert alert-danger d-flex align-items-center gap-2`}>
-                                <AlertCircle size={20} />
+                          <div className="modal-custom-header card-header d-flex justify-content-between align-items-center">
+                            <h5 className="modal-custom-title mb-0 d-flex align-items-center gap-2">
+                                <CheckCircle className="text-success" />
                                 {mensaje.text}
-                            </div>
-                        )}
-
-                        <form onSubmit={handleSubmit}>
-                            <fieldset className="border p-3 rounded mb-4">
-                                <legend className="float-none w-auto px-2 h5 fw-bold">Datos del Cliente</legend>
-                                <div className="row g-3">
-                                    <div className="col-md-6">
-                                        <label className="form-label">Nombre Cliente</label>
-                                        <input type="text" name="cliente_nombre" value={cliente.cliente_nombre} onChange={handleClienteChange} className="form-control" placeholder="Juan Pérez" required />
-                                    </div>
-                                    <div className="col-md-6">
-                                        <label className="form-label">RUT / DNI</label>
-                                        <input type="text" name="cliente_rut_dni" value={cliente.cliente_rut_dni} onChange={handleClienteChange} className="form-control" placeholder="12345678-9" />
-                                    </div>
-                                </div>
-                            </fieldset>
-
-                            <fieldset className="border p-3 rounded mb-4">
-                                <legend className="float-none w-auto px-2 h5 fw-bold">Metales a Vender</legend>
-                                {detalles.map((detalle, index) => (
-                                    <div key={index} className="row g-3 align-items-end mb-3 pb-3 border-bottom">
-                                        <div className="col-md-4">
-                                            <label className="form-label">Metal {detalle.familia_nombre && <span className="text-muted fw-normal">({detalle.familia_nombre})</span>}</label>
-                                            <select name="metal_id" value={detalle.metal_id} onChange={(e) => handleDetalleChange(index, e)} onBlur={handleDetalleBlur} className="form-select" required>
-                                                <option value="">Seleccione...</option>
-                                                {metalesPorFamilia.map(familia => (
-                                                    <optgroup key={familia.familia_id} label={familia.familia_nombre}>
-                                                        {familia.metales.map(m => (
-                                                            <option key={m.id} value={m.id}>
-                                                                {m.nombre} (${Math.round(m.valor_por_kilo).toLocaleString('es-CL')}/kg)
-                                                            </option>
-                                                        ))}
-                                                    </optgroup>
-                                                ))}
-                                                {metalesSinFamilia.length > 0 && (
-                                                    <optgroup label="Otros">
-                                                        {metalesSinFamilia.map(m => (
-                                                            <option key={m.id} value={m.id}>
-                                                                {m.nombre} (${Math.round(m.valor_por_kilo).toLocaleString('es-CL')}/kg)
-                                                            </option>
-                                                        ))}
-                                                    </optgroup>
-                                                )}
-                                            </select>
-                                        </div>
-                                        <div className="col-md-3">
-                                            <label className="form-label text-primary fw-bold">Precio Especial</label>
-                                            <input type="number" name="precio_especial" value={detalle.precio_especial} onChange={(e) => handleDetalleChange(index, e)} onBlur={handleDetalleBlur} className="form-control border-primary" placeholder="Opcional" />
-                                        </div>
-                                        <div className="col-md-3">
-                                            <label className="form-label">Peso (kilos)</label>
-                                            <input type="number" step="0.01" name="peso_kilos" value={detalle.peso_kilos} onChange={(e) => handleDetalleChange(index, e)} onBlur={handleDetalleBlur} className="form-control" placeholder="0.00" required />
-                                        </div>
-                                        <div className="col-md-2 text-end">
-                                            {detalles.length > 1 && (
-                                                <button type="button" onClick={() => quitarDetalle(index)} className="btn btn-outline-danger border-0">
-                                                    <XCircle size={24} />
-                                                </button>
-                                            )}
-                                        </div>
-                                    </div>
-                                ))}
-                                <button type="button" onClick={agregarDetalle} className="btn btn-link text-decoration-none d-flex align-items-center gap-2 p-0 mt-2">
-                                    <PlusCircle size={20} /> Añadir otro metal
-                                </button>
-                            </fieldset>
-
-                            <div className="d-flex justify-content-between align-items-center bg-light p-3 rounded mb-4">
-                                <span className="fw-bold text-secondary">Total Estimado:</span>
-                                <span className="h4 mb-0 fw-bold text-success">${getTotalEstimado().toLocaleString('es-CL')}</span>
-                            </div>
-
-                            <button type="submit" disabled={loading} className="btn btn-success w-100 py-3 fw-bold d-flex justify-content-center align-items-center gap-2">
-                                {loading ? 'Procesando...' : <><Save size={20} /> Registrar Compra</>}
+                            </h5>
+                            <button type="button" className="btn-close" onClick={closeModal}></button>
+                          </div>
+                          <div className="modal-custom-body card-body text-center">
+                            <h3 className="h5 fw-bold text-primary">¡Transacción #{voucher.correlativo} completada!</h3>
+                            <p className="mb-3">Total a pagar: <strong>$${Math.round(voucher.total_pagado).toLocaleString('es-CL')}</strong></p>
+                            <button onClick={imprimirVoucher} className="btn btn-primary d-inline-flex align-items-center gap-2">
+                                <Printer size={20} /> Imprimir Voucher
                             </button>
-                        </form>
-                    </div>
+                          </div>
+                        </div>
+                      </div>
+                  )}
+
+                    <h2 className="h3 fw-bold text-center mb-4 gap-2">
+                      <span>
+                        <svg class="w-6 h-6 text-gray-800 dark:text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24">
+                        <path stroke="currentColor" stroke-linecap="round" stroke-width="2" d="M8 7V6a1 1 0 0 1 1-1h11a1 1 0 0 1 1 1v7a1 1 0 0 1-1 1h-1M3 18v-7a1 1 0 0 1 1-1h11a1 1 0 0 1 1 1v7a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1Zm8-3.5a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0Z"></path>
+                        </svg>
+                      </span>
+                      Nueva Compra
+                    </h2>
+                  <div className="card shadow-sm">
+                      <div className="card-body p-4">
+
+                          {mensaje.text && mensaje.type === 'error' && (
+                              <div className={`alert alert-danger d-flex align-items-center gap-2`}>
+                                  <AlertCircle size={20} />
+                                  {mensaje.text}
+                              </div>
+                          )}
+
+                          <form onSubmit={handleSubmit}>
+                              <fieldset className="border p-3 rounded mb-4">
+                                  <div className="row g-3">
+                                      <div className="col-md-6">
+                                          <label className="form-label">Nombre Cliente</label>
+                                          <input type="text" name="cliente_nombre" value={cliente.cliente_nombre} onChange={handleClienteChange} className="form-control" placeholder="Juan Pérez" required />
+                                      </div>
+                                      <div className="col-md-6">
+                                          <label className="form-label">RUT / DNI</label>
+                                          <input type="text" name="cliente_rut_dni" value={cliente.cliente_rut_dni} onChange={handleClienteChange} className="form-control" placeholder="12345678-9" />
+                                      </div>
+                                  </div>
+                              </fieldset>
+
+                              <fieldset className="border p-3 rounded mb-4">
+                                  {detalles.map((detalle, index) => (
+                                      <div key={index} className="row g-3 align-items-end mb-3 pb-3 border-bottom">
+                                          <div className="col-md-4">
+                                              <label className="form-label">Metal {detalle.familia_nombre && <span className="text-muted fw-normal">({detalle.familia_nombre})</span>}</label>
+                                              <select name="metal_id" value={detalle.metal_id} onChange={(e) => handleDetalleChange(index, e)} onBlur={handleDetalleBlur} className="form-select" required>
+                                                  <option value="">Seleccione...</option>
+                                                  {metalesPorFamilia.map(familia => (
+                                                      <optgroup key={familia.familia_id} label={familia.familia_nombre}>
+                                                          {familia.metales.map(m => (
+                                                              <option key={m.id} value={m.id}>
+                                                                  {m.nombre} (${Math.round(m.valor_por_kilo).toLocaleString('es-CL')}/kg)
+                                                              </option>
+                                                          ))}
+                                                      </optgroup>
+                                                  ))}
+                                                  {metalesSinFamilia.length > 0 && (
+                                                      <optgroup label="Otros">
+                                                          {metalesSinFamilia.map(m => (
+                                                              <option key={m.id} value={m.id}>
+                                                                  {m.nombre} (${Math.round(m.valor_por_kilo).toLocaleString('es-CL')}/kg)
+                                                              </option>
+                                                          ))}
+                                                      </optgroup>
+                                                  )}
+                                              </select>
+                                          </div>
+                                          <div className="col-md-3">
+                                              <label className="form-label text-primary fw-bold">Precio Especial</label>
+                                              <input type="number" name="precio_especial" value={detalle.precio_especial} onChange={(e) => handleDetalleChange(index, e)} onBlur={handleDetalleBlur} className="form-control border-primary" placeholder="Opcional" />
+                                          </div>
+                                          <div className="col-md-3">
+                                              <label className="form-label">Peso (kilos)</label>
+                                              <input type="number" step="0.01" name="peso_kilos" value={detalle.peso_kilos} onChange={(e) => handleDetalleChange(index, e)} onBlur={handleDetalleBlur} className="form-control" placeholder="0.00" required />
+                                          </div>
+                                          <div className="col-md-2 text-end">
+                                              {detalles.length > 1 && (
+                                                  <button type="button" onClick={() => quitarDetalle(index)} className="btn btn-outline-danger border-0">
+                                                      <XCircle size={24} />
+                                                  </button>
+                                              )}
+                                          </div>
+                                      </div>
+                                  ))}
+                                  <button type="button" onClick={agregarDetalle} className="btn btn-link text-decoration-none d-flex align-items-center gap-2 p-0 mt-2 box-s-n">
+                                      <PlusCircle size={20} /> Añadir otro metal
+                                  </button>
+                              </fieldset>
+
+                              <div className="d-flex justify-content-between align-items-center bg-light p-3 rounded mb-4 border">
+                                  <span className="fw-bold text-secondary">Total Estimado:</span>
+                                  <span className="h4 mb-0 fw-bold text-success">${getTotalEstimado().toLocaleString('es-CL')}</span>
+                              </div>
+
+                              <button type="submit" disabled={loading} className="btn btn-success w-100 py-3 fw-bold d-flex justify-content-center align-items-center gap-2">
+                                  {loading ? 'Procesando...' : <><Save size={20} /> Registrar Compra</>}
+                              </button>
+                          </form>
+                      </div>
+                  </div>
                 </div>
+              </div>
             </div>
-            <Footer />
         </>
     );
 };
