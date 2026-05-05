@@ -322,7 +322,7 @@ const NuevaCompra = () => {
                           backgroundColor: 'rgba(0,0,0,0.5)', display: 'flex',
                           justifyContent: 'center', alignItems: 'center', zIndex: 1050
                       }}>
-                        <div className="modal-custom-content card shadow-lg" style={{ width: '90%', maxWidth: '500px' }}>
+                        <div className="modal-custom-content card shadow-lg modal-general" style={{ width: '90%', maxWidth: '500px' }}>
                           <div className="modal-custom-header card-header d-flex justify-content-between align-items-center">
                             <h5 className="modal-custom-title mb-0 d-flex align-items-center gap-2">
                                 <CheckCircle className="text-success" />
@@ -331,9 +331,9 @@ const NuevaCompra = () => {
                             <button type="button" className="btn-close" onClick={closeModal}></button>
                           </div>
                           <div className="modal-custom-body card-body text-center">
-                            <h3 className="h5 fw-bold text-primary">¡Transacción #{voucher.correlativo} completada!</h3>
-                            <p className="mb-3">Total a pagar: <strong>$${Math.round(voucher.total_pagado).toLocaleString('es-CL')}</strong></p>
-                            <button onClick={imprimirVoucher} className="btn btn-primary d-inline-flex align-items-center gap-2">
+                            <h3 className="h5 fw-bold text-primary">¡Transacción <b># {voucher.correlativo}</b> completada!</h3>
+                            <p className="mb-3">Total a pagar: <strong>${Math.round(voucher.total_pagado).toLocaleString('es-CL')}</strong></p>
+                            <button onClick={imprimirVoucher} className="btn btn-success d-inline-flex align-items-center gap-2">
                                 <Printer size={20} /> Imprimir Voucher
                             </button>
                           </div>
