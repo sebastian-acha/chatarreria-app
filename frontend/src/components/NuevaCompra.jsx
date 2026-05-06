@@ -29,8 +29,8 @@ const NuevaCompra = () => {
                 setMetalesPorFamilia(res.data.familias || []);
                 setMetalesSinFamilia(res.data.sinFamilia || []);
             } catch (error) {
-                console.error("Error cargando metales", error);
-                setMensaje({ type: 'error', text: 'No se pudo cargar la lista de metales.' });
+                console.error("Error cargando materiales", error);
+                setMensaje({ type: 'error', text: 'No se pudo cargar la lista de materiales.' });
             }
         };
         fetchMetales();
@@ -112,7 +112,7 @@ const NuevaCompra = () => {
 
         const metalesParaEnviar = detalles.filter(d => d.metal_id && d.peso_kilos > 0);
         if (metalesParaEnviar.length === 0) {
-            setMensaje({ type: 'error', text: 'Debe agregar al menos un metal con peso válido.' });
+            setMensaje({ type: 'error', text: 'Debe agregar al menos un material con peso válido.' });
             setLoading(false);
             return;
         }
@@ -377,7 +377,7 @@ const NuevaCompra = () => {
                                   {detalles.map((detalle, index) => (
                                       <div key={index} className="row g-3 align-items-end mb-3 pb-3 border-bottom">
                                           <div className="col-md-4">
-                                              <label className="form-label">Metal {detalle.familia_nombre && <span className="text-muted fw-normal">({detalle.familia_nombre})</span>}</label>
+                                              <label className="form-label">Material {detalle.familia_nombre && <span className="text-muted fw-normal">({detalle.familia_nombre})</span>}</label>
                                               <select name="metal_id" value={detalle.metal_id} onChange={(e) => handleDetalleChange(index, e)} onBlur={handleDetalleBlur} className="form-select" required>
                                                   <option value="">Seleccione...</option>
                                                   {metalesPorFamilia.map(familia => (
@@ -418,7 +418,7 @@ const NuevaCompra = () => {
                                       </div>
                                   ))}
                                   <button type="button" onClick={agregarDetalle} className="btn btn-link text-decoration-none d-flex align-items-center gap-2 p-0 mt-2 box-s-n">
-                                      <PlusCircle size={20} /> Añadir otro metal
+                                      <PlusCircle size={20} /> Añadir otro material
                                   </button>
                               </fieldset>
 

@@ -101,7 +101,7 @@ const ReporteDiario = () => {
             <div className="card barchart shadow-sm mb-4">
                 <div className="card-body">
                     <h3 className="h6 fw-semibold mb-0 d-flex align-items-center gap-2">
-                        <BarChart3 size={18} /> Volumen de Compra por Metal (Kg)
+                        <BarChart3 size={18} /> Volumen de Compra por Material (Kg)
                     </h3>
 
                     <div className="d-flex align-items-end justify-content-around gap-2 border-bottom pb-2 table-responsive" style={{ height: '250px' }}>
@@ -139,13 +139,13 @@ const ReporteDiario = () => {
             {/* Tabla Detallada */}
             <div className="card shadow-sm overflow-hidden">
                 <div className="card-body">
-                    <h3 className="h6 fw-semibold mb-0 d-flex align-items-center gap-2"><TrendingUp size={18} /> Detalle por Metal</h3>
+                    <h3 className="h6 fw-semibold mb-0 d-flex align-items-center gap-2"><TrendingUp size={18} /> Detalle por Material</h3>
                     <div className="mb-0 table-responsive-new">
                       <table className="table table-hover ">
                           <thead className="table-light text-uppercase small">
                               <tr>
                                   <th>Familia</th>
-                                  <th>Metal</th>
+                                  <th>Material</th>
                                   <th>Transacciones</th>
                                   <th>Peso Total (kg)</th>
                                   <th>Total Pagado</th>

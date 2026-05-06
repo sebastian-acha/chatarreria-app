@@ -94,7 +94,7 @@ const Dashboard = () => {
                       <li className="nav-item col-12 col-md-auto">
                         <a className={`nav-link p-2 d-flex align-items-center gap-2 ${vistaActual === 'metales' ? 'active' : ''}`} href="#" onClick={(e) => { e.preventDefault(); setVistaActual('metales'); }}>
                           <span> <DollarSign size={16} /></span>
-                            Precios Metales
+                            Precios Materiales
                         </a>
                       </li>
                       <li className="nav-item col-12 col-md-auto">
