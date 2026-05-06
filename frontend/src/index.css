@@ -126,8 +126,19 @@ badge{line-height: 1.1;}
   display: inline-block !important;
   padding: 10px 20px;
   font-size: 15px;
+  min-height:44px;
+  position:relative;
 }
 .card h3.h5 svg{width: 18px;}
+.card h3.h5::before{
+  content: "";
+  width:44px;
+  height:44px;
+  position:absolute;
+  top:0;
+  left:-24px;
+  background:white;
+}
 h2.h3{font-size:24px;}
 h2.h3 span{
   border-radius: 50%;
@@ -143,25 +154,37 @@ h2.h3 span svg{
   width: 20px;
   height: 20px;
 }
+h2.h3 span.date{
+  border-radius: 7px;
+  line-height: 1em;
+  /*border: 1px solid #dbdbdb;*/
+  font-size: 16px;
+  box-shadow: rgba(0, 0, 0, 0.075) 0px 2px 4px 0px;
+  padding: 6px 7px;
+  letter-spacing: 0.01em;
+}
 .login h2.h3{
   border-top: 1px solid #ebebeb; 
   padding-top: 15px;
   font-size:20px;
 }
 .login h2.h3 + p{font-size:14px; margin-bottom:10px;}
-footer{
+footer .container{
   background: #ffffff;
   text-align: center;
   padding: 10px 0;
   border-top: 1px solid #dee2e6;
   font-size: 12px;
   box-shadow: 0px 2px 10px #cecece;
+  border-top-left-radius: 25px;
+  border-top-right-radius: 25px;
 }
 .logo-config{
   margin: 0 auto;
   display: block;
   max-width: 100%;
 }
+.text-primary{color:#5b8cda;}
 
 /* button */
 .btn{
@@ -224,14 +247,36 @@ footer{
 .table-responsive-new {
   border-radius: 14px;
   overflow: hidden;
+  border: 1px solid #dee2e6;
 }
 .table-responsive-new td{padding:15px !important; vertical-align: middle;}
 .table-responsive-new tr:last-child td{border-bottom:none;}
+.table-responsive-new tr:first-child td{
+  border-bottom:1px solid #dee2e6;
+}
+
+.report-download{margin-bottom:20px;}
+.report-download .btn{float:right;}
+
+
+/* Modal */
+.modal-general .modal-custom-header{padding:15px 20px;}
+.modal-general .modal-custom-body{padding:20px 20px 30px;}
+.modal-general .modal-custom-body h3{color:black !important; font-size: 18px;}
+.modal-general .modal-custom-body h3 b{color:#52a146 !important;}
+
+/* barchart */
+.barchart .bg-primary {
+  color: white;
+  background:repeating-linear-gradient(310deg, #8db8fc, #8db8fc 10px, #75aafe 10px, #75aafe 20px)
+}
+
 
 /* Media Queries */
 @media (max-width:992px){
   .container{max-width: 100%; padding-left:15px; padding-right:15px;}
-  header .container{max-width: 100%; padding-left:10px; padding-right:10px;}
+  .navbar { padding-left: 15px; padding-right: 15px;}
+  header .container, footer {max-width: 100%; padding-left:10px; padding-right:10px;}
   .navbar .navbar-collapse{padding-right:50px;}
   .navbar-nav .nav-item .nav-link{padding-left:12px !important; gap: 0 !important;}
   .navbar-nav .nav-item .nav-link span{display:none;}
@@ -270,12 +315,13 @@ footer{
     position: relative;
     width: 100%;
     overflow:visible;
+    border:0;
   }
   .table-responsive-new thead {
     display: block;
     float: left;
     border: 1px solid #e2e2e2;
-    box-shadow: 0px 4px 10px #cecece;
+    /* box-shadow: 0px 4px 10px #cecece;*/  
     z-index: 1;
     position: relative;
   }
@@ -300,6 +346,10 @@ footer{
     padding: 12px 15px !important;
     font-size: 12px;
   }
+  .table-responsive-new tr:last-child td{border-bottom: 1px solid #dee2e6;}
+  .table-responsive-new table{margin-bottom:0;}
+  .report-download > div{text-align:center;}
+  .report-download .btn{float:none; width:60%;}
 }
 @media (max-width: 580px) {
   .flex-sm-column-vl{flex-direction: column !important;}
@@ -308,4 +358,7 @@ footer{
     max-height: 100%;
     height:auto !important;
   }
+}
+@media (max-width: 480px) {
+  .report-download .btn{width:100%;}
 }

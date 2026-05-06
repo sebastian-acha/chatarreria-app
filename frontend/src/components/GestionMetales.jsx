@@ -157,14 +157,14 @@ const GestionMetales = () => {
         <div className="row justify-content-center">
           <h2 className="h3 fw-bold text-center mb-3 gap-2">
             <span><DollarSign /></span>
-            Gestión de Precios y Metales
+            Gestión de Precios y Materiales
           </h2>
           <div className="col">
             {/* Formulario de Creación */}
             <div className="card shadow-sm">
               <div className="card-body p-4">
                 <div className="g-3 mb-4 box">
-                  <h3 className="h5 mb-3 d-flex align-items-center gap-2"><Plus size={20} /> Agregar Nuevo Metal</h3>
+                  <h3 className="h5 mb-3 d-flex align-items-center gap-2"><Plus size={20} /> Agregar Nuevo Material</h3>
                   <form onSubmit={handleCrearMetal} className="row g-3 align-items-end">
                       <div className="col-md">
                         <label className="form-label">Familia</label>
@@ -179,7 +179,7 @@ const GestionMetales = () => {
                         </div>
                       </div>
                       <div className="col-md">
-                        <label className="form-label">Nombre del Metal</label>
+                        <label className="form-label">Nombre del Material</label>
                         <input type="text" className="form-control" placeholder="Ej: Cobre limpio" value={nuevoMetal.nombre} onChange={e => setNuevoMetal({ ...nuevoMetal, nombre: e.target.value })} required />
                       </div>
                       <div className="col-md">
@@ -187,7 +187,7 @@ const GestionMetales = () => {
                         <input type="number" step="1" className="form-control" placeholder="0" value={nuevoMetal.valor_por_kilo} onChange={e => setNuevoMetal({ ...nuevoMetal, valor_por_kilo: e.target.value })} required />
                       </div>
                       <div className="col-auto">
-                        <button type="submit" className="btn btn-success">Guardar Metal</button>
+                        <button type="submit" className="btn btn-success">Guardar Material</button>
                       </div>
                   </form>
 
@@ -216,7 +216,7 @@ const GestionMetales = () => {
                   <table className="table table-hover align-middle">
                       <thead className="table-light">
                           <tr>
-                              <th className="p-2">Metal</th>
+                              <th className="p-2">Material</th>
                               <th className="p-2">Precio / Kilo</th>
                               <th className="p-2">Familia</th>
                               <th className="p-2">Acciones</th>
@@ -242,7 +242,7 @@ const GestionMetales = () => {
                               <>
                                   <tr className="table-group-divider">
                                       <td colSpan="4" className="bg-body-secondary p-2 fw-bold text-dark">
-                                          <Box size={16} className="d-inline-block me-2"/> Metales Sin Familia
+                                          <Box size={16} className="d-inline-block me-2"/> Materiales Sin Familia
                                       </td>
                                   </tr>
                                   {metalesSinFamilia.map(metal => renderMetalRow(metal, null))}

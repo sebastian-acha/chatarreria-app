@@ -56,9 +56,15 @@ const ReporteDiario = () => {
 
     return (
         <div className="container my-4">
-            <div className="d-flex justify-content-between align-items-center mb-4">
-                <h2 className="h3 fw-bold d-flex align-items-center gap-2"><BarChart3 /> Reporte Diario ({new Date().toLocaleDateString()})</h2>
-                <button onClick={handleExportarExcel} className="btn btn-success d-flex align-items-center gap-2"><Download size={18} /> Exportar Excel</button>
+            <div className="report-download">
+              <div className="row">
+                <div className="col-md-8">
+                  <h2 className="h3 fw-bold gap-2"><span><BarChart3 /></span> Reporte Diario <span className="date">{new Date().toLocaleDateString()}</span></h2>
+                </div>
+                <div className="col-md-4">
+                  <button onClick={handleExportarExcel} className="btn btn-success gap-2"><Download size={18} /> Exportar Excel</button>
+                </div>
+              </div>
             </div>
 
             {/* Tarjetas de Resumen */}
@@ -92,13 +98,13 @@ const ReporteDiario = () => {
             </div>
 
             {/* Gráfico de Barras (CSS Puro) */}
-            <div className="card shadow-sm mb-4">
+            <div className="card barchart shadow-sm mb-4">
                 <div className="card-body">
-                    <h3 className="h5 fw-semibold mb-4 d-flex align-items-center gap-2 text-secondary">
-                        <BarChart3 size={18} /> Volumen de Compra por Metal (Kg)
+                    <h3 className="h6 fw-semibold mb-0 d-flex align-items-center gap-2">
+                        <BarChart3 size={18} /> Volumen de Compra por Material (Kg)
                     </h3>
 
-                    <div className="d-flex align-items-end justify-content-around gap-2 border-bottom pb-2" style={{ height: '250px' }}>
+                    <div className="d-flex align-items-end justify-content-around gap-2 border-bottom pb-2 table-responsive" style={{ height: '250px' }}>
                         {loading ? (
                             <div className="w-100 h-100 d-flex align-items-center justify-content-center text-muted">Cargando gráfico...</div>
                         ) : datos.length === 0 ? (
@@ -132,38 +138,38 @@ const ReporteDiario = () => {
 
             {/* Tabla Detallada */}
             <div className="card shadow-sm overflow-hidden">
-                <div className="card-header bg-light">
-                    <h3 className="h6 fw-semibold mb-0 d-flex align-items-center gap-2"><TrendingUp size={18} /> Detalle por Metal</h3>
-                </div>
-                <div className="table-responsive">
-                    <table className="table table-hover mb-0">
-                        <thead className="table-light text-uppercase small">
-                            <tr>
-                                <th className="p-4">Familia</th>
-                                <th className="p-4">Metal</th>
-                                <th className="p-4">Transacciones</th>
-                                <th className="p-4">Peso Total (kg)</th>
-                                <th className="p-4">Total Pagado</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {loading ? (
-                                <tr><td colSpan="5" className="p-4 text-center">Cargando datos...</td></tr>
-                            ) : datos.length === 0 ? (
-                                <tr><td colSpan="5" className="p-4 text-center text-muted">No hay movimientos hoy.</td></tr>
-                            ) : (
-                                datos.map((item, index) => (
-                                    <tr key={index}>
-                                        <td className="p-4">{item.familia || 'Sin familia'}</td>
-                                        <td className="p-4 fw-medium">{item.metal}</td>
-                                        <td className="p-4">{item.cantidad_transacciones}</td>
-                                        <td className="p-4 fw-bold text-primary">{parseFloat(item.total_kilos || 0).toFixed(2)} kg</td>
-                                        <td className="p-4 fw-bold text-success">$ {Math.round(parseFloat(item.total_pagado)).toLocaleString('es-CL')}</td>
-                                    </tr>
-                                ))
-                            )}
-                        </tbody>
-                    </table>
+                <div className="card-body">
+                    <h3 className="h6 fw-semibold mb-0 d-flex align-items-center gap-2"><TrendingUp size={18} /> Detalle por Material</h3>
+                    <div className="mb-0 table-responsive-new">
+                      <table className="table table-hover ">
+                          <thead className="table-light text-uppercase small">
+                              <tr>
+                                  <th>Familia</th>
+                                  <th>Material</th>
+                                  <th>Transacciones</th>
+                                  <th>Peso Total (kg)</th>
+                                  <th>Total Pagado</th>
+                              </tr>
+                          </thead>
+                          <tbody>
+                              {loading ? (
+                                  <tr><td colSpan="5" className="p-4 text-center">Cargando datos...</td></tr>
+                              ) : datos.length === 0 ? (
+                                  <tr><td colSpan="5" className="p-4 text-center text-muted">No hay movimientos hoy.</td></tr>
+                              ) : (
+                                  datos.map((item, index) => (
+                                      <tr key={index}>
+                                          <td>{item.familia || 'Sin familia'}</td>
+                                          <td className="fw-medium">{item.metal}</td>
+                                          <td>{item.cantidad_transacciones}</td>
+                                          <td className="fw-bold text-primary">{parseFloat(item.total_kilos || 0).toFixed(2)} kg</td>
+                                          <td className="fw-bold text-success">$ {Math.round(parseFloat(item.total_pagado)).toLocaleString('es-CL')}</td>
+                                      </tr>
+                                  ))
+                              )}
+                          </tbody>
+                      </table>
+                    </div>
                 </div>
             </div>
         </div>
