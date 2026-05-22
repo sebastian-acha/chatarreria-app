@@ -22,6 +22,15 @@ exports.crearTransaccion = async (req, res) => {
         if (!peso_entrada || !peso_salida || parseFloat(peso_entrada) <= 0 || parseFloat(peso_salida) <= 0) {
             return res.status(400).json({ error: 'Para compra Romana se requieren peso_entrada y peso_salida válidos.' });
         }
+        // Calcular el peso real en kilos usando entrada - salida
+        const pesoEntradaNum = parseFloat(peso_entrada);
+        const pesoSalidaNum = parseFloat(peso_salida);
+        const pesoCalculado = +(pesoEntradaNum - pesoSalidaNum).toFixed(3);
+        if (!(pesoCalculado > 0)) {
+            return res.status(400).json({ error: 'El peso calculado (peso_entrada - peso_salida) debe ser mayor que 0.' });
+        }
+        // Sobrescribir el peso del metal con el calculado por la romana
+        metales[0].peso_kilos = pesoCalculado;
     }
 
     // Validar cada item en el array de metales
