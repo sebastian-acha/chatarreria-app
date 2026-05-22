@@ -98,6 +98,9 @@ const HistorialTransacciones = () => {
             },
             detalles: transaccion.detalles,
             total_pagado: transaccion.total_pagar,
+            tipo_compra: transaccion.tipo_compra,
+            peso_entrada: transaccion.peso_entrada,
+            peso_salida: transaccion.peso_salida,
             logo_url: configuracion?.logo_url,
         };
 
@@ -194,6 +197,7 @@ const HistorialTransacciones = () => {
                                                 Cliente: ${voucher.cliente.nombre}
                                                 <br>
                                                 Rut: ${voucher.cliente.rut || '-'}
+                                                ${voucher.tipo_compra === 'romana' ? `<br><small>Tipo: <strong>Romana</strong> | Peso Entrada: <strong>${voucher.peso_entrada} kg</strong> | Peso Salida: <strong>${voucher.peso_salida} kg</strong></small>` : ''}
                                             </td>
                                             <td class="text-center">
                                                 Comprobante
@@ -349,6 +353,9 @@ const HistorialTransacciones = () => {
                                     <p><strong>Cliente:</strong> {transaccionSeleccionada.cliente_nombre}</p>
                                     <p><strong>Ejecutivo:</strong> {transaccionSeleccionada.ejecutivo_nombre}</p>
                                      <p><strong>Estado:</strong> <span className={`badge ${transaccionSeleccionada.estado && transaccionSeleccionada.estado.toLowerCase() === 'activa' ? 'bg-success' : 'bg-danger'}`}>{transaccionSeleccionada.estado}</span></p>
+                                    {transaccionSeleccionada.tipo_compra === 'romana' && (
+                                        <p><strong>Tipo:</strong> Romana — <small>Peso Entrada: <strong>{transaccionSeleccionada.peso_entrada} kg</strong>, Peso Salida: <strong>{transaccionSeleccionada.peso_salida} kg</strong></small></p>
+                                    )}
                                     <hr />
                                     <ul className="list-group list-group-flush">
                                         {transaccionSeleccionada.detalles.map((d, idx) => (
