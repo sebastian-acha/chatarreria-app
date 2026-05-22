@@ -436,7 +436,8 @@ const NuevaCompra = () => {
                                           <div className="text-muted small">Romana permite sólo un material por compra.</div>
                                       </div>
                                   )}
-                              
+                                  </div>
+
                               <fieldset className="border p-3 rounded mb-4">
                                   {detalles.map((detalle, index) => (
                                       <div key={index} className="row g-3 align-items-end mb-3 pb-3 border-bottom">
