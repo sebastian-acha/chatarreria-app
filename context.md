@@ -39,6 +39,57 @@ El backend está construido con Node.js y el framework Express. Se encarga de to
 -   **Transacciones**:
     -   Crear nuevas compras (`/api/transacciones/crear`).
     -   Listar historial de transacciones con filtros y paginación.
+    -   Tipos de compra: se agregó el modo `romana` además del modo `normal`.
+        - `romana` está pensado para balanzas tipo romana: permite exactamente 1 metal por compra y requiere que se envíen `peso_entrada` y `peso_salida`.
+        - El payload de ejemplo para una compra romana:
+
+            ```json
+            {
+              "cliente_nombre": "Juan Perez",
+              "cliente_rut_dni": "12345678-9",
+              "metales": [{ "metal_id": 5, "peso_kilos": 2.0 }],
+              "tipo_compra": "romana",
+              "peso_entrada": 2.5,
+              "peso_salida": 2.0
+            }
+            ```
+
+        - Validaciones del servidor:
+            - Si `tipo_compra` es `romana`, el endpoint rechazará peticiones con más de un metal.
+            - Requiere `peso_entrada` y `peso_salida` numéricos y mayores que 0.
+
+        - En la UI (`NuevaCompra.jsx`) se añadió un checkbox "Romana" que al activarlo muestra los campos `peso entrada` y `peso salida`, y bloquea la opción de añadir más metales.
+                - Ejemplo `curl` para probar el endpoint (requiere token JWT válido):
+
+                        ```bash
+                        curl -X POST "http://localhost:3000/api/transacciones" \
+                            -H "Content-Type: application/json" \
+                            -H "Authorization: Bearer <TU_JWT_AQUI>" \
+                            -d '{
+                                "cliente_nombre": "Juan Perez",
+                                "cliente_rut_dni": "12345678-9",
+                                "metales": [{ "metal_id": 5, "peso_kilos": 2.0 }],
+                                "tipo_compra": "romana",
+                                "peso_entrada": 2.5,
+                                "peso_salida": 2.0
+                            }'
+                        ```
+
+                        Respuesta esperada (parcial):
+
+                        ```json
+                        {
+                            "mensaje": "Compra registrada exitosamente",
+                            "voucher": {
+                                "correlativo": 123,
+                                "tipo_compra": "romana",
+                                "peso_entrada": 2.5,
+                                "peso_salida": 2.0,
+                                "total_pagado": 4000,
+                                "detalles": [ ... ]
+                            }
+                        }
+                        ```
 -   **Reportes**:
     -   Generar reportes diarios de compras.
     -   Exportar reportes a formato Excel (`.xlsx`).

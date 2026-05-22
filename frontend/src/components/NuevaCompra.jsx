@@ -9,6 +9,9 @@ const NuevaCompra = () => {
     const [metalesSinFamilia, setMetalesSinFamilia] = useState([]);
     const [cliente, setCliente] = useState({ cliente_nombre: '', cliente_rut_dni: '' });
     const [detalles, setDetalles] = useState([{ metal_id: '', peso_kilos: '', precio_especial: '', familia_nombre: '' }]);
+    const [tipoCompra, setTipoCompra] = useState('normal'); // 'normal' | 'romana'
+    const [pesoEntrada, setPesoEntrada] = useState('');
+    const [pesoSalida, setPesoSalida] = useState('');
     const [loading, setLoading] = useState(false);
     const [mensaje, setMensaje] = useState({ type: '', text: '' });
     const [voucher, setVoucher] = useState(null);
@@ -94,7 +97,31 @@ const NuevaCompra = () => {
         setDetalles(nuevosDetalles);
     };
 
+    const handleTipoCompraToggle = (e) => {
+        const checked = e.target.checked;
+        if (checked) {
+            setTipoCompra('romana');
+            // Si había varias líneas, conservar sólo la primera
+            if (detalles.length > 1) setDetalles([detalles[0]]);
+        } else {
+            setTipoCompra('normal');
+            setPesoEntrada('');
+            setPesoSalida('');
+        }
+    };
+
+    const handlePesoEntradaChange = (e) => {
+        setPesoEntrada(e.target.value);
+        if (voucher) setVoucher(null);
+    };
+
+    const handlePesoSalidaChange = (e) => {
+        setPesoSalida(e.target.value);
+        if (voucher) setVoucher(null);
+    };
+
     const agregarDetalle = () => {
+        if (tipoCompra === 'romana') return; // No permitir más de un metal en modo romana
         setDetalles([...detalles, { metal_id: '', peso_kilos: '', precio_especial: '', familia_nombre: '' }]);
     };
 
@@ -117,9 +144,24 @@ const NuevaCompra = () => {
             return;
         }
 
+        if (tipoCompra === 'romana') {
+            if (metalesParaEnviar.length !== 1) {
+                setMensaje({ type: 'error', text: 'En modo Romana sólo se permite un material por compra.' });
+                setLoading(false);
+                return;
+            }
+            if (!pesoEntrada || parseFloat(pesoEntrada) <= 0 || !pesoSalida || parseFloat(pesoSalida) <= 0) {
+                setMensaje({ type: 'error', text: 'Debe ingresar peso entrada y peso salida válidos para Romana.' });
+                setLoading(false);
+                return;
+            }
+        }
+
         const payload = {
             ...cliente,
-            metales: metalesParaEnviar
+            metales: metalesParaEnviar,
+            tipo_compra: tipoCompra === 'romana' ? 'romana' : 'normal',
+            ...(tipoCompra === 'romana' ? { peso_entrada: Number(pesoEntrada), peso_salida: Number(pesoSalida) } : {})
         };
 
         try {
@@ -131,6 +173,9 @@ const NuevaCompra = () => {
 
             setCliente({ cliente_nombre: '', cliente_rut_dni: '' });
             setDetalles([{ metal_id: '', peso_kilos: '', precio_especial: '', familia_nombre: '' }]);
+            setTipoCompra('normal');
+            setPesoEntrada('');
+            setPesoSalida('');
 
         } catch (error) {
             setMensaje({ type: 'error', text: error.response?.data?.error || 'Error al registrar compra' });
@@ -373,6 +418,25 @@ const NuevaCompra = () => {
                                   </div>
                               </fieldset>
 
+                              <div className="mb-3 d-flex align-items-start gap-3">
+                                  <div className="form-check">
+                                      <input className="form-check-input" type="checkbox" id="romanaCheck" checked={tipoCompra === 'romana'} onChange={handleTipoCompraToggle} />
+                                      <label className="form-check-label" htmlFor="romanaCheck">Romana</label>
+                                  </div>
+                                  {tipoCompra === 'romana' && (
+                                      <div className="d-flex gap-3 align-items-center w-100">
+                                          <div className="me-2" style={{minWidth: '160px'}}>
+                                              <label className="form-label">Peso Entrada (kg)</label>
+                                              <input type="number" step="0.01" className="form-control" value={pesoEntrada} onChange={handlePesoEntradaChange} required />
+                                          </div>
+                                          <div className="me-2" style={{minWidth: '160px'}}>
+                                              <label className="form-label">Peso Salida (kg)</label>
+                                              <input type="number" step="0.01" className="form-control" value={pesoSalida} onChange={handlePesoSalidaChange} required />
+                                          </div>
+                                          <div className="text-muted small">Romana permite sólo un material por compra.</div>
+                                      </div>
+                                  )}
+                              
                               <fieldset className="border p-3 rounded mb-4">
                                   {detalles.map((detalle, index) => (
                                       <div key={index} className="row g-3 align-items-end mb-3 pb-3 border-bottom">
@@ -417,7 +481,7 @@ const NuevaCompra = () => {
                                           </div>
                                       </div>
                                   ))}
-                                  <button type="button" onClick={agregarDetalle} className="btn btn-link text-decoration-none d-flex align-items-center gap-2 p-0 mt-2 box-s-n">
+                                  <button type="button" onClick={agregarDetalle} disabled={tipoCompra === 'romana'} className="btn btn-link text-decoration-none d-flex align-items-center gap-2 p-0 mt-2 box-s-n">
                                       <PlusCircle size={20} /> Añadir otro material
                                   </button>
                               </fieldset>
