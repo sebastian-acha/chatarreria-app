@@ -13,6 +13,12 @@ const HistorialTransacciones = () => {
     const [transaccionSeleccionada, setTransaccionSeleccionada] = useState(null);
     const [configuracion, setConfiguracion] = useState(null);
 
+    const formatWeight = (value) => {
+        const num = parseFloat(value);
+        if (Number.isNaN(num)) return value ?? '';
+        return num.toLocaleString('es-CL', { minimumFractionDigits: 0, maximumFractionDigits: 3 });
+    };
+
 
 
     // Cargar configuración (para el logo del voucher) al montar
@@ -197,7 +203,7 @@ const HistorialTransacciones = () => {
                                                 Cliente: ${voucher.cliente.nombre}
                                                 <br>
                                                 Rut: ${voucher.cliente.rut || '-'}
-                                                ${voucher.tipo_compra === 'romana' ? `<br><small>Tipo: <strong>Romana</strong> | Peso Entrada: <strong>${voucher.peso_entrada} kg</strong> | Peso Salida: <strong>${voucher.peso_salida} kg</strong></small>` : ''}
+                                                ${voucher.tipo_compra === 'romana' ? `<br><small>Tipo: <strong>Romana</strong> | Peso Entrada: <strong>${formatWeight(voucher.peso_entrada)} kg</strong> | Peso Salida: <strong>${formatWeight(voucher.peso_salida)} kg</strong></small>` : ''}
                                             </td>
                                             <td class="text-center">
                                                 Comprobante
@@ -354,7 +360,7 @@ const HistorialTransacciones = () => {
                                     <p><strong>Ejecutivo:</strong> {transaccionSeleccionada.ejecutivo_nombre}</p>
                                      <p><strong>Estado:</strong> <span className={`badge ${transaccionSeleccionada.estado && transaccionSeleccionada.estado.toLowerCase() === 'activa' ? 'bg-success' : 'bg-danger'}`}>{transaccionSeleccionada.estado}</span></p>
                                     {transaccionSeleccionada.tipo_compra === 'romana' && (
-                                        <p><strong>Tipo:</strong> Romana — <small>Peso Entrada: <strong>{transaccionSeleccionada.peso_entrada} kg</strong>, Peso Salida: <strong>{transaccionSeleccionada.peso_salida} kg</strong></small></p>
+                                        <p><strong>Tipo:</strong> Romana — <small>Peso Entrada: <strong>{formatWeight(transaccionSeleccionada.peso_entrada)} kg</strong>, Peso Salida: <strong>{formatWeight(transaccionSeleccionada.peso_salida)} kg</strong></small></p>
                                     )}
                                     <hr />
                                     <ul className="list-group list-group-flush">
