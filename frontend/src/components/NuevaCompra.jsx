@@ -110,14 +110,39 @@ const NuevaCompra = () => {
         }
     };
 
+    const actualizarPesoRomana = (nuevoPesoEntrada, nuevoPesoSalida) => {
+        const entrada = parseFloat(nuevoPesoEntrada);
+        const salida = parseFloat(nuevoPesoSalida);
+
+        if (!isNaN(entrada) && !isNaN(salida)) {
+            const pesoCalculado = +(entrada - salida).toFixed(3);
+            if (pesoCalculado > 0 && detalles.length > 0) {
+                const nuevosDetalles = [...detalles];
+                nuevosDetalles[0] = {
+                    ...nuevosDetalles[0],
+                    peso_kilos: pesoCalculado.toString()
+                };
+                setDetalles(nuevosDetalles);
+            }
+        }
+    };
+
     const handlePesoEntradaChange = (e) => {
-        setPesoEntrada(e.target.value);
+        const valor = e.target.value;
+        setPesoEntrada(valor);
         if (voucher) setVoucher(null);
+        if (tipoCompra === 'romana') {
+            actualizarPesoRomana(valor, pesoSalida);
+        }
     };
 
     const handlePesoSalidaChange = (e) => {
-        setPesoSalida(e.target.value);
+        const valor = e.target.value;
+        setPesoSalida(valor);
         if (voucher) setVoucher(null);
+        if (tipoCompra === 'romana') {
+            actualizarPesoRomana(pesoEntrada, valor);
+        }
     };
 
     const agregarDetalle = () => {

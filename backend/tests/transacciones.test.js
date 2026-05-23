@@ -28,7 +28,7 @@ describe('API Transacciones (Crear Compra)', () => {
         const payload = {
             cliente_nombre: 'Romano',
             cliente_rut_dni: '11111111-1',
-            metales: [ { metal_id: 2, peso_kilos: 2 } ],
+            metales: [ { metal_id: 2, peso_kilos: 0.5 } ],
             tipo_compra: 'romana',
             peso_entrada: 2.5,
             peso_salida: 2.0
@@ -61,6 +61,22 @@ describe('API Transacciones (Crear Compra)', () => {
         expect(res.body.voucher.peso_entrada).toBe(2.5);
         expect(res.body.voucher.peso_salida).toBe(2.0);
         expect(res.body.voucher.correlativo).toBe(200);
+    });
+
+    test('POST /api/transacciones debería rechazar Romana si el peso no coincide con entrada - salida', async () => {
+        const payload = {
+            cliente_nombre: 'Romano Mal',
+            cliente_rut_dni: '22222222-2',
+            metales: [ { metal_id: 2, peso_kilos: 0.6 } ],
+            tipo_compra: 'romana',
+            peso_entrada: 2.5,
+            peso_salida: 2.0
+        };
+
+        const res = await request(app).post('/api/transacciones').send(payload);
+
+        expect(res.statusCode).toBe(400);
+        expect(res.body.error).toMatch(/no coincide con la diferencia/i);
     });
 
     test('POST /api/transacciones debería rechazar Romana con más de un metal', async () => {
