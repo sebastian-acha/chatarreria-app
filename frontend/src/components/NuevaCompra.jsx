@@ -384,7 +384,7 @@ const NuevaCompra = () => {
 
     return (
         <>
-            <div className="container my-4 new-purchase">
+            <div className="container my-4">
               <div className="row justify-content-center">
                 <div className="col col-xl-8 col-lg-10">
                   {showModal && voucher && (
@@ -447,27 +447,27 @@ const NuevaCompra = () => {
                                   </div>
                               </fieldset>
 
-                              
-
-                              <fieldset className="border p-3 rounded mb-4" style={{position: 'relative' }}>
-                                <div className="form-check romana">
-                                    <input className="form-check-input" type="checkbox" id="romanaCheck" checked={tipoCompra === 'romana'} onChange={handleTipoCompraToggle} />
-                                    <label className="form-check-label" htmlFor="romanaCheck"> Romana</label>
-                                </div>
+                              <div className="mb-3 d-flex align-items-start gap-3">
+                                  <div className="form-check">
+                                      <input className="form-check-input" type="checkbox" id="romanaCheck" checked={tipoCompra === 'romana'} onChange={handleTipoCompraToggle} />
+                                      <label className="form-check-label" htmlFor="romanaCheck">Romana</label>
+                                  </div>
                                   {tipoCompra === 'romana' && (
-                                      <div className="row g-3 align-items-end mb-3 pb-3 border-bottom">
-                                          <div className="mt-2 small col-md-12 text-alert fw-semibold fst-italic"><b>Romana</b> permite sólo un material por compra.</div>
-                                          <div className="col-md-6">
+                                      <div className="d-flex gap-3 align-items-center w-100">
+                                          <div className="me-2" style={{minWidth: '160px'}}>
                                               <label className="form-label">Peso Entrada (kg)</label>
                                               <input type="number" step="0.01" className="form-control" value={pesoEntrada} onChange={handlePesoEntradaChange} required />
                                           </div>
-                                          <div className="col-md-6">
+                                          <div className="me-2" style={{minWidth: '160px'}}>
                                               <label className="form-label">Peso Salida (kg)</label>
                                               <input type="number" step="0.01" className="form-control" value={pesoSalida} onChange={handlePesoSalidaChange} required />
                                           </div>
+                                          <div className="text-muted small">Romana permite sólo un material por compra.</div>
                                       </div>
                                   )}
+                                  </div>
 
+                              <fieldset className="border p-3 rounded mb-4">
                                   {detalles.map((detalle, index) => (
                                       <div key={index} className="row g-3 align-items-end mb-3 pb-3 border-bottom">
                                           <div className="col-md-4">
@@ -500,7 +500,7 @@ const NuevaCompra = () => {
                                           </div>
                                           <div className="col-md-3">
                                               <label className="form-label">Peso (kilos)</label>
-                                              <input type="number" step="0.01" name="peso_kilos" value={detalle.peso_kilos} onChange={(e) => handleDetalleChange(index, e)} onBlur={handleDetalleBlur} className="form-control" placeholder="0.00" required />
+                                              <input type="number" step="0.01" name="peso_kilos" value={detalle.peso_kilos} onChange={(e) => handleDetalleChange(index, e)} onBlur={handleDetalleBlur} className="form-control" placeholder="0.00" required readOnly={tipoCompra === 'romana'} />
                                           </div>
                                           <div className="col-md-2 text-end">
                                               {detalles.length > 1 && (
