@@ -384,7 +384,7 @@ const NuevaCompra = () => {
 
     return (
         <>
-            <div className="container my-4">
+            <div className="container my-4 new-purchase">
               <div className="row justify-content-center">
                 <div className="col col-xl-8 col-lg-10">
                   {showModal && voucher && (
