@@ -12,6 +12,7 @@ const NuevaCompra = () => {
     const [tipoCompra, setTipoCompra] = useState('normal'); // 'normal' | 'romana'
     const [pesoEntrada, setPesoEntrada] = useState('');
     const [pesoSalida, setPesoSalida] = useState('');
+    const [romanaError, setRomanaError] = useState('');
     const [loading, setLoading] = useState(false);
     const [mensaje, setMensaje] = useState({ type: '', text: '' });
     const [voucher, setVoucher] = useState(null);
@@ -107,6 +108,7 @@ const NuevaCompra = () => {
             setTipoCompra('normal');
             setPesoEntrada('');
             setPesoSalida('');
+            setRomanaError('');
         }
     };
 
@@ -115,6 +117,16 @@ const NuevaCompra = () => {
         const salida = parseFloat(nuevoPesoSalida);
 
         if (!isNaN(entrada) && !isNaN(salida)) {
+            if (salida > entrada) {
+                setRomanaError('El peso de salida no puede ser mayor al peso de entrada');
+                const nuevosDetalles = [...detalles];
+                if (nuevosDetalles[0]) {
+                    nuevosDetalles[0] = { ...nuevosDetalles[0], peso_kilos: '' };
+                }
+                setDetalles(nuevosDetalles);
+                return;
+            }
+            setRomanaError('');
             const pesoCalculado = +(entrada - salida).toFixed(3);
             if (pesoCalculado > 0 && detalles.length > 0) {
                 const nuevosDetalles = [...detalles];
@@ -452,17 +464,25 @@ const NuevaCompra = () => {
                                       <label className="form-check-label" htmlFor="romanaCheck">Romana</label>
                                   </div>
                                   {tipoCompra === 'romana' && (
-                                      <div className="row g-3 align-items-end mb-3 pb-3 border-bottom">
-                                          <div className="mt-2 small col-md-12 text-alert fw-semibold fst-italic"><b>Romana</b> permite sólo un material por compra.</div>
-                                          <div className="col-md-6">
-                                              <label className="form-label">Peso Entrada (kg)</label>
-                                              <input type="number" step="0.01" className="form-control" value={pesoEntrada} onChange={handlePesoEntradaChange} required />
-                                          </div>
-                                          <div className="col-md-6">
-                                              <label className="form-label">Peso Salida (kg)</label>
-                                              <input type="number" step="0.01" className="form-control" value={pesoSalida} onChange={handlePesoSalidaChange} required />
-                                          </div>
-                                      </div>
+                                        <div className="row g-3 align-items-end mb-3 pb-3 border-bottom">
+                                                <div className="mt-2 small col-md-12 text-alert fw-semibold fst-italic"><b>Romana</b> permite sólo un material por compra.</div>
+                                                <div className="col-md-6">
+                                                        <label className="form-label">Peso Entrada (kg)</label>
+                                                        <input type="number" step="0.01" className="form-control" value={pesoEntrada} onChange={handlePesoEntradaChange} required />
+                                                </div>
+                                                <div className="col-md-6">
+                                                        <label className="form-label">Peso Salida (kg)</label>
+                                                        <input type="number" step="0.01" className="form-control" value={pesoSalida} onChange={handlePesoSalidaChange} required />
+                                                </div>
+                                                {romanaError && (
+                                                        <div className="col-md-12">
+                                                                <div className="alert alert-danger d-flex align-items-center gap-2 py-2 my-1">
+                                                                        <AlertCircle size={18} />
+                                                                        {romanaError}
+                                                                </div>
+                                                        </div>
+                                                )}
+                                        </div>
                                   )}
                                   {detalles.map((detalle, index) => (
                                       <div key={index} className="row g-3 align-items-end mb-3 pb-3 border-bottom">
@@ -517,7 +537,7 @@ const NuevaCompra = () => {
                                   <span className="h4 mb-0 fw-bold text-success">${getTotalEstimado().toLocaleString('es-CL')}</span>
                               </div>
 
-                              <button type="submit" disabled={loading} className="btn btn-success w-100 py-3 fw-bold d-flex justify-content-center align-items-center gap-2">
+                                <button type="submit" disabled={loading || !!romanaError} className="btn btn-success w-100 py-3 fw-bold d-flex justify-content-center align-items-center gap-2">
                                   {loading ? 'Procesando...' : <><Save size={20} /> Registrar Compra</>}
                               </button>
                           </form>
