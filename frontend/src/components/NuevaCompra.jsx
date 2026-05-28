@@ -247,7 +247,7 @@ const NuevaCompra = () => {
                 <table class="font11"> 
                   <tr> 
                     <td>
-                      <b>${d.peso_kilos} kg </b>| ${d.familia ? `${d.familia} - ` : ''}${d.metal}
+                      <b>${Number(d.peso_kilos).toLocaleString('es-CL')} kg </b>| ${d.familia ? `${d.familia} - ` : ''}${d.metal}
                     </td>
                   </tr>
                   <tr>
@@ -329,7 +329,7 @@ const NuevaCompra = () => {
                                                 Cliente: ${voucher.cliente.nombre}
                                                 <br>
                                                 Rut: ${voucher.cliente.rut || '-'}
-                                                ${voucher.tipo_compra === 'romana' ? `<br><small>Tipo: <strong>Romana</strong> | Peso Entrada: <strong>${voucher.peso_entrada} kg</strong> | Peso Salida: <strong>${voucher.peso_salida} kg</strong></small>` : ''}
+                                                ${voucher.tipo_compra === 'romana' ? `<br><small>Tipo: <strong>Romana</strong> | Peso Entrada: <strong>${Math.round(Number(voucher.peso_entrada))} kg</strong> | Peso Salida: <strong>${Math.round(Number(voucher.peso_salida))} kg</strong></small>` : ''}
                                             </td>
                                             <td class="text-center">
                                                 Comprobante
@@ -405,7 +405,7 @@ const NuevaCompra = () => {
                             <h3 className="h5 fw-bold text-primary">¡Transacción <b># {voucher.correlativo}</b> completada!</h3>
                                                         <p className="mb-3">Total a pagar: <strong>${Math.round(voucher.total_pagado).toLocaleString('es-CL')}</strong></p>
                                                         {voucher.tipo_compra === 'romana' && (
-                                                                <p className="mb-2 small">Tipo: <strong>Romana</strong> — Peso Entrada: <strong>{voucher.peso_entrada} kg</strong>, Peso Salida: <strong>{voucher.peso_salida} kg</strong></p>
+                                                                <p className="mb-2 small">Tipo: <strong>Romana</strong> — Peso Entrada: <strong>{Math.round(Number(voucher.peso_entrada))} kg</strong>, Peso Salida: <strong>{Math.round(Number(voucher.peso_salida))} kg</strong></p>
                                                         )}
                             <button onClick={imprimirVoucher} className="btn btn-success d-inline-flex align-items-center gap-2">
                                 <Printer size={20} /> Imprimir Voucher
