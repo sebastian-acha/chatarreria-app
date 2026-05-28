@@ -446,28 +446,24 @@ const NuevaCompra = () => {
                                       </div>
                                   </div>
                               </fieldset>
-
-                              <div className="mb-3 d-flex align-items-start gap-3">
-                                  <div className="form-check">
+                              <fieldset className="border p-3 rounded mb-4" style={{position: 'relative'}}>
+                                <div className="form-check romana">
                                       <input className="form-check-input" type="checkbox" id="romanaCheck" checked={tipoCompra === 'romana'} onChange={handleTipoCompraToggle} />
                                       <label className="form-check-label" htmlFor="romanaCheck">Romana</label>
                                   </div>
                                   {tipoCompra === 'romana' && (
-                                      <div className="d-flex gap-3 align-items-center w-100">
-                                          <div className="me-2" style={{minWidth: '160px'}}>
+                                      <div className="row g-3 align-items-end mb-3 pb-3 border-bottom">
+                                          <div className="mt-2 small col-md-12 text-alert fw-semibold fst-italic"><b>Romana</b> permite sólo un material por compra.</div>
+                                          <div className="col-md-6">
                                               <label className="form-label">Peso Entrada (kg)</label>
                                               <input type="number" step="0.01" className="form-control" value={pesoEntrada} onChange={handlePesoEntradaChange} required />
                                           </div>
-                                          <div className="me-2" style={{minWidth: '160px'}}>
+                                          <div className="col-md-6">
                                               <label className="form-label">Peso Salida (kg)</label>
                                               <input type="number" step="0.01" className="form-control" value={pesoSalida} onChange={handlePesoSalidaChange} required />
                                           </div>
-                                          <div className="text-muted small">Romana permite sólo un material por compra.</div>
                                       </div>
                                   )}
-                                  </div>
-
-                              <fieldset className="border p-3 rounded mb-4">
                                   {detalles.map((detalle, index) => (
                                       <div key={index} className="row g-3 align-items-end mb-3 pb-3 border-bottom">
                                           <div className="col-md-4">
