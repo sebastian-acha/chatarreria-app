@@ -288,7 +288,7 @@ const NuevaCompra = () => {
                 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB" crossorigin="anonymous">
                 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js" integrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI" crossorigin="anonymous"></script>
                     <style type="text/css">
-                        .container{padding:0;}
+                        .container{padding:0 6px;}
                         body {font-size:11px; font-family: tahoma, sans-serif; font-weight:100; letter-spacing: 0.02em;}
                         .font11{font-size:11px }
                         footer{font-size:10px;}
@@ -316,6 +316,8 @@ const NuevaCompra = () => {
                         .table-container.total .table {font-size:16px; margin-bottom:5px;}
                         .texto-tachado{text-decoration: line-through;}
                         .table>:not(caption)>*>*{border-bottom-width:0; padding:6px;}
+                        .voucher-romana{padding:5px 10px; border-bottom: 1px solid black;}
+                        .voucher-romana b{font-weight:600;}
                     </style>
                 </head>
                 <body class="font11">
@@ -330,7 +332,7 @@ const NuevaCompra = () => {
                                     Fecha: ${new Date(voucher.fecha).toLocaleDateString()}
                                 </span>
                                 <span>
-                                    Hora: ${new Date(voucher.fecha).toLocaleTimeString()};
+                                    Hora: ${new Date(voucher.fecha).toLocaleTimeString()}
                                 </span>
                             </div>
                             <div class="table-container table-info-user rounded">
@@ -341,7 +343,6 @@ const NuevaCompra = () => {
                                                 Cliente: ${voucher.cliente.nombre}
                                                 <br>
                                                 Rut: ${voucher.cliente.rut || '-'}
-                                                ${voucher.tipo_compra === 'romana' ? `<br><small>Tipo: <strong>Romana</strong> | Peso Entrada: <strong>${Math.round(Number(voucher.peso_entrada))} kg</strong> | Peso Salida: <strong>${Math.round(Number(voucher.peso_salida))} kg</strong></small>` : ''}
                                             </td>
                                             <td class="text-center">
                                                 Comprobante
@@ -355,6 +356,7 @@ const NuevaCompra = () => {
                                 <div class="table-container table-materials rounded">
                                     <table class="table mb-0">
                                         <tbody>
+                                             ${voucher.tipo_compra === 'romana' ? `<div class="voucher-romana">Peso Entrada: <b>${Math.round(Number(voucher.peso_entrada))} kg</b> | Peso Salida: <b>${Math.round(Number(voucher.peso_salida))} kg</b></div>` : ''}
                                             ${detallesHTML}
                                         </tbody>
                                     </table>
