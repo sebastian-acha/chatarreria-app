@@ -178,6 +178,8 @@ const HistorialTransacciones = () => {
                         .table-container.total .table {font-size:16px; margin-bottom:5px;}
                         .texto-tachado{text-decoration: line-through;}
                         .table>:not(caption)>*>*{border-bottom-width:0; padding:6px;}
+                        .voucher-romana{padding:5px 10px; border-bottom: 1px solid black;}
+                        .voucher-romana b{font-weight:600;}
                     </style>
                 </head>
                 <body class="font11">
@@ -203,7 +205,6 @@ const HistorialTransacciones = () => {
                                                 Cliente: ${voucher.cliente.nombre}
                                                 <br>
                                                 Rut: ${voucher.cliente.rut || '-'}
-                                                ${voucher.tipo_compra === 'romana' ? `<br><small>Tipo: <strong>Romana</strong> | Peso Entrada: <strong>${formatWeight(voucher.peso_entrada)} kg</strong> | Peso Salida: <strong>${formatWeight(voucher.peso_salida)} kg</strong></small>` : ''}
                                             </td>
                                             <td class="text-center">
                                                 Comprobante
@@ -217,6 +218,7 @@ const HistorialTransacciones = () => {
                                 <div class="table-container table-materials rounded">
                                     <table class="table mb-0">
                                         <tbody>
+                                            ${voucher.tipo_compra === 'romana' ? `<div class="voucher-romana">Peso Entrada: <b>${Math.round(Number(voucher.peso_entrada))} kg</b> | Peso Salida: <b>${Math.round(Number(voucher.peso_salida))} kg</b></div>` : ''}
                                             ${detallesHTML}
                                         </tbody>
                                     </table>
