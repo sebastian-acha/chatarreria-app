@@ -2,8 +2,8 @@ const db = require('../config/db');
 const XLSX = require('xlsx');
 
 exports.crearTransaccion = async (req, res) => {
-    // El cuerpo ahora espera un array de metales
-    const { cliente_nombre, cliente_rut_dni, metales } = req.body;
+    // El cuerpo ahora espera un array de metales y opcionalmente datos de romana
+    const { cliente_nombre, cliente_rut_dni, metales, tipo_compra, peso_entrada, peso_salida } = req.body;
 
     // Datos del token JWT
     const ejecutivo_id = req.user.id;
@@ -12,6 +12,26 @@ exports.crearTransaccion = async (req, res) => {
     // --- Validaciones ---
     if (!cliente_nombre || !metales || !Array.isArray(metales) || metales.length === 0) {
         return res.status(400).json({ error: 'Faltan datos obligatorios: cliente o lista de metales.' });
+    }
+
+    // Validaciones específicas para compra tipo 'romana'
+    if (tipo_compra === 'romana') {
+        if (metales.length !== 1) {
+            return res.status(400).json({ error: 'Compra tipo Romana requiere exactamente un metal.' });
+        }
+        if (!peso_entrada || !peso_salida || parseFloat(peso_entrada) <= 0 || parseFloat(peso_salida) <= 0) {
+            return res.status(400).json({ error: 'Para compra Romana se requieren peso_entrada y peso_salida válidos.' });
+        }
+        const pesoEntradaNum = parseFloat(peso_entrada);
+        const pesoSalidaNum = parseFloat(peso_salida);
+        const pesoCalculado = +(pesoEntradaNum - pesoSalidaNum).toFixed(3);
+        if (!(pesoCalculado > 0)) {
+            return res.status(400).json({ error: 'El peso calculado (peso_entrada - peso_salida) debe ser mayor que 0.' });
+        }
+        const pesoDeclarado = parseFloat(metales[0].peso_kilos);
+        if (isNaN(pesoDeclarado) || Math.abs(pesoDeclarado - pesoCalculado) > 0.001) {
+            return res.status(400).json({ error: 'El peso ingresado no coincide con la diferencia entre peso_entrada y peso_salida.' });
+        }
     }
 
     // Validar cada item en el array de metales
@@ -72,11 +92,11 @@ exports.crearTransaccion = async (req, res) => {
 
         // 3. Insertar la transacción principal
         const transaccionQuery = `
-            INSERT INTO transacciones (sucursal_id, ejecutivo_id, cliente_nombre, cliente_rut_dni, total_pagar)
-            VALUES ($1, $2, $3, $4, $5)
-            RETURNING id, fecha_hora AT TIME ZONE 'UTC' AT TIME ZONE 'America/Santiago' AS fecha_hora;
+            INSERT INTO transacciones (sucursal_id, ejecutivo_id, cliente_nombre, cliente_rut_dni, total_pagar, tipo_compra, peso_entrada, peso_salida)
+            VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
+            RETURNING id, fecha_hora AT TIME ZONE 'UTC' AT TIME ZONE 'America/Santiago' AS fecha_hora, tipo_compra, peso_entrada, peso_salida;
         `;
-        const transaccionValues = [sucursal_id, ejecutivo_id, cliente_nombre, cliente_rut_dni, total_pagar];
+        const transaccionValues = [sucursal_id, ejecutivo_id, cliente_nombre, cliente_rut_dni, total_pagar, tipo_compra || 'normal', peso_entrada || null, peso_salida || null];
         const transaccionResult = await client.query(transaccionQuery, transaccionValues);
         const nuevaTransaccion = transaccionResult.rows[0];
 
@@ -109,6 +129,9 @@ exports.crearTransaccion = async (req, res) => {
                 ejecutivo_id,
                 cliente: { nombre: cliente_nombre, rut: cliente_rut_dni },
                 total_pagado: total_pagar,
+                tipo_compra: nuevaTransaccion.tipo_compra || 'normal',
+                peso_entrada: nuevaTransaccion.peso_entrada,
+                peso_salida: nuevaTransaccion.peso_salida,
                 detalles: detallesParaInsertar.map(d => ({
                     metal: preciosMap.get(d.metal_id).nombre,
                     familia: preciosMap.get(d.metal_id).familia,
@@ -162,6 +185,7 @@ exports.listarTransacciones = async (req, res) => {
         const query = `
             SELECT 
                 t.id, t.fecha_hora AT TIME ZONE 'UTC' AT TIME ZONE 'America/Santiago' AS fecha_hora, t.cliente_nombre, t.cliente_rut_dni, t.total_pagar, t.estado,
+                t.tipo_compra, t.peso_entrada, t.peso_salida,
                 u.nombres as ejecutivo_nombre,
                 s.nombre as sucursal_nombre,
                 (SELECT json_agg(json_build_object(
@@ -247,6 +271,7 @@ exports.obtenerTransaccion = async (req, res) => {
         const query = `
             SELECT 
                 t.id, t.fecha_hora AT TIME ZONE 'UTC' AT TIME ZONE 'America/Santiago' AS fecha_hora, t.cliente_nombre, t.cliente_rut_dni, t.total_pagar, t.estado,
+                t.tipo_compra, t.peso_entrada, t.peso_salida,
                 u.nombres as ejecutivo_nombre,
                 s.nombre as sucursal_nombre,
                 (SELECT json_agg(json_build_object(

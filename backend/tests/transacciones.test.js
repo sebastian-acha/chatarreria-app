@@ -24,6 +24,88 @@ describe('API Transacciones (Crear Compra)', () => {
         jest.clearAllMocks();
     });
 
+    test('POST /api/transacciones debería registrar una compra tipo Romana correctamente', async () => {
+        const payload = {
+            cliente_nombre: 'Romano',
+            cliente_rut_dni: '11111111-1',
+            metales: [ { metal_id: 2, peso_kilos: 0.5 } ],
+            tipo_compra: 'romana',
+            peso_entrada: 2.5,
+            peso_salida: 2.0
+        };
+
+        // 1. BEGIN
+        mockClient.query.mockResolvedValueOnce({});
+
+        // 2. SELECT logo_url
+        mockClient.query.mockResolvedValueOnce({ rows: [{ logo_url: null }] });
+
+        // 3. SELECT metales
+        mockClient.query.mockResolvedValueOnce({ rows: [{ id: 2, nombre: 'Plata', valor_por_kilo: 2000 }] });
+
+        // 4. INSERT transacciones
+        mockClient.query.mockResolvedValueOnce({ rows: [{ id: 200, fecha_hora: '2024-01-01T12:00:00Z', tipo_compra: 'romana', peso_entrada: 2.5, peso_salida: 2.0 }] });
+
+        // 5. INSERT detalles
+        mockClient.query.mockResolvedValueOnce({});
+
+        // 6. COMMIT
+        mockClient.query.mockResolvedValueOnce({});
+
+        const res = await request(app)
+            .post('/api/transacciones')
+            .send(payload);
+
+        expect(res.statusCode).toBe(201);
+        expect(res.body.voucher.tipo_compra).toBe('romana');
+        expect(res.body.voucher.peso_entrada).toBe(2.5);
+        expect(res.body.voucher.peso_salida).toBe(2.0);
+        expect(res.body.voucher.correlativo).toBe(200);
+    });
+
+    test('POST /api/transacciones debería rechazar Romana si el peso no coincide con entrada - salida', async () => {
+        const payload = {
+            cliente_nombre: 'Romano Mal',
+            cliente_rut_dni: '22222222-2',
+            metales: [ { metal_id: 2, peso_kilos: 0.6 } ],
+            tipo_compra: 'romana',
+            peso_entrada: 2.5,
+            peso_salida: 2.0
+        };
+
+        const res = await request(app).post('/api/transacciones').send(payload);
+
+        expect(res.statusCode).toBe(400);
+        expect(res.body.error).toMatch(/no coincide con la diferencia/i);
+    });
+
+    test('POST /api/transacciones debería rechazar Romana con más de un metal', async () => {
+        const payload = {
+            cliente_nombre: 'Bad Romano',
+            metales: [ { metal_id: 1, peso_kilos: 1 }, { metal_id: 2, peso_kilos: 1 } ],
+            tipo_compra: 'romana',
+            peso_entrada: 2,
+            peso_salida: 1.8
+        };
+
+        const res = await request(app).post('/api/transacciones').send(payload);
+        expect(res.statusCode).toBe(400);
+        expect(res.body.error).toMatch(/exactamente un metal/i);
+    });
+
+    test('POST /api/transacciones debería rechazar Romana sin pesos válidos', async () => {
+        const payload = {
+            cliente_nombre: 'No Pesos',
+            metales: [ { metal_id: 1, peso_kilos: 1 } ],
+            tipo_compra: 'romana'
+            // faltan peso_entrada/peso_salida
+        };
+
+        const res = await request(app).post('/api/transacciones').send(payload);
+        expect(res.statusCode).toBe(400);
+        expect(res.body.error).toMatch(/peso_entrada y peso_salida válidos/i);
+    });
+
     test('POST /api/transacciones debería registrar una compra exitosamente', async () => {
         const payload = {
             cliente_nombre: 'Juan Perez',

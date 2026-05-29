@@ -13,6 +13,12 @@ const HistorialTransacciones = () => {
     const [transaccionSeleccionada, setTransaccionSeleccionada] = useState(null);
     const [configuracion, setConfiguracion] = useState(null);
 
+    const formatWeight = (value) => {
+        const num = parseFloat(value);
+        if (Number.isNaN(num)) return value ?? '';
+        return num.toLocaleString('es-CL', { minimumFractionDigits: 0, maximumFractionDigits: 3 });
+    };
+
 
 
     // Cargar configuración (para el logo del voucher) al montar
@@ -98,6 +104,9 @@ const HistorialTransacciones = () => {
             },
             detalles: transaccion.detalles,
             total_pagado: transaccion.total_pagar,
+            tipo_compra: transaccion.tipo_compra,
+            peso_entrada: transaccion.peso_entrada,
+            peso_salida: transaccion.peso_salida,
             logo_url: configuracion?.logo_url,
         };
 
@@ -141,7 +150,7 @@ const HistorialTransacciones = () => {
                 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB" crossorigin="anonymous">
                 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js" integrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI" crossorigin="anonymous"></script>
                     <style type="text/css">
-                        .container{padding:0;}
+                        .container{padding:0 6px;}
                         body {font-size:11px; font-family: tahoma, sans-serif; font-weight:100; letter-spacing: 0.02em;}
                         .font11{font-size:11px }
                         footer{font-size:10px;}
@@ -169,6 +178,8 @@ const HistorialTransacciones = () => {
                         .table-container.total .table {font-size:16px; margin-bottom:5px;}
                         .texto-tachado{text-decoration: line-through;}
                         .table>:not(caption)>*>*{border-bottom-width:0; padding:6px;}
+                        .voucher-romana{padding:5px 10px; border-bottom: 1px solid black;}
+                        .voucher-romana b{font-weight:600;}
                     </style>
                 </head>
                 <body class="font11">
@@ -207,6 +218,7 @@ const HistorialTransacciones = () => {
                                 <div class="table-container table-materials rounded">
                                     <table class="table mb-0">
                                         <tbody>
+                                            ${voucher.tipo_compra === 'romana' ? `<div class="voucher-romana">Peso Entrada: <b>${Math.round(Number(voucher.peso_entrada))} kg</b> | Peso Salida: <b>${Math.round(Number(voucher.peso_salida))} kg</b></div>` : ''}
                                             ${detallesHTML}
                                         </tbody>
                                     </table>
@@ -349,6 +361,9 @@ const HistorialTransacciones = () => {
                                     <p><strong>Cliente:</strong> {transaccionSeleccionada.cliente_nombre}</p>
                                     <p><strong>Ejecutivo:</strong> {transaccionSeleccionada.ejecutivo_nombre}</p>
                                      <p><strong>Estado:</strong> <span className={`badge ${transaccionSeleccionada.estado && transaccionSeleccionada.estado.toLowerCase() === 'activa' ? 'bg-success' : 'bg-danger'}`}>{transaccionSeleccionada.estado}</span></p>
+                                    {transaccionSeleccionada.tipo_compra === 'romana' && (
+                                        <p><strong>Tipo:</strong> Romana — <small>Peso Entrada: <strong>{formatWeight(transaccionSeleccionada.peso_entrada)} kg</strong>, Peso Salida: <strong>{formatWeight(transaccionSeleccionada.peso_salida)} kg</strong></small></p>
+                                    )}
                                     <hr />
                                     <ul className="list-group list-group-flush">
                                         {transaccionSeleccionada.detalles.map((d, idx) => (

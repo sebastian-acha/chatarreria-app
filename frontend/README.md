@@ -14,3 +14,11 @@ The React Compiler is not enabled on this template because of its impact on dev 
 ## Expanding the ESLint configuration
 
 If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+
+## Nueva funcionalidad: Modo "Romana" en `NuevaCompra`
+
+Se agregó una opción en el formulario de `NuevaCompra` para registrar compras en modo `romana`.
+
+- Interfaz: checkbox "Romana" que muestra los campos `Peso Entrada` y `Peso Salida`.
+- Restricción: solo un metal por compra cuando está activado.
+- El frontend envía `tipo_compra: 'romana'`, `peso_entrada` y `peso_salida` al endpoint de transacciones.
