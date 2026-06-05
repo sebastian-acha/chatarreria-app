@@ -221,6 +221,28 @@ const NuevaCompra = () => {
         }
     };
 
+    const getSubtotalDetalle = (detalle) => {
+        if (!detalle.metal_id || !detalle.peso_kilos) return 0;
+
+        const metalId = parseInt(detalle.metal_id);
+        let metal = null;
+
+        for (const familia of metalesPorFamilia) {
+            metal = familia.metales.find(m => m.id === metalId);
+            if (metal) break;
+        }
+
+        if (!metal) {
+            metal = metalesSinFamilia.find(m => m.id === metalId);
+        }
+
+        const precio = (detalle.precio_especial && parseFloat(detalle.precio_especial) > 0)
+            ? parseFloat(detalle.precio_especial)
+            : (metal ? metal.valor_por_kilo : 0);
+
+        return Math.round(precio * parseFloat(detalle.peso_kilos));
+    };
+
     const getTotalEstimado = () => {
         return Math.round(detalles.reduce((total, detalle) => {
             if (!detalle.metal_id || !detalle.peso_kilos) return total;
@@ -520,9 +542,14 @@ const NuevaCompra = () => {
                                               <label className="form-label">Peso (kilos)</label>
                                               <input type="number" step="0.01" name="peso_kilos" value={detalle.peso_kilos} onChange={(e) => handleDetalleChange(index, e)} onBlur={handleDetalleBlur} className="form-control" placeholder="0.00" required readOnly={tipoCompra === 'romana'} />
                                           </div>
-                                          <div className="col-md-2 text-end">
+                                          <div className="col-md-2 d-flex justify-content-end align-items-center gap-2">
+                                              {getSubtotalDetalle(detalle) > 0 && (
+                                                  <span className="text-success fw-bold" style={{ fontSize: '1.1rem' }}>
+                                                      ${getSubtotalDetalle(detalle).toLocaleString('es-CL')}
+                                                  </span>
+                                              )}
                                               {detalles.length > 1 && (
-                                                  <button type="button" onClick={() => quitarDetalle(index)} className="btn btn-outline-danger border-0">
+                                                  <button type="button" onClick={() => quitarDetalle(index)} className="btn btn-outline-danger border-0 p-1">
                                                       <XCircle size={24} />
                                                   </button>
                                               )}
