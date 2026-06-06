@@ -510,7 +510,7 @@ const NuevaCompra = () => {
                                   )}
                                   {detalles.map((detalle, index) => (
                                       <div key={index} className="row g-3 align-items-end mb-3 pb-3 border-bottom">
-                                          <div className="col-md-4">
+                                          <div className="col-md-5">
                                               <label className="form-label">Material {detalle.familia_nombre && <span className="text-muted fw-normal">({detalle.familia_nombre})</span>}</label>
                                               <select name="metal_id" value={detalle.metal_id} onChange={(e) => handleDetalleChange(index, e)} onBlur={handleDetalleBlur} className="form-select" required>
                                                   <option value="">Seleccione...</option>
@@ -534,17 +534,18 @@ const NuevaCompra = () => {
                                                   )}
                                               </select>
                                           </div>
-                                          <div className="col-md-3">
+                                          <div className="col-md-2">
                                               <label className="form-label text-primary fw-bold">Precio Especial</label>
                                               <input type="number" name="precio_especial" value={detalle.precio_especial} onChange={(e) => handleDetalleChange(index, e)} onBlur={handleDetalleBlur} className="form-control border-primary" placeholder="Opcional" />
                                           </div>
-                                          <div className="col-md-3">
+                                          <div className="col-md-2">
                                               <label className="form-label">Peso (kilos)</label>
                                               <input type="number" step="0.01" name="peso_kilos" value={detalle.peso_kilos} onChange={(e) => handleDetalleChange(index, e)} onBlur={handleDetalleBlur} className="form-control" placeholder="0.00" required readOnly={tipoCompra === 'romana'} />
                                           </div>
-                                          <div className="col-md-2 d-flex justify-content-end align-items-center gap-2">
+                                          <div className="col-md-3 subtotal">
+                                              <label className="form-label">Subtotal</label>
                                               {getSubtotalDetalle(detalle) > 0 && (
-                                                  <span className="text-success fw-bold" style={{ fontSize: '1.1rem' }}>
+                                                  <span className="text-success fw-bold">
                                                       ${getSubtotalDetalle(detalle).toLocaleString('es-CL')}
                                                   </span>
                                               )}
