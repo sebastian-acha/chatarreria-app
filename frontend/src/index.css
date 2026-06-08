@@ -100,6 +100,7 @@ badge{line-height: 1.1;}
 .text-alert{color: #e27c83 !important;}
 .border-primary{border-color: #FABCC1 !important;}
 .btn-link{ color: #199606; font-weight: 500; text-align:center; margin: 0 auto;}
+.btn-link:hover{color:#4a953e;}
 .card{
   border:none;
   border-radius:20px;
@@ -287,6 +288,25 @@ footer .container{
 }
 .romana label, .romana input{cursor:pointer;}
 .new-purchase .text-alert{color:#52a146 !important;}
+.subtotal{position:relative; min-height:64px;}
+.subtotal span{
+  font-size: 1rem;
+  display: block;
+  background: white;
+  border-radius: 6px;
+  border: 1px solid #99bdac;
+  padding: 6px 12px;
+  margin-right: 15px;
+  margin-bottom: 1px;
+}
+.subtotal button{
+  position: absolute;
+  right: -10px;
+  top: 50%;
+  margin-top: -5px;
+  box-shadow:none;
+}
+
 /* Media Queries */
 @media (max-width:992px){
   .container{max-width: 100%; padding-left:15px; padding-right:15px;}

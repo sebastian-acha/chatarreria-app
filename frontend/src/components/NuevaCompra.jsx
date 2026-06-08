@@ -221,6 +221,28 @@ const NuevaCompra = () => {
         }
     };
 
+    const getSubtotalDetalle = (detalle) => {
+        if (!detalle.metal_id || !detalle.peso_kilos) return 0;
+
+        const metalId = parseInt(detalle.metal_id);
+        let metal = null;
+
+        for (const familia of metalesPorFamilia) {
+            metal = familia.metales.find(m => m.id === metalId);
+            if (metal) break;
+        }
+
+        if (!metal) {
+            metal = metalesSinFamilia.find(m => m.id === metalId);
+        }
+
+        const precio = (detalle.precio_especial && parseFloat(detalle.precio_especial) > 0)
+            ? parseFloat(detalle.precio_especial)
+            : (metal ? metal.valor_por_kilo : 0);
+
+        return Math.round(precio * parseFloat(detalle.peso_kilos));
+    };
+
     const getTotalEstimado = () => {
         return Math.round(detalles.reduce((total, detalle) => {
             if (!detalle.metal_id || !detalle.peso_kilos) return total;
@@ -488,7 +510,7 @@ const NuevaCompra = () => {
                                   )}
                                   {detalles.map((detalle, index) => (
                                       <div key={index} className="row g-3 align-items-end mb-3 pb-3 border-bottom">
-                                          <div className="col-md-4">
+                                          <div className="col-md-5">
                                               <label className="form-label">Material {detalle.familia_nombre && <span className="text-muted fw-normal">({detalle.familia_nombre})</span>}</label>
                                               <select name="metal_id" value={detalle.metal_id} onChange={(e) => handleDetalleChange(index, e)} onBlur={handleDetalleBlur} className="form-select" required>
                                                   <option value="">Seleccione...</option>
@@ -512,17 +534,23 @@ const NuevaCompra = () => {
                                                   )}
                                               </select>
                                           </div>
-                                          <div className="col-md-3">
+                                          <div className="col-md-2">
                                               <label className="form-label text-primary fw-bold">Precio Especial</label>
                                               <input type="number" name="precio_especial" value={detalle.precio_especial} onChange={(e) => handleDetalleChange(index, e)} onBlur={handleDetalleBlur} className="form-control border-primary" placeholder="Opcional" />
                                           </div>
-                                          <div className="col-md-3">
+                                          <div className="col-md-2">
                                               <label className="form-label">Peso (kilos)</label>
                                               <input type="number" step="0.01" name="peso_kilos" value={detalle.peso_kilos} onChange={(e) => handleDetalleChange(index, e)} onBlur={handleDetalleBlur} className="form-control" placeholder="0.00" required readOnly={tipoCompra === 'romana'} />
                                           </div>
-                                          <div className="col-md-2 text-end">
+                                          <div className="col-md-3 subtotal">
+                                              <label className="form-label">Subtotal</label>
+                                              {getSubtotalDetalle(detalle) > 0 && (
+                                                  <span className="text-success fw-bold">
+                                                      ${getSubtotalDetalle(detalle).toLocaleString('es-CL')}
+                                                  </span>
+                                              )}
                                               {detalles.length > 1 && (
-                                                  <button type="button" onClick={() => quitarDetalle(index)} className="btn btn-outline-danger border-0">
+                                                  <button type="button" onClick={() => quitarDetalle(index)} className="btn btn-outline-danger border-0 p-1">
                                                       <XCircle size={24} />
                                                   </button>
                                               )}
