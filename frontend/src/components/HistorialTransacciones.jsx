@@ -284,8 +284,7 @@ const HistorialTransacciones = () => {
             <div className="container my-4">
               <div className="report-download mb-4">
                 <div className="row align-items-center">
-                  <div className="col-md-8">
-                    <h2 className="h3 fw-bold gap-2 d-flex align-items-center mb-0">
+                    <h2 className="h3 fw-bold text-center gap-2 mb-0">
                       <span>
                         <svg className="w-6 h-6 text-gray-800 dark:text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24">
                           <path stroke="currentColor" strokeLinecap="round" strokeWidth="2" d="M5 7h14M5 12h14M5 17h10"/>
@@ -293,16 +292,6 @@ const HistorialTransacciones = () => {
                       </span>
                       Historial de Transacciones
                     </h2>
-                  </div>
-                  <div className="col-md-4 text-md-end mt-3 mt-md-0">
-                    <button 
-                      onClick={handleExportarExcel} 
-                      className="btn btn-success gap-2 d-inline-flex align-items-center"
-                      disabled={!filtros.fecha_inicio || !filtros.fecha_fin}
-                    >
-                      <Download size={18} /> Exportar Excel
-                    </button>
-                  </div>
                 </div>
               </div>
 
@@ -321,6 +310,15 @@ const HistorialTransacciones = () => {
                                 <div className="col-md-3">
                                     <label className="form-label fw-bold text-secondary"><Calendar size={16} /> Fecha Fin</label>
                                     <input type="date" name="fecha_fin" className="form-control" value={filtros.fecha_fin} onChange={handleFiltroChange} />
+                                </div>
+                                <div className="col-md-3 d-grid">
+                                  <button 
+                                    onClick={handleExportarExcel} 
+                                    className="btn btn-success gap-2 mt-3"
+                                    disabled={!filtros.fecha_inicio || !filtros.fecha_fin}
+                                  >
+                                    <Download size={18} /> Exportar Excel
+                                  </button>
                                 </div>
                             </div>
                           </div>
