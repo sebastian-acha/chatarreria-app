@@ -429,3 +429,105 @@ exports.exportarReporteDiarioExcel = async (req, res) => {
     }
 
 };
+
+exports.exportarHistorialExcel = async (req, res) => {
+    try {
+        const { fecha_inicio, fecha_fin, metal_id } = req.query;
+
+        const values = [];
+        let paramIndex = 1;
+
+        // Cláusula WHERE para filtros
+        let whereClauses = ["1=1"];
+        if (fecha_inicio) {
+            whereClauses.push(`t.fecha_hora >= $${paramIndex++}`);
+            values.push(fecha_inicio);
+        }
+        if (fecha_fin) {
+            // Se ajusta la fecha para que incluya todo el día
+            const fechaFinDate = new Date(fecha_fin);
+            fechaFinDate.setDate(fechaFinDate.getDate() + 1);
+            whereClauses.push(`t.fecha_hora < $${paramIndex++}`);
+            values.push(fechaFinDate.toISOString().split('T')[0]);
+        }
+        if (metal_id) {
+            whereClauses.push(`EXISTS (SELECT 1 FROM transaccion_detalles td WHERE td.transaccion_id = t.id AND td.metal_id = $${paramIndex++})`);
+            values.push(metal_id);
+        }
+
+        const query = `
+            SELECT 
+                t.id, 
+                t.fecha_hora AT TIME ZONE 'UTC' AT TIME ZONE 'America/Santiago' AS fecha_hora, 
+                t.cliente_nombre, 
+                t.cliente_rut_dni, 
+                t.total_pagar, 
+                t.estado,
+                t.tipo_compra,
+                u.nombres as ejecutivo_nombre,
+                s.nombre as sucursal_nombre
+            FROM transacciones t
+            LEFT JOIN usuarios u ON t.ejecutivo_id = u.id
+            LEFT JOIN sucursales s ON t.sucursal_id = s.id
+            WHERE ${whereClauses.join(' AND ')}
+            ORDER BY t.id DESC
+        `;
+
+        const result = await db.query(query, values);
+
+        if (!result.rows || result.rows.length === 0) {
+            const wb = XLSX.utils.book_new();
+            const ws = XLSX.utils.json_to_sheet([{ Mensaje: "No hay datos para el periodo seleccionado" }]);
+            XLSX.utils.book_append_sheet(wb, ws, "Historial Transacciones");
+            const buffer = XLSX.write(wb, { type: 'buffer', bookType: 'xlsx' });
+            res.setHeader('Content-Disposition', 'attachment; filename="Historial_Transacciones.xlsx"');
+            res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+            return res.send(buffer);
+        }
+
+        const data = result.rows.map(row => ({
+            'ID': row.id,
+            'Fecha y Hora': new Date(row.fecha_hora).toLocaleString('es-CL'),
+            'Cliente': row.cliente_nombre,
+            'RUT': row.cliente_rut_dni || '-',
+            'Total Pagado ($)': row.estado && row.estado.toLowerCase() === 'anulada' ? 0 : Math.round(parseFloat(row.total_pagar)),
+            'Estado': row.estado,
+            'Tipo Compra': row.tipo_compra || 'normal',
+            'Ejecutivo': row.ejecutivo_nombre || '-',
+            'Sucursal': row.sucursal_nombre || '-'
+        }));
+
+        const wb = XLSX.utils.book_new();
+        const ws = XLSX.utils.json_to_sheet(data);
+
+        // Formato para Total Pagado ($) - Columna E (index 4)
+        const range = XLSX.utils.decode_range(ws['!ref']);
+        for (let R = range.s.r + 1; R <= range.e.r; ++R) {
+            const totalCell = ws[XLSX.utils.encode_cell({ c: 4, r: R })];
+            if (totalCell) totalCell.z = '$ #,##0';
+        }
+
+        ws['!cols'] = [
+            { wch: 10 }, // ID
+            { wch: 20 }, // Fecha y Hora
+            { wch: 25 }, // Cliente
+            { wch: 15 }, // RUT
+            { wch: 15 }, // Total
+            { wch: 15 }, // Estado
+            { wch: 15 }, // Tipo
+            { wch: 20 }, // Ejecutivo
+            { wch: 20 }  // Sucursal
+        ];
+
+        XLSX.utils.book_append_sheet(wb, ws, "Historial Transacciones");
+        const buffer = XLSX.write(wb, { type: 'buffer', bookType: 'xlsx' });
+
+        res.setHeader('Content-Disposition', 'attachment; filename="Historial_Transacciones.xlsx"');
+        res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+        res.send(buffer);
+
+    } catch (error) {
+        console.error('Error al exportar historial a Excel:', error);
+        res.status(500).json({ error: 'Error al generar el archivo Excel del historial' });
+    }
+};

@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import apiClient from '../api/axios';
-import { Eye, Printer, Search, Calendar, X, ChevronLeft, ChevronRight, Ban } from 'lucide-react';
+import { Eye, Printer, Search, Calendar, X, ChevronLeft, ChevronRight, Ban, Download } from 'lucide-react';
 // import Footer from './Footer';
 
 const HistorialTransacciones = () => {
@@ -252,18 +252,55 @@ const HistorialTransacciones = () => {
         };
     };
 
+    const handleExportarExcel = async () => {
+        try {
+            const params = new URLSearchParams();
+            if (filtros.fecha_inicio) params.append('fecha_inicio', filtros.fecha_inicio);
+            if (filtros.fecha_fin) params.append('fecha_fin', filtros.fecha_fin);
+
+            const queryString = params.toString();
+            const url = `/transacciones/excel${queryString ? `?${queryString}` : ''}`;
+
+            const response = await apiClient.get(url, {
+                responseType: 'blob', // Importante para recibir archivos binarios
+            });
+
+            // Crear un link temporal para descargar el archivo
+            const urlBlob = window.URL.createObjectURL(new Blob([response.data]));
+            const link = document.createElement('a');
+            link.href = urlBlob;
+            link.setAttribute('download', `Historial_Transacciones_${new Date().toISOString().split('T')[0]}.xlsx`);
+            document.body.appendChild(link);
+            link.click();
+            link.remove();
+        } catch (error) {
+            console.error("Error al descargar Excel:", error);
+            alert("No se pudo descargar el reporte.");
+        }
+    };
+
     return (
         <>
             <div className="container my-4">
+              <div className="report-download mb-4">
+                <div className="row align-items-center">
+                  <div className="col-md-8">
+                    <h2 className="h3 fw-bold gap-2 d-flex align-items-center mb-0">
+                      <span>
+                        <svg className="w-6 h-6 text-gray-800 dark:text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24">
+                          <path stroke="currentColor" strokeLinecap="round" strokeWidth="2" d="M5 7h14M5 12h14M5 17h10"/>
+                        </svg>
+                      </span>
+                      Historial de Transacciones
+                    </h2>
+                  </div>
+                  <div className="col-md-4 text-md-end mt-3 mt-md-0">
+                    <button onClick={handleExportarExcel} className="btn btn-success gap-2 d-inline-flex align-items-center"><Download size={18} /> Exportar Excel</button>
+                  </div>
+                </div>
+              </div>
+
               <div className="row justify-content-center">
-                <h2 className="h3 fw-bold text-center mb-3 gap-2">
-                  <span>
-                    <svg class="w-6 h-6 text-gray-800 dark:text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24">
-                      <path stroke="currentColor" stroke-linecap="round" stroke-width="2" d="M5 7h14M5 12h14M5 17h10"/>
-                    </svg>
-                  </span>
-                  Historial de Transacciones
-                </h2>
                 <div className="col">
                   <div className="card shadow-sm">
                       <div className="card-body p-4">
