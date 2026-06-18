@@ -473,7 +473,27 @@ exports.exportarHistorialExcel = async (req, res) => {
             ORDER BY t.id DESC
         `;
 
-        const result = await db.query(query, values);
+        // Consulta secundaria para el resumen del periodo (similar a reporte diario)
+        const queryResumen = `
+            SELECT 
+                f.nombre as familia,
+                m.nombre as metal, 
+                SUM(td.peso_kilos) as total_kilos, 
+                SUM(td.subtotal) as total_pagado,
+                COUNT(DISTINCT td.transaccion_id) as cantidad_transacciones
+            FROM transaccion_detalles td
+            JOIN metales m ON td.metal_id = m.id
+            LEFT JOIN familias f ON m.familia_id = f.id
+            JOIN transacciones t ON td.transaccion_id = t.id
+            WHERE ${whereClauses.join(' AND ')} AND t.estado = 'activa'
+            GROUP BY f.nombre, m.nombre
+            ORDER BY total_kilos DESC
+        `;
+
+        const [result, resultResumen] = await Promise.all([
+            db.query(query, values),
+            db.query(queryResumen, values)
+        ]);
 
         if (!result.rows || result.rows.length === 0) {
             const wb = XLSX.utils.book_new();
@@ -520,6 +540,30 @@ exports.exportarHistorialExcel = async (req, res) => {
         ];
 
         XLSX.utils.book_append_sheet(wb, ws, "Historial Transacciones");
+
+        // --- Generar la segunda hoja: Resumen del Periodo ---
+        if (resultResumen.rows && resultResumen.rows.length > 0) {
+            const dataResumen = resultResumen.rows.map(row => ({
+                'Familia': row.familia,
+                'Metal': row.metal,
+                'Transacciones': parseInt(row.cantidad_transacciones),
+                'Peso Total (kg)': parseFloat(row.total_kilos),
+                'Total Pagado ($)': Math.round(parseFloat(row.total_pagado))
+            }));
+
+            const wsResumen = XLSX.utils.json_to_sheet(dataResumen);
+
+            const rangeResumen = XLSX.utils.decode_range(wsResumen['!ref']);
+            for (let R = rangeResumen.s.r + 1; R <= rangeResumen.e.r; ++R) {
+                const pesoCell = wsResumen[XLSX.utils.encode_cell({ c: 3, r: R })];
+                if (pesoCell) pesoCell.z = '#,##0.000';
+                const totalCell = wsResumen[XLSX.utils.encode_cell({ c: 4, r: R })];
+                if (totalCell) totalCell.z = '$ #,##0';
+            }
+            wsResumen['!cols'] = [{ wch: 20 }, { wch: 20 }, { wch: 15 }, { wch: 15 }, { wch: 20 }];
+            XLSX.utils.book_append_sheet(wb, wsResumen, "Resumen del Periodo");
+        }
+
         const buffer = XLSX.write(wb, { type: 'buffer', bookType: 'xlsx' });
 
         res.setHeader('Content-Disposition', 'attachment; filename="Historial_Transacciones.xlsx"');
