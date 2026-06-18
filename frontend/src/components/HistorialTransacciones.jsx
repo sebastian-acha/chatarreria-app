@@ -295,7 +295,13 @@ const HistorialTransacciones = () => {
                     </h2>
                   </div>
                   <div className="col-md-4 text-md-end mt-3 mt-md-0">
-                    <button onClick={handleExportarExcel} className="btn btn-success gap-2 d-inline-flex align-items-center"><Download size={18} /> Exportar Excel</button>
+                    <button 
+                      onClick={handleExportarExcel} 
+                      className="btn btn-success gap-2 d-inline-flex align-items-center"
+                      disabled={!filtros.fecha_inicio || !filtros.fecha_fin}
+                    >
+                      <Download size={18} /> Exportar Excel
+                    </button>
                   </div>
                 </div>
               </div>
