@@ -465,12 +465,19 @@ exports.exportarHistorialExcel = async (req, res) => {
                 t.estado,
                 t.tipo_compra,
                 u.nombres as ejecutivo_nombre,
-                s.nombre as sucursal_nombre
+                s.nombre as sucursal_nombre,
+                f.nombre as familia_nombre,
+                m.nombre as metal_nombre,
+                td.peso_kilos,
+                td.subtotal
             FROM transacciones t
             LEFT JOIN usuarios u ON t.ejecutivo_id = u.id
             LEFT JOIN sucursales s ON t.sucursal_id = s.id
+            LEFT JOIN transaccion_detalles td ON t.id = td.transaccion_id
+            LEFT JOIN metales m ON td.metal_id = m.id
+            LEFT JOIN familias f ON m.familia_id = f.id
             WHERE ${whereClauses.join(' AND ')}
-            ORDER BY t.id DESC
+            ORDER BY t.id DESC, f.nombre, m.nombre
         `;
 
         // Consulta secundaria para el resumen del periodo (similar a reporte diario)
@@ -495,53 +502,13 @@ exports.exportarHistorialExcel = async (req, res) => {
             db.query(queryResumen, values)
         ]);
 
-        if (!result.rows || result.rows.length === 0) {
-            const wb = XLSX.utils.book_new();
-            const ws = XLSX.utils.json_to_sheet([{ Mensaje: "No hay datos para el periodo seleccionado" }]);
-            XLSX.utils.book_append_sheet(wb, ws, "Historial Transacciones");
-            const buffer = XLSX.write(wb, { type: 'buffer', bookType: 'xlsx' });
-            res.setHeader('Content-Disposition', 'attachment; filename="Historial_Transacciones.xlsx"');
-            res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
-            return res.send(buffer);
-        }
-
-        const data = result.rows.map(row => ({
-            'ID': row.id,
-            'Fecha y Hora': new Date(row.fecha_hora).toLocaleString('es-CL'),
-            'Cliente': row.cliente_nombre,
-            'RUT': row.cliente_rut_dni || '-',
-            'Total Pagado ($)': row.estado && row.estado.toLowerCase() === 'anulada' ? 0 : Math.round(parseFloat(row.total_pagar)),
-            'Estado': row.estado,
-            'Tipo Compra': row.tipo_compra || 'normal',
-            'Ejecutivo': row.ejecutivo_nombre || '-',
-            'Sucursal': row.sucursal_nombre || '-'
-        }));
-
         const wb = XLSX.utils.book_new();
-        const ws = XLSX.utils.json_to_sheet(data);
 
-        // Formato para Total Pagado ($) - Columna E (index 4)
-        const range = XLSX.utils.decode_range(ws['!ref']);
-        for (let R = range.s.r + 1; R <= range.e.r; ++R) {
-            const totalCell = ws[XLSX.utils.encode_cell({ c: 4, r: R })];
-            if (totalCell) totalCell.z = '$ #,##0';
-        }
+        // Calcular textos para el encabezado
+        const textoInicio = fecha_inicio ? fecha_inicio.split('-').reverse().join('-') : 'Inicio histórico';
+        const textoFin = fecha_fin ? fecha_fin.split('-').reverse().join('-') : 'Hoy';
 
-        ws['!cols'] = [
-            { wch: 10 }, // ID
-            { wch: 20 }, // Fecha y Hora
-            { wch: 25 }, // Cliente
-            { wch: 15 }, // RUT
-            { wch: 15 }, // Total
-            { wch: 15 }, // Estado
-            { wch: 15 }, // Tipo
-            { wch: 20 }, // Ejecutivo
-            { wch: 20 }  // Sucursal
-        ];
-
-        XLSX.utils.book_append_sheet(wb, ws, "Historial Transacciones");
-
-        // --- Generar la segunda hoja: Resumen del Periodo ---
+        // --- 1. Generar la hoja: Resumen del Periodo (PRIMERA HOJA) ---
         if (resultResumen.rows && resultResumen.rows.length > 0) {
             const dataResumen = resultResumen.rows.map(row => ({
                 'Familia': row.familia,
@@ -551,10 +518,20 @@ exports.exportarHistorialExcel = async (req, res) => {
                 'Total Pagado ($)': Math.round(parseFloat(row.total_pagado))
             }));
 
-            const wsResumen = XLSX.utils.json_to_sheet(dataResumen);
+            const wsResumen = XLSX.utils.json_to_sheet([]);
+            
+            // Añadir el encabezado con las fechas
+            XLSX.utils.sheet_add_aoa(wsResumen, [
+                ["Resumen del Periodo"],
+                [`Desde: ${textoInicio}`, `Hasta: ${textoFin}`],
+                [] // Fila vacía para separación visual
+            ], { origin: "A1" });
+
+            // Añadir los datos del resumen empezando en la fila 4 (A4)
+            XLSX.utils.sheet_add_json(wsResumen, dataResumen, { origin: "A4" });
 
             const rangeResumen = XLSX.utils.decode_range(wsResumen['!ref']);
-            for (let R = rangeResumen.s.r + 1; R <= rangeResumen.e.r; ++R) {
+            for (let R = 4; R <= rangeResumen.e.r; ++R) { // Los datos empiezan en el índice 4 (fila 5)
                 const pesoCell = wsResumen[XLSX.utils.encode_cell({ c: 3, r: R })];
                 if (pesoCell) pesoCell.z = '#,##0.000';
                 const totalCell = wsResumen[XLSX.utils.encode_cell({ c: 4, r: R })];
@@ -562,6 +539,63 @@ exports.exportarHistorialExcel = async (req, res) => {
             }
             wsResumen['!cols'] = [{ wch: 20 }, { wch: 20 }, { wch: 15 }, { wch: 15 }, { wch: 20 }];
             XLSX.utils.book_append_sheet(wb, wsResumen, "Resumen del Periodo");
+        } else {
+            const wsResumen = XLSX.utils.json_to_sheet([{ Mensaje: "No hay datos para el periodo seleccionado" }]);
+            XLSX.utils.book_append_sheet(wb, wsResumen, "Resumen del Periodo");
+        }
+
+        // --- 2. Generar la hoja: Historial Transacciones (SEGUNDA HOJA) ---
+        if (result.rows && result.rows.length > 0) {
+            const data = result.rows.map(row => ({
+                'ID': row.id,
+                'Fecha y Hora': new Date(row.fecha_hora).toLocaleString('es-CL'),
+                'Cliente': row.cliente_nombre,
+                'RUT': row.cliente_rut_dni || '-',
+                'Familia': row.familia_nombre || '-',
+                'Metal': row.metal_nombre || '-',
+                'Peso (kg)': row.estado && row.estado.toLowerCase() === 'anulada' ? 0 : parseFloat(row.peso_kilos || 0),
+                'Subtotal ($)': row.estado && row.estado.toLowerCase() === 'anulada' ? 0 : Math.round(parseFloat(row.subtotal || 0)),
+                'Total Compra ($)': row.estado && row.estado.toLowerCase() === 'anulada' ? 0 : Math.round(parseFloat(row.total_pagar || 0)),
+                'Estado': row.estado,
+                'Tipo Compra': row.tipo_compra || 'normal',
+                'Ejecutivo': row.ejecutivo_nombre || '-',
+                'Sucursal': row.sucursal_nombre || '-'
+            }));
+
+            const ws = XLSX.utils.json_to_sheet(data);
+
+            const range = XLSX.utils.decode_range(ws['!ref']);
+            for (let R = range.s.r + 1; R <= range.e.r; ++R) {
+                const pesoCell = ws[XLSX.utils.encode_cell({ c: 6, r: R })];
+                if (pesoCell) pesoCell.z = '#,##0.000';
+                
+                const subtotalCell = ws[XLSX.utils.encode_cell({ c: 7, r: R })];
+                if (subtotalCell) subtotalCell.z = '$ #,##0';
+
+                const totalCell = ws[XLSX.utils.encode_cell({ c: 8, r: R })];
+                if (totalCell) totalCell.z = '$ #,##0';
+            }
+
+            ws['!cols'] = [
+                { wch: 10 }, // ID
+                { wch: 20 }, // Fecha y Hora
+                { wch: 25 }, // Cliente
+                { wch: 15 }, // RUT
+                { wch: 15 }, // Familia
+                { wch: 15 }, // Metal
+                { wch: 12 }, // Peso
+                { wch: 15 }, // Subtotal
+                { wch: 15 }, // Total
+                { wch: 10 }, // Estado
+                { wch: 15 }, // Tipo
+                { wch: 20 }, // Ejecutivo
+                { wch: 20 }  // Sucursal
+            ];
+
+            XLSX.utils.book_append_sheet(wb, ws, "Historial Transacciones");
+        } else {
+            const ws = XLSX.utils.json_to_sheet([{ Mensaje: "No hay datos para el periodo seleccionado" }]);
+            XLSX.utils.book_append_sheet(wb, ws, "Historial Transacciones");
         }
 
         const buffer = XLSX.write(wb, { type: 'buffer', bookType: 'xlsx' });
