@@ -9,6 +9,7 @@ const sucursalRoutes = require('./routes/sucursalRoutes'); // Importar rutas de 
 const userRoutes = require('./routes/userRoutes'); // Importar rutas de usuarios
 const transaccionRoutes = require('./routes/transaccionRoutes'); // Importamos rutas de transacciones
 const configuracionRoutes = require('./routes/configuracionRoutes'); // Importamos rutas de configuración
+const precioRoutes = require('./routes/precioRoutes'); // Importamos rutas de precios
 
 // Verificación de seguridad: Validar que db.query existe
 if (!db || typeof db.query !== 'function') {
@@ -32,6 +33,7 @@ app.use('/api/sucursales', sucursalRoutes);
 app.use('/api/usuarios', userRoutes);
 app.use('/api/transacciones', transaccionRoutes);
 app.use('/api/configuracion', configuracionRoutes);
+app.use('/api/precios', precioRoutes);
 
 // Ruta de prueba para verificar la base de datos
 app.get('/test-db', async (req, res) => {
