@@ -65,7 +65,18 @@ CREATE TABLE IF NOT EXISTS transaccion_detalles (
     subtotal DECIMAL(12, 2) NOT NULL
 );
 
--- 7. Tabla de Configuración de la Empresa (Singleton)
+-- 7. Tabla de Precios Web (Exposición pública en /api/preciosweb)
+CREATE TABLE IF NOT EXISTS preciosweb (
+    id SERIAL PRIMARY KEY,
+    familia VARCHAR(100) NOT NULL,
+    material VARCHAR(100) NOT NULL,
+    precio DECIMAL(12, 2) NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    UNIQUE (familia, material)
+);
+
+-- 8. Tabla de Configuración de la Empresa (Singleton)
 CREATE TABLE IF NOT EXISTS configuracion (
     id INT PRIMARY KEY DEFAULT 1,
     nombre_empresa VARCHAR(255) NOT NULL DEFAULT 'Chatarrería',
