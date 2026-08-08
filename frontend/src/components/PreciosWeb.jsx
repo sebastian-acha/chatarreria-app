@@ -96,6 +96,16 @@ const PreciosWeb = () => {
         }
     };
 
+    const handleEliminarFamilia = async (familia) => {
+        if (!window.confirm(`¿Eliminar la familia "${familia}" y todos sus materiales?`)) return;
+        try {
+            await apiClient.delete(`/preciosweb/familia/${encodeURIComponent(familia)}`);
+            fetchAllData();
+        } catch (err) {
+            alert(err.response?.data?.error || 'Error al eliminar la familia');
+        }
+    };
+
     const renderItemRow = (item) => (
         <tr key={item.id}>
             {editingId === item.id ? (
@@ -219,8 +229,9 @@ const PreciosWeb = () => {
                           {!loading && agruparPorFamilia().map(([familia, metales]) => (
                               <React.Fragment key={familia}>
                                   <tr className="table-group-divider">
-                                      <td colSpan="4" className="bg-body-secondary p-2 fw-bold text-dark">
-                                          <Box size={16} className="d-inline-block me-2"/> {familia}
+                                      <td colSpan="4" className="bg-body-secondary p-2 fw-bold text-dark d-flex align-items-center justify-content-between">
+                                          <span><Box size={16} className="d-inline-block me-2"/> {familia}</span>
+                                          <button onClick={() => handleEliminarFamilia(familia)} className="btn btn-sm btn-outline-danger" title="Eliminar familia" type="button"><Trash2 size={16} /></button>
                                       </td>
                                   </tr>
                                   {metales.map(item => renderItemRow(item))}

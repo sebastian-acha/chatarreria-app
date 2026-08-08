@@ -103,6 +103,23 @@ exports.actualizarPrecioWeb = async (req, res) => {
     }
 };
 
+exports.eliminarFamilia = async (req, res) => {
+    const { familia } = req.params;
+
+    try {
+        const result = await db.query('DELETE FROM preciosweb WHERE familia = $1 RETURNING *', [familia]);
+
+        if (result.rows.length === 0) {
+            return res.status(404).json({ error: 'Familia no encontrada' });
+        }
+
+        res.json({ mensaje: `Familia "${familia}" eliminada exitosamente`, eliminados: result.rows.length });
+    } catch (error) {
+        console.error('Error al eliminar familia:', error);
+        res.status(500).json({ error: 'Error del servidor al eliminar familia' });
+    }
+};
+
 exports.eliminarPrecioWeb = async (req, res) => {
     const { id } = req.params;
 

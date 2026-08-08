@@ -13,6 +13,7 @@ router.get('/admin', [authMiddleware, adminMiddleware], precioWebController.list
 // Rutas protegidas solo para ADMIN
 router.post('/', [authMiddleware, adminMiddleware], precioWebController.crearPrecioWeb);
 router.put('/:id', [authMiddleware, adminMiddleware], precioWebController.actualizarPrecioWeb);
+router.delete('/familia/:familia', [authMiddleware, adminMiddleware], precioWebController.eliminarFamilia);
 router.delete('/:id', [authMiddleware, adminMiddleware], precioWebController.eliminarPrecioWeb);
 
 module.exports = router;
