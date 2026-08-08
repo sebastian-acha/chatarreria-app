@@ -47,7 +47,7 @@ function ch_get_db_connection() {
 
 add_action('admin_menu', 'ch_add_admin_menu');
 function ch_add_admin_menu() {
-    add_options_page('Precios de Metales', 'Precios de Metales', 'manage_options', 'metal-prices-settings', 'ch_settings_page_html');
+    add_menu_page('Chatarrapp', 'Chatarrapp', 'manage_options', 'chatarrarapp-settings', 'ch_settings_page_html', 'dashicons-money-alt', 26);
 }
 
 add_action('admin_init', 'ch_settings_init');
@@ -233,7 +233,7 @@ function ch_settings_page_html() {
 
 // --- SECCIÓN DEL SHORTCODE (FRONT-END) ---
 
-function get_metal_prices_from_db($ids = []) {
+function get_metal_prices_from_db($ids = [], $format = 'list') {
     $options = get_option('ch_db_settings');
 
     if (empty($ids)) {
@@ -264,7 +264,7 @@ function get_metal_prices_from_db($ids = []) {
             return '<p>No se encontraron los metales seleccionados.</p>';
         }
 
-        return ch_render_prices_html($results);
+        return ch_render_prices_html($results, $format);
 
     } catch (PDOException $e) {
         error_log('Error de consulta de metales: ' . $e->getMessage());
@@ -272,7 +272,7 @@ function get_metal_prices_from_db($ids = []) {
     }
 }
 
-function get_metal_prices_from_json($ids = []) {
+function get_metal_prices_from_json($ids = [], $format = 'list') {
     $options = get_option('ch_db_settings');
     $json_url = $options['json_url'] ?? '';
 
@@ -319,10 +319,10 @@ function get_metal_prices_from_json($ids = []) {
         return '<p>No se encontraron los metales seleccionados.</p>';
     }
 
-    return ch_render_prices_html($results);
+    return ch_render_prices_html($results, $format);
 }
 
-function ch_render_prices_html($results) {
+function ch_render_prices_html($results, $format = 'list') {
     $grouped_by_family = [];
     foreach ($results as $row) {
         $family = $row['familia'] ?: 'Sin Familia';
@@ -332,18 +332,68 @@ function ch_render_prices_html($results) {
     // Ordenar familias alfabéticamente
     ksort($grouped_by_family);
 
-    $html = '<div class="metal-prices-list">';
+    // Ordenar materiales alfabéticamente dentro de cada familia
     foreach ($grouped_by_family as $family => $metals) {
-        $html .= '<h3>' . htmlspecialchars($family) . '</h3>';
-        $html .= '<ul>';
+        usort($metals, function ($a, $b) {
+            return strcmp($a['nombre'], $b['nombre']);
+        });
+        $grouped_by_family[$family] = $metals;
+    }
+
+    if ($format === 'table') {
+        return ch_render_prices_table($grouped_by_family);
+    }
+
+    return ch_render_prices_list($grouped_by_family);
+}
+
+function ch_render_prices_list($grouped_by_family) {
+    $html = '<div class="ch-metals-list">';
+    foreach ($grouped_by_family as $family => $metals) {
+        $html .= '<div class="ch-family">';
+        $html .= '<h3 class="ch-family-title">' . htmlspecialchars($family) . '</h3>';
+        $html .= '<ul class="ch-metals">';
         foreach ($metals as $metal) {
             // Formatear el precio con separador de miles de puntos y coma para decimales
             $formatted_price = number_format($metal['valor_por_kilo'], 0, ',', '.');
-            $html .= '<li>' . htmlspecialchars($metal['nombre']) . ': $' . $formatted_price . '</li>';
+            $html .= '<li class="ch-metal">';
+            $html .= '<span class="ch-metal-name">' . htmlspecialchars($metal['nombre']) . '</span>';
+            $html .= '<span class="ch-metal-price">$' . $formatted_price . '</span>';
+            $html .= '</li>';
         }
         $html .= '</ul>';
+        $html .= '</div>';
     }
     $html .= '</div>';
+
+    return $html;
+}
+
+function ch_render_prices_table($grouped_by_family) {
+    $html = '<table class="ch-metals-table">';
+    $html .= '<thead class="ch-metals-table-head">';
+    $html .= '<tr>';
+    $html .= '<th class="ch-th ch-th-family">Familia</th>';
+    $html .= '<th class="ch-th ch-th-material">Material</th>';
+    $html .= '<th class="ch-th ch-th-price">Precio</th>';
+    $html .= '</tr>';
+    $html .= '</thead>';
+    $html .= '<tbody>';
+    foreach ($grouped_by_family as $family => $metals) {
+        $html .= '<tr class="ch-family-header">';
+        $html .= '<th colspan="3" class="ch-family-title">' . htmlspecialchars($family) . '</th>';
+        $html .= '</tr>';
+        foreach ($metals as $metal) {
+            $formatted_price = number_format($metal['valor_por_kilo'], 0, ',', '.');
+            $html .= '<tr class="ch-metal">';
+            $html .= '<td class="ch-metal-family">' . htmlspecialchars($family) . '</td>';
+            $html .= '<td class="ch-metal-name">' . htmlspecialchars($metal['nombre']) . '</td>';
+            $html .= '<td class="ch-metal-price">$' . $formatted_price . '</td>';
+            $html .= '</tr>';
+        }
+    }
+    $html .= '</tbody>';
+    $html .= '</table>';
 
     return $html;
 }
@@ -359,8 +409,19 @@ function display_metal_prices_shortcode($atts) {
         $ids = array_map('trim', explode(',', $atts['ids']));
     }
 
+    // El atributo 'format' permite elegir entre lista HTML y tabla (por defecto: lista).
+    $format = 'list';
+    if (isset($atts['format'])) {
+        $format = strtolower(trim($atts['format']));
+        if (in_array($format, ['tabla', 'table', 'tab'], true)) {
+            $format = 'table';
+        } else {
+            $format = 'list';
+        }
+    }
+
     if ($data_source === 'json') {
-        return get_metal_prices_from_json($ids);
+        return get_metal_prices_from_json($ids, $format);
     }
     
     // Por defecto (y por retrocompatibilidad), usamos la base de datos.
@@ -368,6 +429,6 @@ function display_metal_prices_shortcode($atts) {
     if (!empty($ids)) {
         $ids = array_map('intval', $ids);
     }
-    return get_metal_prices_from_db($ids);
+    return get_metal_prices_from_db($ids, $format);
 }
 add_shortcode('display_metal_prices', 'display_metal_prices_shortcode');
