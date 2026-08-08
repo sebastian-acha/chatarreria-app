@@ -186,7 +186,7 @@ const PreciosWeb = () => {
                 {isCreatingFamilia && (
                   <div className="g-3 mb-4 box">
                     <h4 className="h6">Crear Nueva Familia</h4>
-                    <form onSubmit={(e) => { e.preventDefault(); setNuevoItem({ ...nuevoItem, nueva_familia: nuevoItem.nueva_familia.trim(), familia_id: '' }); setIsCreatingFamilia(false); }} className="row g-2 align-items-end">
+                    <form onSubmit={(e) => { e.preventDefault(); const nombre = nuevoItem.nueva_familia.trim(); if (!nombre) return; if (!familias.includes(nombre)) setFamilias(prev => [...prev, nombre].sort()); setNuevoItem({ ...nuevoItem, nueva_familia: '', familia_id: nombre }); setIsCreatingFamilia(false); }} className="row g-2 align-items-end">
                       <div className="col">
                         <label className="form-label">Nombre de la Familia</label>
                         <input type="text" className="form-control" placeholder="Ej: Aluminios" value={nuevoItem.nueva_familia} onChange={e => setNuevoItem({ ...nuevoItem, nueva_familia: e.target.value })} required />
