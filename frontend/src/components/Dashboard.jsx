@@ -7,7 +7,8 @@ import ReporteDiario from './ReporteDiario';
 import GestionUsuarios from './GestionUsuarios';
 import GestionSucursales from './GestionSucursales';
 import Configuracion from './Configuracion';
-import { LogOut, LayoutDashboard, ShoppingCart, DollarSign, BarChart3, Users, Building, Settings } from 'lucide-react';
+import PreciosWeb from './PreciosWeb';
+import { LogOut, LayoutDashboard, ShoppingCart, DollarSign, BarChart3, Users, Building, Settings, Globe } from 'lucide-react';
 import { ConfiguracionContext } from '../context/ConfiguracionContext';
 import Footer from './Footer';
 
@@ -32,6 +33,7 @@ const Dashboard = () => {
           case 'usuarios': return <GestionUsuarios />;
           case 'sucursales': return <GestionSucursales />;
           case 'configuracion': return <Configuracion />;
+          case 'precios-web': return <PreciosWeb />;
           default: return <HistorialTransacciones />;
       }
   };
@@ -95,6 +97,12 @@ const Dashboard = () => {
                         <a className={`nav-link p-2 d-flex align-items-center gap-2 ${vistaActual === 'metales' ? 'active' : ''}`} href="#" onClick={(e) => { e.preventDefault(); setVistaActual('metales'); }}>
                           <span> <DollarSign size={16} /></span>
                             Precios Materiales
+                        </a>
+                      </li>
+                      <li className="nav-item col-12 col-md-auto">
+                        <a className={`nav-link p-2 d-flex align-items-center gap-2 ${vistaActual === 'precios-web' ? 'active' : ''}`} href="#" onClick={(e) => { e.preventDefault(); setVistaActual('precios-web'); }}>
+                          <span> <Globe size={16} /></span>
+                            Precios Web
                         </a>
                       </li>
                       <li className="nav-item col-12 col-md-auto">
