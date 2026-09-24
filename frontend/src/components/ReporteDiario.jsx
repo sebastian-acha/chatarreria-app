@@ -161,7 +161,7 @@ const ReporteDiario = () => {
                                       <tr key={index}>
                                           <td>{item.familia || 'Sin familia'}</td>
                                           <td className="fw-medium">{item.metal}</td>
-                                          <td>{item.cantidad_transacciones}</td>
+                                          <td className="n-transacciones">{item.cantidad_transacciones}</td>
                                           <td className="fw-bold text-primary">{parseFloat(item.total_kilos || 0).toFixed(2)} kg</td>
                                           <td className="fw-bold text-success">$ {Math.round(parseFloat(item.total_pagado)).toLocaleString('es-CL')}</td>
                                       </tr>

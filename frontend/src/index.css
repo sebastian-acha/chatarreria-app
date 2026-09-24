@@ -250,8 +250,10 @@ footer .container{
   border-radius: 14px;
   overflow: hidden;
   border: 1px solid #dee2e6;
+  overflow-x: auto;
 }
 .table-responsive-new td{padding:15px !important; vertical-align: middle;}
+.table-responsive-new .n-transacciones{text-align:center;}
 .table-responsive-new tr:last-child td{border-bottom:none;}
 .table-responsive-new tr:first-child td{
   border-bottom:1px solid #dee2e6;
@@ -345,46 +347,10 @@ footer .container{
   #bdNavbar .navbar-nav.user{ margin-bottom:20px; border:none; margin-top:0; position:relative; right:auto;}
   #bdNavbar .navbar-nav.user .dropdown .dropdown-menu{ padding:0; padding-top:8px; border:none;}
   #bdNavbar .navbar-nav.user .dropdown .dropdown-item{font-size:14px; padding-left: 2px;}
-  .table-responsive-new{
-    display: block;
-    position: relative;
-    width: 100%;
-    overflow:visible;
-    border:0;
-  }
-  .table-responsive-new thead {
-    display: block;
-    float: left;
-    border: 1px solid #e2e2e2;
-    /* box-shadow: 0px 4px 10px #cecece;*/  
-    z-index: 1;
-    position: relative;
-  }
-  .table-responsive-new thead tr,
-  .table-responsive-new thead th  { display:block; text-align:center;}
-  .table-responsive-new thead th{padding:12px 15px 13px 15px !important; font-size:12px; text-transform: capitalize;}
-  .table-responsive-new tbody {
-    display: block;
-    width: auto;
-    position: relative;
-    overflow-x: auto;
-    white-space: nowrap;
-  }
-  .table-responsive-new tbody tr {
-    display: inline-block;
-    vertical-align: top;
-  }
-  .table-responsive-new td {
-    display: block;
-    min-height: 1.25em;
-    text-align: left;
-    padding: 12px 15px !important;
-    font-size: 12px;
-  }
-  .table-responsive-new tr:last-child td{border-bottom: 1px solid #dee2e6;}
-  .table-responsive-new table{margin-bottom:0;}
   .report-download > div{text-align:center;}
   .report-download .btn{float:none; width:60%;}
+  .table-responsive-new .text-primary, .table-responsive-new .text-success {min-width:130px;}
+  .table-responsive-new .fw-medium{ min-width:230px;}
 }
 @media (max-width: 580px) {
   .flex-sm-column-vl{flex-direction: column !important;}
