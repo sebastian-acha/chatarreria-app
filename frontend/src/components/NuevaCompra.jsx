@@ -102,8 +102,6 @@ const NuevaCompra = () => {
         const checked = e.target.checked;
         if (checked) {
             setTipoCompra('romana');
-            // Si había varias líneas, conservar sólo la primera
-            if (detalles.length > 1) setDetalles([detalles[0]]);
         } else {
             setTipoCompra('normal');
             setPesoEntrada('');
@@ -119,16 +117,14 @@ const NuevaCompra = () => {
         if (!isNaN(entrada) && !isNaN(salida)) {
             if (salida > entrada) {
                 setRomanaError('El peso de salida no puede ser mayor al peso de entrada');
-                const nuevosDetalles = [...detalles];
-                if (nuevosDetalles[0]) {
-                    nuevosDetalles[0] = { ...nuevosDetalles[0], peso_kilos: '' };
+                if (detalles.length === 1 && detalles[0]) {
+                    setDetalles([{ ...detalles[0], peso_kilos: '' }]);
                 }
-                setDetalles(nuevosDetalles);
                 return;
             }
             setRomanaError('');
             const pesoCalculado = +(entrada - salida).toFixed(3);
-            if (pesoCalculado > 0 && detalles.length > 0) {
+            if (pesoCalculado > 0 && detalles.length === 1) {
                 const nuevosDetalles = [...detalles];
                 nuevosDetalles[0] = {
                     ...nuevosDetalles[0],
@@ -137,6 +133,31 @@ const NuevaCompra = () => {
                 setDetalles(nuevosDetalles);
             }
         }
+    };
+
+    const pesoNetoRomana = () => {
+        const entrada = parseFloat(pesoEntrada);
+        const salida = parseFloat(pesoSalida);
+        if (isNaN(entrada) || isNaN(salida) || salida > entrada) return null;
+        const neto = +(entrada - salida).toFixed(3);
+        return neto > 0 ? neto : null;
+    };
+
+    const pesoAsignadoRomana = () =>
+        +detalles.reduce((suma, d) => suma + (parseFloat(d.peso_kilos) || 0), 0).toFixed(3);
+
+    const renderIndicadorRomana = () => {
+        if (tipoCompra !== 'romana') return null;
+        const neto = pesoNetoRomana();
+        if (neto === null) return null;
+        const asignado = pesoAsignadoRomana();
+        const restante = +(neto - asignado).toFixed(3);
+        const cuadra = Math.abs(restante) <= 0.001;
+        return (
+            <div className={`col-md-12 small fw-bold ${cuadra ? 'text-success' : restante < 0 ? 'text-danger' : 'text-warning'}`}>
+                Peso Neto: <b>{neto.toLocaleString('es-CL')} kg</b> · Asignado: <b>{asignado.toLocaleString('es-CL')} kg</b> · {cuadra ? 'Reparto completo' : <>Restante: <b>{restante.toLocaleString('es-CL')} kg</b></>}
+            </div>
+        );
     };
 
     const handlePesoEntradaChange = (e) => {
@@ -158,12 +179,17 @@ const NuevaCompra = () => {
     };
 
     const agregarDetalle = () => {
-        if (tipoCompra === 'romana') return; // No permitir más de un metal en modo romana
         setDetalles([...detalles, { metal_id: '', peso_kilos: '', precio_especial: '', familia_nombre: '' }]);
     };
 
     const quitarDetalle = (index) => {
         const nuevosDetalles = detalles.filter((_, i) => i !== index);
+        if (tipoCompra === 'romana' && nuevosDetalles.length === 1) {
+            const neto = pesoNetoRomana();
+            if (neto !== null) {
+                nuevosDetalles[0] = { ...nuevosDetalles[0], peso_kilos: neto.toString() };
+            }
+        }
         setDetalles(nuevosDetalles);
     };
 
@@ -182,13 +208,15 @@ const NuevaCompra = () => {
         }
 
         if (tipoCompra === 'romana') {
-            if (metalesParaEnviar.length !== 1) {
-                setMensaje({ type: 'error', text: 'En modo Romana sólo se permite un material por compra.' });
+            if (!pesoEntrada || parseFloat(pesoEntrada) <= 0 || !pesoSalida || parseFloat(pesoSalida) <= 0) {
+                setMensaje({ type: 'error', text: 'Debe ingresar peso entrada y peso salida válidos para Romana.' });
                 setLoading(false);
                 return;
             }
-            if (!pesoEntrada || parseFloat(pesoEntrada) <= 0 || !pesoSalida || parseFloat(pesoSalida) <= 0) {
-                setMensaje({ type: 'error', text: 'Debe ingresar peso entrada y peso salida válidos para Romana.' });
+            const neto = +(parseFloat(pesoEntrada) - parseFloat(pesoSalida)).toFixed(3);
+            const sumaAsignada = +metalesParaEnviar.reduce((suma, d) => suma + (parseFloat(d.peso_kilos) || 0), 0).toFixed(3);
+            if (Math.abs(sumaAsignada - neto) > 0.001) {
+                setMensaje({ type: 'error', text: 'La suma de pesos de los materiales debe coincidir con el peso neto (entrada - salida).' });
                 setLoading(false);
                 return;
             }
@@ -489,7 +517,7 @@ const NuevaCompra = () => {
                                   </div>
                                   {tipoCompra === 'romana' && (
                                         <div className="row g-3 align-items-end mb-3 pb-3 border-bottom">
-                                                <div className="mt-2 small col-md-12 text-alert fw-semibold fst-italic"><b>Romana</b> permite sólo un material por compra.</div>
+                                                <div className="mt-2 small col-md-12 text-alert fw-semibold fst-italic">En <b>Romana</b> el peso neto (entrada - salida) se reparte entre los materiales de la compra.</div>
                                                 <div className="col-md-6">
                                                         <label className="form-label">Peso Entrada (kg)</label>
                                                         <input type="number" step="0.01" className="form-control" value={pesoEntrada} onChange={handlePesoEntradaChange} required />
@@ -498,6 +526,7 @@ const NuevaCompra = () => {
                                                         <label className="form-label">Peso Salida (kg)</label>
                                                         <input type="number" step="0.01" className="form-control" value={pesoSalida} onChange={handlePesoSalidaChange} required />
                                                 </div>
+                                                {renderIndicadorRomana()}
                                                 {romanaError && (
                                                         <div className="col-md-12">
                                                                 <div className="alert alert-danger d-flex align-items-center gap-2 py-2 my-1">
@@ -540,7 +569,7 @@ const NuevaCompra = () => {
                                           </div>
                                           <div className="col-md-2">
                                               <label className="form-label">Peso (kilos)</label>
-                                              <input type="number" step="0.01" name="peso_kilos" value={detalle.peso_kilos} onChange={(e) => handleDetalleChange(index, e)} onBlur={handleDetalleBlur} className="form-control" placeholder="0.00" required readOnly={tipoCompra === 'romana'} />
+                                               <input type="number" step="0.01" name="peso_kilos" value={detalle.peso_kilos} onChange={(e) => handleDetalleChange(index, e)} onBlur={handleDetalleBlur} className="form-control" placeholder="0.00" required readOnly={tipoCompra === 'romana' && detalles.length === 1} />
                                           </div>
                                           <div className="col-md-3 subtotal">
                                               <label className="form-label">Subtotal</label>
@@ -557,7 +586,7 @@ const NuevaCompra = () => {
                                           </div>
                                       </div>
                                   ))}
-                                  <button type="button" onClick={agregarDetalle} disabled={tipoCompra === 'romana'} className="btn btn-link text-decoration-none d-flex align-items-center gap-2 p-0 mt-2 box-s-n">
+                                  <button type="button" onClick={agregarDetalle} className="btn btn-link text-decoration-none d-flex align-items-center gap-2 p-0 mt-2 box-s-n">
                                       <PlusCircle size={20} /> Añadir otro material
                                   </button>
                               </fieldset>
@@ -567,7 +596,7 @@ const NuevaCompra = () => {
                                   <span className="h4 mb-0 fw-bold text-success">${getTotalEstimado().toLocaleString('es-CL')}</span>
                               </div>
 
-                                <button type="submit" disabled={loading || !!romanaError} className="btn btn-success w-100 py-3 fw-bold d-flex justify-content-center align-items-center gap-2">
+                                <button type="submit" disabled={loading || !!romanaError || (tipoCompra === 'romana' && pesoNetoRomana() !== null && Math.abs(pesoAsignadoRomana() - pesoNetoRomana()) > 0.001)} className="btn btn-success w-100 py-3 fw-bold d-flex justify-content-center align-items-center gap-2">
                                   {loading ? 'Procesando...' : <><Save size={20} /> Registrar Compra</>}
                               </button>
                           </form>
