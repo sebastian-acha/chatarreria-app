@@ -16,9 +16,6 @@ exports.crearTransaccion = async (req, res) => {
 
     // Validaciones específicas para compra tipo 'romana'
     if (tipo_compra === 'romana') {
-        if (metales.length !== 1) {
-            return res.status(400).json({ error: 'Compra tipo Romana requiere exactamente un metal.' });
-        }
         if (!peso_entrada || !peso_salida || parseFloat(peso_entrada) <= 0 || parseFloat(peso_salida) <= 0) {
             return res.status(400).json({ error: 'Para compra Romana se requieren peso_entrada y peso_salida válidos.' });
         }
@@ -28,9 +25,9 @@ exports.crearTransaccion = async (req, res) => {
         if (!(pesoCalculado > 0)) {
             return res.status(400).json({ error: 'El peso calculado (peso_entrada - peso_salida) debe ser mayor que 0.' });
         }
-        const pesoDeclarado = parseFloat(metales[0].peso_kilos);
-        if (isNaN(pesoDeclarado) || Math.abs(pesoDeclarado - pesoCalculado) > 0.001) {
-            return res.status(400).json({ error: 'El peso ingresado no coincide con la diferencia entre peso_entrada y peso_salida.' });
+        const pesoDeclarado = +metales.reduce((suma, metal) => suma + (parseFloat(metal.peso_kilos) || 0), 0).toFixed(3);
+        if (Math.abs(pesoDeclarado - pesoCalculado) > 0.001) {
+            return res.status(400).json({ error: 'La suma de pesos de los materiales no coincide con la diferencia entre peso_entrada y peso_salida.' });
         }
     }
 
