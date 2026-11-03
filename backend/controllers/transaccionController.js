@@ -262,6 +262,34 @@ exports.anularTransaccion = async (req, res) => {
     }
 };
 
+exports.reactivarTransaccion = async (req, res) => {
+    const { id } = req.params;
+
+    try {
+        const query = `
+            UPDATE transacciones
+            SET estado = 'activa'
+            WHERE id = $1 AND estado = 'anulada'
+            RETURNING id, estado
+        `;
+
+        const result = await db.query(query, [id]);
+
+        if (result.rows.length === 0) {
+            return res.status(404).json({ error: 'Transacción no encontrada o no está anulada' });
+        }
+
+        res.json({
+            mensaje: 'Transacción reactivada exitosamente',
+            transaccion: result.rows[0]
+        });
+
+    } catch (error) {
+        console.error('Error al reactivar transacción:', error);
+        res.status(500).json({ error: 'Error del servidor' });
+    }
+};
+
 exports.obtenerTransaccion = async (req, res) => {
     const { id } = req.params;
     try {

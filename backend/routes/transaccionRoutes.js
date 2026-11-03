@@ -32,4 +32,10 @@ router.put('/:id/anular', authMiddleware, transaccionController.anularTransaccio
 
 
 
+// PUT /api/transacciones/:id/reactivar - Reactivar una transacción anulada (Protegido)
+
+router.put('/:id/reactivar', authMiddleware, transaccionController.reactivarTransaccion);
+
+
+
 module.exports = router;

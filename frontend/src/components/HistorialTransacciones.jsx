@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import apiClient from '../api/axios';
-import { Eye, Printer, Search, Calendar, X, ChevronLeft, ChevronRight, Ban, Download } from 'lucide-react';
+import { Eye, Printer, Search, Calendar, X, ChevronLeft, ChevronRight, Ban, Download, RotateCcw } from 'lucide-react';
 // import Footer from './Footer';
 
 const HistorialTransacciones = () => {
@@ -80,6 +80,21 @@ const HistorialTransacciones = () => {
             } catch (error) {
                 console.error("Error al anular la transacción", error);
                 alert('Hubo un error al anular la transacción.');
+            }
+        }
+    };
+
+    const handleReactivar = async (id) => {
+        if (window.confirm('¿Está seguro que desea reactivar esta transacción?')) {
+            try {
+                await apiClient.put(`/transacciones/${id}/reactivar`);
+                fetchTransacciones();
+                if (transaccionSeleccionada && transaccionSeleccionada.id === id) {
+                    setTransaccionSeleccionada({ ...transaccionSeleccionada, estado: 'activa' });
+                }
+            } catch (error) {
+                console.error("Error al reactivar la transacción", error);
+                alert('Hubo un error al reactivar la transacción.');
             }
         }
     };
@@ -365,6 +380,11 @@ const HistorialTransacciones = () => {
                                                               <Ban size={18} />
                                                           </button>
                                                       )}
+                                                      {t.estado && t.estado.toLowerCase() === 'anulada' && (
+                                                          <button className="btn btn-sm btn-outline-success me-1" onClick={() => handleReactivar(t.id)} title="Reactivar Transacción">
+                                                              <RotateCcw size={18} />
+                                                          </button>
+                                                      )}
                                                   </td>
                                               </tr>
                                           ))
@@ -431,6 +451,11 @@ const HistorialTransacciones = () => {
                                 </div>
                                 <div className="modal-footer">
                                     <button type="button" className="btn btn-secondary" onClick={cerrarModal}>Cerrar</button>
+                                    {transaccionSeleccionada.estado && transaccionSeleccionada.estado.toLowerCase() === 'anulada' && (
+                                        <button type="button" className="btn btn-outline-success" onClick={() => handleReactivar(transaccionSeleccionada.id)}>
+                                            <RotateCcw size={18} className="me-2" /> Reactivar
+                                        </button>
+                                    )}
                                     <button type="button" className="btn btn-primary" onClick={() => imprimirVoucher(transaccionSeleccionada)}>
                                         <Printer size={18} className="me-2" /> Imprimir
                                     </button>
